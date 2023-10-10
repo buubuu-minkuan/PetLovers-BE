@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "secrets1": {
+      "secretStore": null,
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/petloverssecret",
+      "type": "secrets.keyVault",
+      "connectionId": "ConnectionString"
+    }
+  }
+}
