@@ -12,7 +12,7 @@ namespace API.Controllers
 {
     [ApiController]
     [Route("user/")]
-    public class UsersController : ControllerBase
+    public class UsersController : Controller
     {
         private readonly IUserServices _user;
 
@@ -36,13 +36,13 @@ namespace API.Controllers
         }
 
         [HttpPost("read-jwt")]
-        public IActionResult ReadJwt(string jwtToken, string secretkey, string issuer)
+        public IActionResult ReadJwt(string jwtToken)
         {
-            Data.Models.ResultModel.ResultModel result = _user.ReadJWT(jwtToken, secretkey, issuer);
+            Data.Models.ResultModel.ResultModel result = _user.ReadJWT(jwtToken);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPut("{id:Guid}")]
+        [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
             Data.Models.ResultModel.ResultModel result = await _user.GetUser(id);

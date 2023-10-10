@@ -114,12 +114,12 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public ResultModel ReadJWT(string jwtToken, string secretkey, string issuer)
+        public ResultModel ReadJWT(string jwtToken)
         {
             ResultModel result = new();
             try
             {
-                var User = UserAuthentication.ReadJwtToken(jwtToken, secretkey, issuer, ref result);
+                var User = UserAuthentication.ReadJwtToken(jwtToken, ref result);
                 if (User == false)
                 {
                     result.IsSuccess = false;

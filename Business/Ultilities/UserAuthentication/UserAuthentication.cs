@@ -65,15 +65,15 @@ namespace Business.Ultilities.UserAuthentication
             return encodetoken;
         }
 
-        public static bool ReadJwtToken(string jwtToken, string secretKey, string issuer, ref ResultModel result)
+        public static bool ReadJwtToken(string jwtToken, ref ResultModel result)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Key)),
                 ValidateIssuer = true,
-                ValidIssuer = issuer,
+                ValidIssuer = Issuser,
                 ValidateAudience = false,
                 ValidateLifetime = true
             };
