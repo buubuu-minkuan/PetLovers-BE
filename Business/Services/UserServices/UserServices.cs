@@ -27,8 +27,8 @@ namespace Business.Services.UserServices
             try
             {
                 var getUserRoleId = await _userRepo.GetRoleId(Commons.USER);
-                var checkUserUsername = await _userRepo.getUserByUsername(User.username);
-                var checkUserEmail = await _userRepo.GetUserByEmail(User.email);
+                var checkUserUsername = await _userRepo.getUserByUsername(User.Username);
+                var checkUserEmail = await _userRepo.GetUserByEmail(User.Email);
                 if (checkUserEmail != null)
                 {
                     result.IsSuccess = false;
@@ -48,15 +48,15 @@ namespace Business.Services.UserServices
                     result.Message = "Trung Username";
                     return result;
                 }
-                byte[] HashPassword = UserAuthentication.CreatePasswordHash(User.password);
+                byte[] HashPassword = UserAuthentication.CreatePasswordHash(User.Password);
                 DateTime Date = DateTime.Now;
                 TblUser UserModel = new TblUser()
                 {
-                    Email = User.email,
+                    Email = User.Email,
                     Password = HashPassword,
-                    Username = User.username,
-                    Name = User.name,
-                    Phone = User.phone,
+                    Username = User.Username,
+                    Name = User.Name,
+                    Phone = User.Phone,
                     Status = UserStatus.ACTIVE,
                     RoleId = getUserRoleId,
                     CreateAt = Date,
@@ -82,7 +82,7 @@ namespace Business.Services.UserServices
             ResultModel result = new();
             try
             {
-                var User = await _userRepo.getUserByUsername(Username);
+                var getUser = await _userRepo.getUserByUsername(User.Username);
                 if (User == null)
                 {
                     result.IsSuccess = false;
@@ -90,8 +90,8 @@ namespace Business.Services.UserServices
                     result.Message = "User khong ton tai";
                     return result;
                 }
-                byte[] HashPasswordInput = UserAuthentication.CreatePasswordHash(Password);
-                bool isMatch = UserAuthentication.VerifyPasswordHash(HashPasswordInput, User.Password);
+                byte[] HashPasswordInput = UserAuthentication.CreatePasswordHash(User.Password);
+                bool isMatch = UserAuthentication.VerifyPasswordHash(HashPasswordInput, getUser.Password);
                 if (!isMatch)
                 {
                     result.IsSuccess = false;
@@ -99,7 +99,7 @@ namespace Business.Services.UserServices
                     result.Message = "Mat khau sai";
                     return result;
                 }
-                string token = UserAuthentication.GenerateJWT(User);
+                string token = UserAuthentication.GenerateJWT(getUser);
                 result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = token;
