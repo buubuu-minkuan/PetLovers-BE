@@ -10,9 +10,9 @@ using Data.Entities;
 
 namespace API.Controllers
 {
-    [Route("user/")]
     [ApiController]
-    public class UsersController : Controller
+    [Route("user/")]
+    public class UsersController : ControllerBase
     {
         private readonly IUserServices _user;
 
