@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
+using Data.Models.UserModel;
 
 namespace API.Controllers
 {
@@ -22,16 +23,16 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] string name, [FromBody] string email, [FromBody] string username, [FromBody] string password, [FromBody] string phone)
+        public async Task<IActionResult> Register([FromBody] UserResgisterModel User)
         {
-            Data.Models.ResultModel.ResultModel result = await _user.Register(name, email, username, password, phone);
+            Data.Models.ResultModel.ResultModel result = await _user.Register(User);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string username, [FromBody] string password)
+        public async Task<IActionResult> Login([FromBody] UserLoginModel User)
         {
-            Data.Models.ResultModel.ResultModel result = await _user.Login(username, password);
+            Data.Models.ResultModel.ResultModel result = await _user.Login(User);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 

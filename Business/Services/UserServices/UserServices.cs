@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Data.Models.UserModel;
 
 namespace Business.Services.UserServices
 {
@@ -20,14 +21,14 @@ namespace Business.Services.UserServices
             _userRepo = userRepo;
         }
 
-        public async Task<ResultModel> Register(string Name, string Email, string Username, string Password, string Phone)
+        public async Task<ResultModel> Register(UserResgisterModel User)
         {
             ResultModel result = new();
             try
             {
                 var getUserRoleId = await _userRepo.GetRoleId(Commons.USER);
-                var checkUserUsername = await _userRepo.getUserByUsername(Username);
-                var checkUserEmail = await _userRepo.GetUserByEmail(Email);
+                var checkUserUsername = await _userRepo.getUserByUsername(User.username);
+                var checkUserEmail = await _userRepo.GetUserByEmail(User.email);
                 if (checkUserEmail != null)
                 {
                     result.IsSuccess = false;
@@ -47,15 +48,15 @@ namespace Business.Services.UserServices
                     result.Message = "Trung Username";
                     return result;
                 }
-                byte[] HashPassword = UserAuthentication.CreatePasswordHash(Password);
+                byte[] HashPassword = UserAuthentication.CreatePasswordHash(User.password);
                 DateTime Date = DateTime.Now;
                 TblUser UserModel = new TblUser()
                 {
-                    Email = Email,
+                    Email = User.email,
                     Password = HashPassword,
-                    Username = Username,
-                    Name = Name,
-                    Phone = Phone,
+                    Username = User.username,
+                    Name = User.name,
+                    Phone = User.phone,
                     Status = UserStatus.ACTIVE,
                     RoleId = getUserRoleId,
                     CreateAt = Date,
@@ -76,7 +77,7 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public async Task<ResultModel> Login(string Username, string Password)
+        public async Task<ResultModel> Login(UserLoginModel User)
         {
             ResultModel result = new();
             try

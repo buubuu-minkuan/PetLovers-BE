@@ -50,7 +50,8 @@ namespace Business.Ultilities.UserAuthentication
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Username.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Email.ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
             };
 
