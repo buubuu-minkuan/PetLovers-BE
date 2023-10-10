@@ -22,21 +22,21 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(string name, string email, string username, string password, string phone)
+        public async Task<IActionResult> Register([FromBody] string name, [FromBody] string email, [FromBody] string username, [FromBody] string password, [FromBody] string phone)
         {
             Data.Models.ResultModel.ResultModel result = await _user.Register(name, email, username, password, phone);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login([FromBody] string username, [FromBody] string password)
         {
             Data.Models.ResultModel.ResultModel result = await _user.Login(username, password);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("read-jwt")]
-        public IActionResult ReadJwt(string jwttoken)
+        public IActionResult ReadJwt([FromBody] string jwttoken)
         {
             Data.Models.ResultModel.ResultModel result = _user.ReadJWT(jwttoken);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
