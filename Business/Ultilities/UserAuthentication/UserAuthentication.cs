@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Business.Services.SecretServices;
 using System.Threading.Tasks;
+using Data.Models.UserModel;
 
 namespace Business.Ultilities.UserAuthentication
 {
@@ -43,15 +44,25 @@ namespace Business.Ultilities.UserAuthentication
             return true;
         }
 
-        public static string GenerateJWT(TblUser UserInfo)
+        public static string GenerateJWT(TblUser User)
         {
+            UserModel UserInfo = new UserModel()
+            {
+                Id = User.Id,
+                Username = User.Username,
+                Name = User.Name,
+                RoleId = User.RoleId,
+                Status = User.Status,
+                Email = User.Email,
+                Phone = User.Phone,
+                CreateAt = User.CreateAt
+            };
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Email.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Role.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
             };
 

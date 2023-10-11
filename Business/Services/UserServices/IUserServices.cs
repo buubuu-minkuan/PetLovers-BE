@@ -7,7 +7,7 @@ namespace Business.Services.UserServices
     {
         public Task<ResultModel> Register(UserResgisterModel User);
 
-        public Task<ResultModel> Login(UserLoginModel User);
+        public Task<ResultModel> Login(UserLoginReqModel User);
 
         public ResultModel ReadJWT(string jwtToken);
 

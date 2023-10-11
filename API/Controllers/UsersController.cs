@@ -30,7 +30,7 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginModel User)
+        public async Task<IActionResult> Login([FromBody] UserLoginReqModel User)
         {
             Data.Models.ResultModel.ResultModel result = await _user.Login(User);
             return result.IsSuccess ? Ok(result) : BadRequest(result);

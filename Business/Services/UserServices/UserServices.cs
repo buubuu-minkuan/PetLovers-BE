@@ -77,12 +77,12 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public async Task<ResultModel> Login(UserLoginModel User)
+        public async Task<ResultModel> Login(UserLoginReqModel User)
         {
             ResultModel result = new();
             try
             {
-                var getUser = await _userRepo.getUserByUsername(User.Username);
+                TblUser getUser = await _userRepo.getUserByUsername(User.Username);
                 if (User == null)
                 {
                     result.IsSuccess = false;

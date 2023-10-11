@@ -10,12 +10,12 @@ namespace Data.Models.UserModel
     public class UserModel
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } 
-        public string Username { get; set; }
-        public string Email { get; set; }
-        public string Phone { get; set; }
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public string Phone { get; set; } = null!;
         public Guid RoleId { get; set; }
-        public string Status { get; set; } 
+        public string Status { get; set; } = null!;
         public DateTime CreateAt { get; set; }
     }
 
@@ -33,11 +33,16 @@ namespace Data.Models.UserModel
         public string Phone { get; set; } = null!;
     }
 
-    public class UserLoginModel
+    public class UserLoginReqModel
     {
-        [Required]
         public string Username { get; set; } = null!;
-        [Required]
         public string Password { get; set; } = null!;
     }
+
+    /*public class UserLoginResModel
+    {
+        public Guid Id { get; set; }
+
+        pub
+    }*/
 }
