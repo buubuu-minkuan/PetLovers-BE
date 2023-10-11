@@ -8,10 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
 using Business.Services.PostServices;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [Route("post/")]
+    [Authorize]
     [ApiController]
     public class PostController : Controller
     {

@@ -4,7 +4,6 @@ using Data.Entities;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -12,6 +11,7 @@ using System.Text;
 using Business.Services.SecretServices;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Business.Ultilities.UserAuthentication
 {
@@ -59,17 +59,18 @@ namespace Business.Ultilities.UserAuthentication
             };
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var claims = new[]
+            List<Claim> claims = new()
             {
-                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub,UserInfo.Email.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, UserInfo.RoleId.ToString()),
+                new Claim("userid", UserInfo.Id.ToString()),
+                new Claim("username", UserInfo.Username),
+                new Claim("email", UserInfo.Email),
             };
 
             var token = new JwtSecurityToken(
                 issuer: Issuser,
                 audience: Issuser,
-                claims,
+                claims: claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: credential
                 );

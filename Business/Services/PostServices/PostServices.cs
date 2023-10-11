@@ -25,7 +25,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             try
             {
-                var post = _postRepo.GetPostById(id);
+                var post = await _postRepo.GetPostById(id);
                 if (post == null)
                 {
                     result.IsSuccess = false;
