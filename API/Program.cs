@@ -18,9 +18,6 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/*var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("ConnectionString"));
-builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());*/
-
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -46,23 +43,6 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         Scheme = "bearer"
     });
-    /*OpenApiSecurityScheme securityScheme = new()
-    {
-        Description = "JWT Authorization header using the Bearer scheme. " +
-                            "\n\nEnter 'Bearer' [space] and then your token in the text input below. " +
-                              "\n\nExample: 'Bearer 12345abcde'",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        Reference = new OpenApiReference()
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
-    };
-    c.AddSecurityDefinition("Bearer", securityScheme);*/
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
