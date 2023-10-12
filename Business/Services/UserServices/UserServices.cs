@@ -115,34 +115,6 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public ResultModel ReadJWT(string jwtToken)
-        {
-            ResultModel result = new();
-            try
-            {
-                var User = UserAuthentication.ReadJwtToken(jwtToken, ref result);
-                if (User == false)
-                {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    return result;
-                }
-                result.IsSuccess = true;
-                result.Code = 200;
-                //result.Data = User;
-                result.Message = "JWT da duoc xac thuc";
-                return result;
-
-            }
-            catch (Exception e)
-            {
-                result.IsSuccess = false;
-                result.Code = 400;
-                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
-            }
-            return result;
-        }
-
         public async Task<ResultModel> GetUser(Guid id)
         {
             ResultModel result = new();

@@ -12,13 +12,21 @@ using Business.Services.SecretServices;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
 using System.IdentityModel.Tokens.Jwt;
+using Newtonsoft.Json.Linq;
 
 namespace Business.Ultilities.UserAuthentication
 {
+
     public class UserAuthentication
     {
+        private readonly JwtSecurityTokenHandler _tokenHandler;
         private static string Key = SecretService.GetJWTKey();
         private static string Issuser = SecretService.GetJWTIssuser();
+
+        public UserAuthentication()
+        {
+            _tokenHandler = new JwtSecurityTokenHandler();
+        }
 
         public static byte[] CreatePasswordHash(string password)
         {
@@ -78,49 +86,10 @@ namespace Business.Ultilities.UserAuthentication
             return encodetoken;
         }
 
-        public static bool ReadJwtToken(string jwtToken, ref ResultModel result)
+        public string decodeToken(string jwtToken, string nameClaim)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Key)),
-                ValidateIssuer = true,
-                ValidIssuer = Issuser,
-                ValidateAudience = false,
-                ValidateLifetime = true
-            };
-
-            try
-            {
-                var claimsPrincipal = tokenHandler.ValidateToken(jwtToken, validationParameters, out var validatedToken);
-                var jwtSecurityToken = (JwtSecurityToken)validatedToken;
-                string? userId = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value;
-                string? jti = jwtSecurityToken.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti)?.Value;
-
-                result.Data = userId;
-
-                if (jwtSecurityToken.ValidTo < DateTime.UtcNow)
-                {
-                    return false;
-                }
-                return true;
-            }
-            catch (SecurityTokenExpiredException)
-            {
-                result.Message = "Token has expired";
-                return false;
-            }
-            catch (SecurityTokenValidationException ex)
-            {
-                result.Message = "Invalid token: " + ex.Message;
-                return false;
-            }
-            catch (Exception ex)
-            {
-                result.Message = "Error reading token: " + ex.Message;
-                return false;
-            }
+            Claim? claim = _tokenHandler.ReadJwtToken(jwtToken).Claims.FirstOrDefault(selector => selector.Type.ToString().Equals(nameClaim));
+            return claim != null ? claim.Value : "Error!!!";
         }
     }
 }
