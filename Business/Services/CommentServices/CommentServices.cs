@@ -1,6 +1,8 @@
 ﻿using Data.Entities;
 using Data.Models.CommentModel;
 using Data.Models.ResultModel;
+using Business.Ultilities.UserAuthentication;
+using Data.Models.UserModel;
 using Data.Repositories.CommentRepo;
 using Data.Repositories.PostRepo;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +19,10 @@ namespace Business.Services.CommentServices
     public class CommentServices : ICommentServices //ko biết sao lỗi
     {
         private readonly ICommentRepo _commentRepo;
-
+        private readonly UserAuthentication _userAuthentication;
         public CommentServices(ICommentRepo CommentRepo)
         {
+            _userAuthentication = new UserAuthentication();
             _commentRepo = CommentRepo;
         }
         public async Task<ResultModel> GetCommentById(Guid id)
@@ -47,6 +50,43 @@ namespace Business.Services.CommentServices
             result.Code = 200;
             result.Data = comments;
             return result; 
+        }
+
+        public async Task<ResultModel> CreateComment(string token, Guid postId, string? content, string? attachment)
+        {
+            DateTime now = DateTime.Now;
+            Guid commentId = new();
+            ResultModel result = new();
+            TblPostReaction commentReq = new()
+            {
+                Id = commentId,
+                PostId = postId,
+                Type = "Comment",
+                UserId = new Guid(_userAuthentication.decodeToken(token, "userid")),
+                Content = content,
+                Attachment = attachment,
+                CreateAt = now
+            };
+            try
+            {
+                _ = await _commentRepo.Insert(commentReq);
+                CommentResModel commentResModel = new CommentResModel();
+                commentResModel.Id = commentId;
+                commentResModel.content = content;
+                commentResModel.attachment = attachment;
+                commentResModel.createdAt = now;
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = commentResModel;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+
         }
     }
 }

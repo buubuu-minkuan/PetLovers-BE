@@ -25,6 +25,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetComment(Guid id)
         {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _comment.GetCommentById(id);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }

@@ -9,8 +9,6 @@ namespace Business.Services.UserServices
 
         public Task<ResultModel> Login(UserLoginReqModel User);
 
-        public ResultModel ReadJWT(string jwtToken);
-
         public Task<ResultModel> GetUser(Guid id);
     }
 }
