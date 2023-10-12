@@ -52,19 +52,19 @@ namespace Business.Services.CommentServices
             return result; 
         }
 
-        public async Task<ResultModel> CreateComment(string token, Guid postId, string? content, string? attachment)
+        public async Task<ResultModel> CreateComment(CommentCreateResModel newComment)
         {
             DateTime now = DateTime.Now;
-            Guid commentId = new();
             ResultModel result = new();
+            Guid commentId = Guid.NewGuid();
             TblPostReaction commentReq = new()
             {
                 Id = commentId,
-                PostId = postId,
+                PostId = newComment.postId,
                 Type = "Comment",
-                UserId = new Guid(_userAuthentication.decodeToken(token, "userid")),
-                Content = content,
-                Attachment = attachment,
+                UserId = new Guid(_userAuthentication.decodeToken(newComment.token, "userid")),
+                Content = newComment.content,
+                Attachment = newComment.attachment,
                 CreateAt = now
             };
             try
@@ -72,8 +72,8 @@ namespace Business.Services.CommentServices
                 _ = await _commentRepo.Insert(commentReq);
                 CommentResModel commentResModel = new CommentResModel();
                 commentResModel.Id = commentId;
-                commentResModel.content = content;
-                commentResModel.attachment = attachment;
+                commentResModel.content = newComment.content;
+                commentResModel.attachment = newComment.attachment;
                 commentResModel.createdAt = now;
                 result.IsSuccess = true;
                 result.Code = 200;

@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Models.CommentModel;
 using Data.Models.ResultModel;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,6 @@ namespace Business.Services.CommentServices
     {
         public Task<ResultModel> GetCommentById(Guid id);
         public Task<ResultModel> GetCommentsForPost(Guid postId);
-        public Task<ResultModel> CreateComment(string token, Guid postId, string? content, string? attachment);
+        public Task<ResultModel> CreateComment(CommentCreateResModel newComment);
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
 using Business.Services.CommentServices;
+using Data.Models.CommentModel;
 
 namespace API.Controllers
 {
@@ -29,10 +30,19 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _comment.GetCommentById(id);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpGet("post/{postId}")]
+        [HttpGet("fetch-post")]
         public async Task<IActionResult> GetPostComments(Guid postId)
         {
             Data.Models.ResultModel.ResultModel result = await _comment.GetCommentsForPost(postId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("create-comment")]
+        public async Task<IActionResult> CreateComment([FromBody] CommentCreateResModel newComment)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            newComment.token = token;
+            Data.Models.ResultModel.ResultModel result = await _comment.CreateComment(newComment);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
