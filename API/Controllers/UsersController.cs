@@ -36,13 +36,6 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPost("read-jwt")]
-        public IActionResult ReadJwt([FromBody] string jwttoken)
-        {
-            Data.Models.ResultModel.ResultModel result = _user.ReadJWT(jwttoken);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetUser(Guid id)
         {
