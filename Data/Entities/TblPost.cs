@@ -19,7 +19,6 @@ namespace Data.Entities
         public string Type { get; set; } = null!;
         public string Content { get; set; } = null!;
         public string Attachment { get; set; } = null!;
-        public string Hashtag { get; set; } = null!;
         public decimal? Amount { get; set; }
         public string Status { get; set; } = null!;
         public bool IsProcessed { get; set; }
