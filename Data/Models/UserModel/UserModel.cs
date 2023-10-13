@@ -13,6 +13,7 @@ namespace Data.Models.UserModel
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
+        public string? Image { get; set; }
         public string Phone { get; set; } = null!;
         public Guid RoleId { get; set; }
         public string Status { get; set; } = null!;

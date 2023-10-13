@@ -33,7 +33,7 @@ namespace Data.Repositories.PostRepo
 
             foreach (var folower in listFollowers)
             {
-                var folowerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.Id)).FirstOrDefaultAsync();
+                var folowerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.FollowerId)).FirstOrDefaultAsync();
                 var UserModelPaste = new UserModel();
                 UserModelPaste.Id = folower.Id;
                 UserModelPaste.Username = folowerInfor.Username;
@@ -54,10 +54,12 @@ namespace Data.Repositories.PostRepo
                     {
                         posts.Add(new PostResModel()
                         {
-                            id = postFollowing.Id,
+                            Id = postFollowing.Id,
+                            userId = postFollowing.UserId,
                             content = postFollowing.Content,
                             attachment = postFollowing.Attachment,
-                            createAt = postFollowing.CreateAt
+                            createdAt = postFollowing.CreateAt,
+                            updatedAt = postFollowing.UpdateAt
                         });
                     }
                 }
@@ -67,10 +69,12 @@ namespace Data.Repositories.PostRepo
                     var newPost = await _context.TblPosts.Where(x => !x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000).ToListAsync();
                     posts.AddRange(newPost.Select(x => new PostResModel()
                     {
-                        id = x.Id,
+                        Id = x.Id,
+                        userId = x.UserId,
                         content = x.Content,
                         attachment = x.Attachment,
-                        createAt = x.CreateAt
+                        createdAt = x.CreateAt,
+                        updatedAt = x.UpdateAt
                     }));
                 }
             }
@@ -79,10 +83,12 @@ namespace Data.Repositories.PostRepo
                 var newPost = await _context.TblPosts.Where(x => (now - x.CreateAt).TotalMilliseconds <= 900000).ToListAsync();
                 posts.AddRange(newPost.Select(x => new PostResModel()
                 {
-                    id = x.Id,
+                    Id = x.Id,
+                    userId = x.UserId,
                     content = x.Content,
                     attachment = x.Attachment,
-                    createAt = x.CreateAt
+                    createdAt = x.CreateAt,
+                    updatedAt = x.UpdateAt
                 }));
             }
             if (posts.Count <= 0)
@@ -92,10 +98,12 @@ namespace Data.Repositories.PostRepo
                 {
                     posts.Add(new PostResModel()
                     {
-                        id = post.Id,
+                        Id = post.Id,
+                        userId = post.UserId,
                         content = post.Content,
                         attachment = post.Attachment,
-                        createAt = post.CreateAt
+                        createdAt = post.CreateAt,
+                        updatedAt = post.UpdateAt
                     });
                 }
             }

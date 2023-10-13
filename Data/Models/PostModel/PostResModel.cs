@@ -8,10 +8,11 @@ namespace Data.Models.PostModel
 {
     public class PostResModel
     {
-        public Guid id { get; set; }
+        public Guid Id { get; set; }
+        public Guid userId { get; set; }
         public string content { get; set; }
         public string attachment { get; set; }
-        public DateTime createAt { get; set; }
-
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
     }
 }
