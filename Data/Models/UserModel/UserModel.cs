@@ -14,6 +14,7 @@ namespace Data.Models.UserModel
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
+        public string? Image { get; set; }
         public string Phone { get; set; } = null!;
         public Guid RoleId { get; set; }
         public string Status { get; set; } = null!;
@@ -40,9 +41,19 @@ namespace Data.Models.UserModel
         public string Password { get; set; } = null!;
     }
 
-    public class UserFollowingModel
+    public class UserUpdateReqModel
     {
-        public string token { get; set; }   
-        public Guid FollowerId { get; set; }
+        public string Username { get; set; }
+        public string Name
+        {
+            get; set;
+        }
+
+        /*public class UserLoginResModel
+        {
+            public Guid Id { get; set; }
+
+            pub
+        }*/
     }
 }
