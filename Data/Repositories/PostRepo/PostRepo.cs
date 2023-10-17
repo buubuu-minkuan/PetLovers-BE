@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
+using Data.Enums;
 
 namespace Data.Repositories.PostRepo
 {
@@ -49,7 +50,8 @@ namespace Data.Repositories.PostRepo
             {
                 foreach (var postAuthor in following)
                 {
-                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000).FirstOrDefaultAsync();
+                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
+                    var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id)).ToListAsync();
                     if (postFollowing != null)
                     {
                         posts.Add(new PostResModel()
@@ -57,6 +59,7 @@ namespace Data.Repositories.PostRepo
                             Id = postFollowing.Id,
                             userId = postFollowing.UserId,
                             content = postFollowing.Content,
+                            //amountComment = 
                             attachment = postFollowing.Attachment,
                             createdAt = postFollowing.CreateAt,
                             updatedAt = postFollowing.UpdateAt
@@ -66,7 +69,7 @@ namespace Data.Repositories.PostRepo
 
                 foreach (var postAuthor in following)
                 {
-                    var newPost = await _context.TblPosts.Where(x => !x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000).ToListAsync();
+                    var newPost = await _context.TblPosts.Where(x => !x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
                     posts.AddRange(newPost.Select(x => new PostResModel()
                     {
                         Id = x.Id,
@@ -80,7 +83,7 @@ namespace Data.Repositories.PostRepo
             }
             else
             {
-                var newPost = await _context.TblPosts.Where(x => (now - x.CreateAt).TotalMilliseconds <= 900000).ToListAsync();
+                var newPost = await _context.TblPosts.Where(x => (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
                 posts.AddRange(newPost.Select(x => new PostResModel()
                 {
                     Id = x.Id,
@@ -93,7 +96,7 @@ namespace Data.Repositories.PostRepo
             }
             if (posts.Count <= 0)
             {
-                var newPost = await _context.TblPosts.OrderBy(x => x.CreateAt).ToListAsync();
+                var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderBy(x => x.CreateAt).ToListAsync();
                 foreach (var post in newPost)
                 {
                     posts.Add(new PostResModel()

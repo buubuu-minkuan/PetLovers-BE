@@ -87,6 +87,8 @@ namespace Business.Services.PostServices
                 Id = postId,
                 Type = PostingType.POSTING,
                 UserId = userId,
+                Status = PostingStatus.PENDING,
+                IsProcessed = false,
                 Content = newPost.content,
                 Attachment = newPost.attachment,
                 CreateAt = now
@@ -115,5 +117,10 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+
+        /*public async Task<ResultModel> UpdatePost(PostUpdateReqModel post)
+        {
+
+        }*/
     }
 }

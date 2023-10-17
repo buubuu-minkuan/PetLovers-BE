@@ -14,5 +14,7 @@ namespace Data.Models.PostModel
         public string attachment { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
+        public int amountComment { get; set; }
+        public int amountFeeling { get; set; }
     }
 }

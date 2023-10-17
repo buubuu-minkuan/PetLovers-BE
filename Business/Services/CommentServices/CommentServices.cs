@@ -56,13 +56,14 @@ namespace Business.Services.CommentServices
         {
             DateTime now = DateTime.Now;
             ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(newComment.token, "userid"));
             Guid commentId = Guid.NewGuid();
             TblPostReaction commentReq = new()
             {
                 Id = commentId,
                 PostId = newComment.postId,
                 Type = "Comment",
-                UserId = new Guid(_userAuthentication.decodeToken(newComment.token, "userid")),
+                UserId = userId,
                 Content = newComment.content,
                 Attachment = newComment.attachment,
                 CreateAt = now
