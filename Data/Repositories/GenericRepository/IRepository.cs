@@ -4,6 +4,8 @@
     {
         Task<T?> Get(Guid id);
         Task<Guid> Insert(T entity);
+        Task<bool> Update(T entity);
+        Task<bool> Remove(T entity);
 
     }
 }

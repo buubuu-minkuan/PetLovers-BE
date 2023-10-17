@@ -44,6 +44,7 @@ namespace Data.Repositories.UserRepo
                 Username = user.Username,
                 Name = user.Name,
                 Email = user.Email,
+                Image = user.Image,
                 Phone = user.Phone,
                 RoleId = user.RoleId,
                 Status = user.Status,
@@ -96,5 +97,6 @@ namespace Data.Repositories.UserRepo
             }
             return null;*/
         }
+
     }
 }

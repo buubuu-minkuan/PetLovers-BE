@@ -19,6 +19,8 @@ namespace Data.Entities
         public virtual DbSet<TblNotification> TblNotifications { get; set; } = null!;
         public virtual DbSet<TblOtpverify> TblOtpverifies { get; set; } = null!;
         public virtual DbSet<TblPost> TblPosts { get; set; } = null!;
+        public virtual DbSet<TblPostAttachment> TblPostAttachments { get; set; } = null!;
+        public virtual DbSet<TblPostHashtag> TblPostHashtags { get; set; } = null!;
         public virtual DbSet<TblPostReaction> TblPostReactions { get; set; } = null!;
         public virtual DbSet<TblPostStored> TblPostStoreds { get; set; } = null!;
         public virtual DbSet<TblReport> TblReports { get; set; } = null!;
@@ -94,8 +96,8 @@ namespace Data.Entities
                 entity.ToTable("tblPost");
 
                 entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasDefaultValueSql("(newid())");
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Address)
                     .HasMaxLength(200)
@@ -105,21 +107,11 @@ namespace Data.Entities
                     .HasColumnType("decimal(18, 0)")
                     .HasColumnName("amount");
 
-                entity.Property(e => e.Attachment)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("attachment");
-
                 entity.Property(e => e.Content).HasColumnName("content");
 
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
                     .HasColumnName("createAt");
-
-                entity.Property(e => e.Hashtag)
-                    .HasMaxLength(100)
-                    .IsUnicode(false)
-                    .HasColumnName("hashtag");
 
                 entity.Property(e => e.IsFree).HasColumnName("isFree");
 
@@ -153,13 +145,50 @@ namespace Data.Entities
                     .HasConstraintName("FK__tblPost__userId__03F0984C");
             });
 
+            modelBuilder.Entity<TblPostAttachment>(entity =>
+            {
+                entity.ToTable("tblPostAttachment");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
+
+                entity.Property(e => e.Attachment)
+                    .IsUnicode(false)
+                    .HasColumnName("attachment");
+
+                entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.TblPostAttachments)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__tblPostAt__postI__4F47C5E3");
+            });
+
+            modelBuilder.Entity<TblPostHashtag>(entity =>
+            {
+                entity.ToTable("tblPostHashtag");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Hashtag)
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("hashtag");
+
+                entity.Property(e => e.PostId).HasColumnName("postId");
+            });
+
             modelBuilder.Entity<TblPostReaction>(entity =>
             {
                 entity.ToTable("tblPostReaction");
 
                 entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasDefaultValueSql("(newid())");
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Attachment)
                     .HasMaxLength(100)
@@ -383,6 +412,10 @@ namespace Data.Entities
                     .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("email");
+
+                entity.Property(e => e.Image)
+                    .IsUnicode(false)
+                    .HasColumnName("image");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)

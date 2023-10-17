@@ -9,6 +9,7 @@ using Business.Services.UserServices;
 using Data.Entities;
 using Business.Services.PostServices;
 using Microsoft.AspNetCore.Authorization;
+using Data.Models.PostModel;
 
 namespace API.Controllers
 {
@@ -31,10 +32,29 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpGet("load-news-feed")]
-        public async Task<IActionResult> GetNewsFeed(Guid id)
+        [HttpGet("news-feed")]
+        public async Task<IActionResult> GetNewsFeed()
         {
-            Data.Models.ResultModel.ResultModel result = await _post.GetNewsFeed(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetNewsFeed(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("create-post")]
+        public async Task<IActionResult> CreatePost([FromBody] PostCreateReqModel newPost)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            newPost.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.CreatePost(newPost);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("update-post")]
+        public async Task<IActionResult> UpdatePost([FromBody] PostUpdateReqModel post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.UpdatePost(post);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

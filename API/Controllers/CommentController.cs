@@ -38,7 +38,7 @@ namespace API.Controllers
         }
 
         [HttpPost("create-comment")]
-        public async Task<IActionResult> CreateComment([FromBody] CommentCreateResModel newComment)
+        public async Task<IActionResult> CreateComment([FromBody] CommentCreateReqModel newComment)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             newComment.token = token;
