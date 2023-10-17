@@ -9,15 +9,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
+using Newtonsoft.Json.Linq;
 
 namespace Business.Services.UserServices
 {
     public class UserServices : IUserServices
     {
         private readonly IUserRepo _userRepo;
+        private readonly UserAuthentication _userAuthentication;
 
         public UserServices(IUserRepo userRepo)
         {
+            _userAuthentication = new UserAuthentication();
             _userRepo = userRepo;
         }
 
@@ -133,6 +136,37 @@ namespace Business.Services.UserServices
                 result.Data = User;
                 return result;
 
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> UpdateUser(UserUpdateReqModel model, string token)
+        {
+            ResultModel result = new();
+            try
+            {
+                Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+                var User = await _userRepo.Get(userId);
+                User.Username = model.Username;
+                User.Name = model.Name;
+                var check = await _userRepo.Update(User);
+                if (!check)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "User not found";
+                    return result;
+                }
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = User;
+                return result;
             }
             catch (Exception e)
             {
