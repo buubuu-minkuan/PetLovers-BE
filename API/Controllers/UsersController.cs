@@ -42,5 +42,13 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _user.GetUser(id);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPatch("Update")]
+        public async Task<IActionResult> UpdateUser(UserUpdateReqModel model)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _user.UpdateUser(model, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Data.Models.ResultModel;
+﻿using Data.Models.PostModel;
+using Data.Models.ResultModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace Business.Services.PostServices
     public interface IPostServices
     {
         public Task<ResultModel> GetPostById(Guid id);
-        public Task<ResultModel> GetNewsFeed(Guid UserId);
+        public Task<ResultModel> GetNewsFeed(string token);
+        public Task<ResultModel> CreatePost(PostCreateReqModel newPost);
+        public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
     }
 }

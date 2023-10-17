@@ -30,6 +30,7 @@ namespace Data.Entities
         public string Status { get; set; } = null!;
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
+        public string? Image { get; set; }
 
         public virtual TblRole Role { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }

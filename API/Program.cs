@@ -36,8 +36,8 @@ builder.Services.AddSwaggerGen(c =>
     {
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme. " +
-                            "\n\nEnter 'Bearer' [space] and then your token in the text input below. " +
-                              "\n\nExample: 'Bearer 12345abcde'",
+                            "\n\nEnter your token in the text input below. " +
+                              "\n\nExample: '12345abcde'",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
@@ -82,7 +82,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretService.GetJWTKey())),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
+        ValidIssuer = SecretService.GetJWTIssuser(),
         ValidateAudience = false,
     };
 });

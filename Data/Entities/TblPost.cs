@@ -8,6 +8,7 @@ namespace Data.Entities
         public TblPost()
         {
             TblNotifications = new HashSet<TblNotification>();
+            TblPostAttachments = new HashSet<TblPostAttachment>();
             TblPostReactions = new HashSet<TblPostReaction>();
             TblPostStoreds = new HashSet<TblPostStored>();
             TblReports = new HashSet<TblReport>();
@@ -18,8 +19,6 @@ namespace Data.Entities
         public Guid UserId { get; set; }
         public string Type { get; set; } = null!;
         public string Content { get; set; } = null!;
-        public string Attachment { get; set; } = null!;
-        public string Hashtag { get; set; } = null!;
         public decimal? Amount { get; set; }
         public string Status { get; set; } = null!;
         public bool IsProcessed { get; set; }
@@ -31,6 +30,7 @@ namespace Data.Entities
 
         public virtual TblUser User { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }
+        public virtual ICollection<TblPostAttachment> TblPostAttachments { get; set; }
         public virtual ICollection<TblPostReaction> TblPostReactions { get; set; }
         public virtual ICollection<TblPostStored> TblPostStoreds { get; set; }
         public virtual ICollection<TblReport> TblReports { get; set; }
