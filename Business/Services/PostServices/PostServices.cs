@@ -7,6 +7,8 @@ using Data.Models.ResultModel;
 using Data.Models.UserModel;
 using Data.Repositories.PostRepo;
 using Data.Repositories.UserRepo;
+using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Math.Field;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,7 +92,6 @@ namespace Business.Services.PostServices
                 Status = PostingStatus.PENDING,
                 IsProcessed = false,
                 Content = newPost.content,
-                Attachment = newPost.attachment,
                 CreateAt = now
             };
             try
@@ -118,9 +119,53 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        /*public async Task<ResultModel> UpdatePost(PostUpdateReqModel post)
+        public async Task<ResultModel> UpdatePost(PostUpdateReqModel postReq)
         {
+            DateTime now = DateTime.Now;
+            ResultModel result = new();
+            try
+            {
 
-        }*/
+                PostResModel post = await _postRepo.GetPostById(postReq.postId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(postReq.content) && !post.content.Equals(postReq.content))
+                    {
+                        post.content = postReq.content;
+                    }
+                    var currentAttachments = post.attachment.ToList();
+                    var newAttachments = postReq.attachment.ToList();
+                    var attachmentsToUpdate = newAttachments.Where(attachment => !currentAttachments.Contains(attachment));
+                    foreach (var attachment in attachmentsToUpdate)
+                    {
+                        /*if (!_context.TblPostAttachments.Exists(x => x.Attachment.Equals(attachment.Attachment)))
+                        {
+                            // Thêm hình ảnh đó vào cơ sở dữ liệu
+                            var attachmentModel = new TblPostAttachment
+                            {
+                                PostId = id,
+                                Attachment = attachment.Attachment
+                            };
+
+                            _context.TblPostAttachments.Add(attachmentModel);
+                        }*/
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

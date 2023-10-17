@@ -15,8 +15,8 @@ namespace Data.Models.PostModel
     public class PostCreateReqModel
     {
         public string token { get; set; } = null!;
-        public string content { get; set; } = null!;
-        public string attachment { get; set; } = null!;
+        public string content { get; set; }
+        public string[]? attachment { get; set; }
     }
 
     public class PostUpdateReqModel
@@ -24,6 +24,6 @@ namespace Data.Models.PostModel
         public string token { get; set; } = null!;
         public Guid postId { get; set; }
         public string? content { get; set; }
-        public string? attachment { get; set; }
+        public string[]? attachment { get; set; }
     }
 }

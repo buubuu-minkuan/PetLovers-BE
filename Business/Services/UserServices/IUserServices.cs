@@ -10,6 +10,7 @@ namespace Business.Services.UserServices
         public Task<ResultModel> Login(UserLoginReqModel User);
 
         public Task<ResultModel> GetUser(Guid id);
+
         public Task<ResultModel> UpdateUser(UserUpdateReqModel model, string token);
     }
 }
