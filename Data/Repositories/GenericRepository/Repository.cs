@@ -28,6 +28,24 @@ namespace Data.Repositories.GenericRepository
             return (Guid)entity.GetType().GetProperty("Id").GetValue(entity);
     #pragma warning restore CS8605 // Unboxing a possibly null value.
         }
+
+        public async Task<bool> Remove(T entity)
+        {
+            _ = _entities.Remove(entity);
+            _ = await context.SaveChangesAsync();
+#pragma warning disable CS8605 // Unboxing a possibly null value.
+            return true;
+#pragma warning restore CS8605 // Unboxing a possibly null value.
+        }
+
+        public async Task<bool> Update(T entity)
+        {
+            _ = _entities.Update(entity);
+            _ = await context.SaveChangesAsync();
+#pragma warning disable CS8605 // Unboxing a possibly null value.
+            return true;
+#pragma warning restore CS8605 // Unboxing a possibly null value.
+        }
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Data.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -40,10 +41,19 @@ namespace Data.Models.UserModel
         public string Password { get; set; } = null!;
     }
 
-    /*public class UserLoginResModel
+    public class UserUpdateReqModel
     {
-        public Guid Id { get; set; }
+        public string Username { get; set; }
+        public string Name
+        {
+            get; set;
+        }
 
-        pub
-    }*/
+        /*public class UserLoginResModel
+        {
+            public Guid Id { get; set; }
+
+            pub
+        }*/
+    }
 }

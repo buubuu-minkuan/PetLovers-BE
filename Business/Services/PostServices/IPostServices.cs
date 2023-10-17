@@ -13,5 +13,6 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetPostById(Guid id);
         public Task<ResultModel> GetNewsFeed(string token);
         public Task<ResultModel> CreatePost(PostCreateReqModel newPost);
+        public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
     }
 }
