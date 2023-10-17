@@ -56,4 +56,10 @@ namespace Data.Models.UserModel
             pub
         }*/
     }
+
+    public class UserFollowingModel
+    {
+        public string token { get; set; }
+        public Guid userId { get; set; }
+    }
 }

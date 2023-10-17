@@ -1,4 +1,6 @@
-﻿using Data.Models.UserModel;
+﻿using Data.Entities;
+using Data.Models.UserModel;
+using Data.Repositories.GenericRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data.Repositories.UserFollowingRepo
 {
-    public interface IUserFollowingRepo
+    public interface IUserFollowingRepo : IRepository<TblUserFollowing>
     {
         Task FollowUser(Guid userId, Guid followerId);
 

@@ -18,9 +18,9 @@ namespace API.Controllers
     [ApiController]
     public class UserFollowingController : Controller
     {
-        private readonly IUserFollowingService _userFollowingService;
+        private readonly IUserFollowingServices _userFollowingService;
 
-        public UserFollowingController(IUserFollowingService userFollowingService)
+        public UserFollowingController(IUserFollowingServices userFollowingService)
         {
             _userFollowingService = userFollowingService;
         }
@@ -29,10 +29,10 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             userFollowing.token = token;
-            Data.Models.ResultModel.ResultModel result = await _userFollowingService.FollowUser(userId,followerId);
+            Data.Models.ResultModel.ResultModel result = await _userFollowingService.FollowUser(userFollowing);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpGet("is-following")]
+        /*[HttpGet("is-following")]
         public async Task<IActionResult> IsFollowing(Guid userId, Guid followerId)
         {
             Data.Models.ResultModel.ResultModel result = await _userFollowingService.IsFollowing(userId, followerId);
@@ -43,7 +43,7 @@ namespace API.Controllers
         {
             Data.Models.ResultModel.ResultModel result = await _userFollowingService.UnfollowUser(userId, followerId);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
+        }*/
     }
         
 }

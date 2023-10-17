@@ -151,9 +151,10 @@ namespace Data.Repositories.PostRepo
         {
             TblPostAttachment[] postAttachment = await _context.TblPostAttachments.Where(x => x.PostId.Equals(postId)).ToArrayAsync();
             string[] arrAttachment = new string[postAttachment.Length];
+            
             foreach (var attachment in postAttachment)
             {
-                _ = arrAttachment.Append(attachment.Attachment);
+            _ = arrAttachment.Append(attachment.Attachment);
             }
             return arrAttachment;
         }
