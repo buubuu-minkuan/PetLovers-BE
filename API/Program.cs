@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Data.Repositories.PostAttachmentRepo;
+using Data.Repositories.PostReactRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +38,8 @@ builder.Services.AddSwaggerGen(c =>
     {
         In = ParameterLocation.Header,
         Description = "JWT Authorization header using the Bearer scheme. " +
-                            "\n\nEnter 'Bearer' [space] and then your token in the text input below. " +
-                              "\n\nExample: 'Bearer 12345abcde'",
+                            "\n\nEnter your token in the text input below. " +
+                              "\n\nExample: '12345abcde'",
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
         BearerFormat = "JWT",
@@ -73,7 +75,9 @@ builder.Services.AddScoped<ICommentServices, CommentServices>();
 builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
+builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
 builder.Services.AddTransient<ICommentRepo, CommentRepo>();
+builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -82,7 +86,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretService.GetJWTKey())),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
+        ValidIssuer = SecretService.GetJWTIssuser(),
         ValidateAudience = false,
     };
 });

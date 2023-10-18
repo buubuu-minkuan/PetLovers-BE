@@ -12,7 +12,8 @@ namespace Data.Repositories.PostRepo
 {
     public interface IPostRepo : IRepository<TblPost>
     {
-        public Task<TblPost> GetPostById(Guid id);
+        public Task<PostResModel> GetPostById(Guid id);
         public Task<List<PostResModel>> GetNewFeed(Guid userId);
+        public Task<TblPost> GetTblPostById(Guid id);
     }
 }
