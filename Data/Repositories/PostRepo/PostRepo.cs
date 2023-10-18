@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Data.Models.UserModel;
 using Data.Enums;
 using System.Net.Mail;
+using Data.Models.PostAttachmentModel;
 
 namespace Data.Repositories.PostRepo
 {
@@ -26,10 +27,15 @@ namespace Data.Repositories.PostRepo
         public async Task<PostResModel> GetPostById(Guid id)
         {
             TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
-            string[] arrAttachment = await GetPostAttachment(post.Id);
+            List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+            var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
+            var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
             return new PostResModel
             {
                 Id = post.Id,
+                userId = post.UserId,
+                amountComment = amountComment.Count,
+                amountFeeling = amountFeeling.Count,
                 content = post.Content,
                 attachment = arrAttachment,
                 createdAt = post.CreateAt,
@@ -63,7 +69,7 @@ namespace Data.Repositories.PostRepo
                     var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
                     var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
                     var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                    string[] arrAttachment = await GetPostAttachment(postFollowing.Id);
+                    List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postFollowing.Id);
                     if (postFollowing != null)
                     {
                         posts.Add(new PostResModel()
@@ -87,7 +93,7 @@ namespace Data.Repositories.PostRepo
                     {
                         var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
                         var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                        string[] arrAttachment = await GetPostAttachment(post.Id);
+                        List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                         posts.AddRange(newPost.Select(x => new PostResModel()
                         {
                             Id = x.Id,
@@ -109,7 +115,7 @@ namespace Data.Repositories.PostRepo
                 {
                     var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
                     var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                    string[] arrAttachment = await GetPostAttachment(post.Id);
+                    List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                     posts.AddRange(newPost.Select(x => new PostResModel()
                     {
                         Id = x.Id,
@@ -130,7 +136,7 @@ namespace Data.Repositories.PostRepo
                 {
                     var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
                     var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                    string[] arrAttachment = await GetPostAttachment(post.Id);
+                    List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                     posts.Add(new PostResModel()
                     {
                         Id = post.Id,
@@ -147,15 +153,27 @@ namespace Data.Repositories.PostRepo
             return posts;
         }
 
-        private async Task<string[]> GetPostAttachment(Guid postId)
+        public async Task<TblPost> GetTblPostById(Guid id)
         {
-            TblPostAttachment[] postAttachment = await _context.TblPostAttachments.Where(x => x.PostId.Equals(postId)).ToArrayAsync();
-            string[] arrAttachment = new string[postAttachment.Length];
-            foreach (var attachment in postAttachment)
+            return await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+        }
+
+        private async Task<List<PostAttachmentResModel>> GetPostAttachment(Guid postId)
+        {
+            var listAttachment = await _context.TblPostAttachments.Where(x => x.PostId.Equals(postId) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+            List<PostAttachmentResModel> listResAttachement = new List<PostAttachmentResModel>();
+            foreach (var postAttachment in listAttachment)
             {
-                _ = arrAttachment.Append(attachment.Attachment);
+                PostAttachmentResModel attachment = new()
+                {
+                    Id = postAttachment.Id,
+                    PostId = postAttachment.PostId,
+                    Attachment = postAttachment.Attachment,
+                    Status = postAttachment.Status,
+                };
+                listResAttachement.Add(attachment);
             }
-            return arrAttachment;
+            return listResAttachement;
         }
     }
 }

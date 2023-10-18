@@ -150,14 +150,19 @@ namespace Data.Entities
                 entity.ToTable("tblPostAttachment");
 
                 entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                    .HasColumnName("id")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Attachment)
                     .IsUnicode(false)
                     .HasColumnName("attachment");
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
 
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.TblPostAttachments)
@@ -202,6 +207,11 @@ namespace Data.Entities
                     .HasColumnName("createAt");
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
 
                 entity.Property(e => e.Type)
                     .HasMaxLength(20)

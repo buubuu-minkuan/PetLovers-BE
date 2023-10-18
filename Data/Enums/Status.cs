@@ -2,7 +2,8 @@
 {
     public class Status
     {
-
+        public static readonly string ACTIVE = "Active";
+        public static readonly string DEACTIVE = "Deactive";
     }
 
     public class UserStatus

@@ -73,6 +73,7 @@ namespace Business.Services.CommentServices
                 _ = await _commentRepo.Insert(commentReq);
                 CommentResModel commentResModel = new CommentResModel();
                 commentResModel.Id = commentId;
+                commentResModel.UserId = userId;
                 commentResModel.content = newComment.content;
                 commentResModel.attachment = newComment.attachment;
                 commentResModel.createdAt = now;
