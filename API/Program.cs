@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Data.Repositories.PostAttachmentRepo;
+using Data.Repositories.PostReactRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,7 +75,9 @@ builder.Services.AddScoped<ICommentServices, CommentServices>();
 builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
+builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
 builder.Services.AddTransient<ICommentRepo, CommentRepo>();
+builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
