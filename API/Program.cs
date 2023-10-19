@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Data.Repositories.UserFollowingRepo;
+using Business.Services.UserFollowingServices;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 
@@ -68,14 +70,16 @@ builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IPostServices, PostServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
 builder.Services.AddScoped<ICommentServices, CommentServices>();
+builder.Services.AddScoped<IUserFollowingServices, UserFollowingServices>();
 
 
 //Subcribe repository
 builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
+builder.Services.AddTransient<ICommentRepo, CommentRepo>();
+builder.Services.AddTransient<IUserFollowingRepo, UserFollowingRepo>();
 builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
-builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 
 
