@@ -2,7 +2,6 @@ using Data.Entities;
 using Azure.Identity;
 using Data.Repositories.UserRepo;
 using Data.Repositories.PostRepo;
-using Data.Repositories.CommentRepo;
 using Business.Services.PostServices;
 using Business.Services.CommentServices;
 using Business.Services.UserServices;
@@ -17,6 +16,8 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Data.Repositories.UserFollowingRepo;
 using Business.Services.UserFollowingServices;
+using Data.Repositories.PostAttachmentRepo;
+using Data.Repositories.PostReactRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,8 @@ builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
 builder.Services.AddTransient<ICommentRepo, CommentRepo>();
 builder.Services.AddTransient<IUserFollowingRepo, UserFollowingRepo>();
+builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
+builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -97,9 +100,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

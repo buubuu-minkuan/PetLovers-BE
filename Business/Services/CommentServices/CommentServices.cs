@@ -3,7 +3,6 @@ using Data.Models.CommentModel;
 using Data.Models.ResultModel;
 using Business.Ultilities.UserAuthentication;
 using Data.Models.UserModel;
-using Data.Repositories.CommentRepo;
 using Data.Repositories.PostRepo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -13,43 +12,72 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using Data.Enums;
+using Data.Models.PostModel;
+using Data.Repositories.PostReactRepo;
 
 namespace Business.Services.CommentServices
 {
     public class CommentServices : ICommentServices //ko biết sao lỗi
     {
-        private readonly ICommentRepo _commentRepo;
+        private readonly IPostReactionRepo _reactionRepo;
         private readonly UserAuthentication _userAuthentication;
-        public CommentServices(ICommentRepo CommentRepo)
+        public CommentServices(IPostReactionRepo CommentRepo)
         {
             _userAuthentication = new UserAuthentication();
-            _commentRepo = CommentRepo;
+            _reactionRepo = CommentRepo;
         }
         public async Task<ResultModel> GetCommentById(Guid id)
         {
             ResultModel result = new();
-            CommentResModel commentResModel = await _commentRepo.GetCommentById(id);
-            if (commentResModel == null)
+            try
+            {
+
+                CommentResModel commentResModel = await _reactionRepo.GetCommentById(id);
+                if (commentResModel == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Not Found";
+                    return result;
+                }
+                result.Code = 200;
+                result.Data = commentResModel;
+                result.IsSuccess = true;
+            }
+            catch (Exception e)
             {
                 result.IsSuccess = false;
-                result.Code = 200;
-                result.Message = "Not Found";
-                return result;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
             }
-            result.Code = 200;
-            result.Data = commentResModel;
-            result.IsSuccess = true;
             return result;
-            
+
         }
         public async Task<ResultModel> GetCommentsForPost(Guid postId)
         {
             ResultModel result = new();
-            List<CommentResModel> comments = (List<CommentResModel>) await _commentRepo.GetCommentsByPostId(postId);
-            result.IsSuccess = true;
-            result.Code = 200;
-            result.Data = comments;
-            return result; 
+            try
+            {
+                List<CommentResModel> comments = await _reactionRepo.GetCommentsByPostId(postId);
+                if (comments == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Not Found";
+                    return result;
+                }
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = comments;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
         }
 
         public async Task<ResultModel> CreateComment(CommentCreateReqModel newComment)
@@ -62,7 +90,7 @@ namespace Business.Services.CommentServices
             {
                 Id = commentId,
                 PostId = newComment.postId,
-                Type = "Comment",
+                Type = ReactionType.COMMENT,
                 UserId = userId,
                 Content = newComment.content,
                 Attachment = newComment.attachment,
@@ -70,12 +98,16 @@ namespace Business.Services.CommentServices
             };
             try
             {
-                _ = await _commentRepo.Insert(commentReq);
-                CommentResModel commentResModel = new CommentResModel();
-                commentResModel.Id = commentId;
-                commentResModel.content = newComment.content;
-                commentResModel.attachment = newComment.attachment;
-                commentResModel.createdAt = now;
+                _ = await _reactionRepo.Insert(commentReq);
+                CommentResModel commentResModel = new()
+                {
+                    Id = commentId,
+                    UserId = userId,
+                    PostId = newComment.postId,
+                    content = newComment.content,
+                    attachment = newComment.attachment,
+                    createdAt = now,
+                };
                 result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = commentResModel;
@@ -87,7 +119,52 @@ namespace Business.Services.CommentServices
                 result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
             }
             return result;
+        }
 
+        public async Task<ResultModel> UpdateComment(CommentReqModel Comment)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(Comment.token, "userid"));
+            try
+            {
+                CommentResModel resComment = await _reactionRepo.GetCommentById(Comment.Id);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(Comment.Id);
+                if (resComment == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Comment not found";
+                    return result;
+                }
+                else if (!userId.Equals(resComment.UserId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "You do not have permission to update this comment";
+                    return result;
+                }
+                if (!string.IsNullOrEmpty(Comment.content) && !resComment.content.Equals(Comment.content))
+                {
+                    resComment.content = Comment.content;
+                    tblPostReaction.Content = Comment.content;
+                }
+                resComment.attachment = Comment.attachment;
+                resComment.updatedAt = now;
+                tblPostReaction.Attachment = Comment.attachment;
+                tblPostReaction.UpdateAt = now;
+                _ = _reactionRepo.Update(tblPostReaction);
+                result.IsSuccess = false;
+                result.Code = 200;
+                result.Data = resComment;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
         }
     }
 }
