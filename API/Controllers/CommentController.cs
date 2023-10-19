@@ -9,10 +9,12 @@ using Business.Services.UserServices;
 using Data.Entities;
 using Business.Services.CommentServices;
 using Data.Models.CommentModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     [Route("comment/")]
+    [Authorize]
     [ApiController]
     public class CommentController : Controller
     {
@@ -30,7 +32,7 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _comment.GetCommentById(id);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpGet("fetch-post")]
+        [HttpGet("fetch-comment")]
         public async Task<IActionResult> GetPostComments(Guid postId)
         {
             Data.Models.ResultModel.ResultModel result = await _comment.GetCommentsForPost(postId);
