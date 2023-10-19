@@ -47,5 +47,14 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _comment.CreateComment(newComment);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPut("update-comment")]
+        public async Task<IActionResult> UpdateComment([FromBody] CommentReqModel Comment)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Comment.token = token;
+            Data.Models.ResultModel.ResultModel result = await _comment.UpdateComment(Comment);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
-    }
+}
