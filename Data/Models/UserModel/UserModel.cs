@@ -44,16 +44,20 @@ namespace Data.Models.UserModel
     public class UserUpdateReqModel
     {
         public string Username { get; set; }
-        public string Name
-        {
-            get; set;
-        }
+        public string Name { get; set; }
 
-        /*public class UserLoginResModel
-        {
-            public Guid Id { get; set; }
-
-            pub
-        }*/
     }
+
+    public class UserFollowingModel
+    {
+        public string token { get; set; }
+        public Guid userId { get; set; }
+    }
+    public class UserFollowResModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string? Image { get; set; }
+    }
+        
 }
