@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Enums;
 using Data.Models.UserModel;
 using Data.Repositories.GenericRepository;
 using Data.Repositories.PostRepo;
@@ -20,20 +21,7 @@ namespace Data.Repositories.UserFollowingRepo
             //_mapper = mapper;
             _context = context;
         }
-        public async Task FollowUser(Guid userId, Guid followerId)
-        {
-            var check = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
-            if (check == null)
-            {
-                var userFollowing = new TblUserFollowing()
-                {
-                    UserId = userId,
-                    FollowerId = followerId
-                };
-                await _context.TblUserFollowings.AddAsync(userFollowing);
-                await _context.SaveChangesAsync();
-            }
-        }
+
         public async Task<bool> IsFollowing(Guid userId, Guid followerId)
         {
             var check = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
@@ -43,14 +31,20 @@ namespace Data.Repositories.UserFollowingRepo
             }
             return false;
         }
-        public async Task UnfollowUser(Guid userId, Guid followerId)
+
+        public async Task<TblUserFollowing> GetUserFollow(Guid userId, Guid followerId)
         {
-            var check = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
-            if (check != null)
-            {
-                _context.TblUserFollowings.Remove(check);
-                await _context.SaveChangesAsync();
-            }
+            return await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<TblUserFollowing>> GetFollowers(Guid userId)
+        {
+            return await _context.TblUserFollowings.Where(x => x.FollowerId.Equals(userId) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+        }
+
+        public async Task<List<TblUserFollowing>> GetFollowing(Guid userId)
+        {
+            return await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
         }
 
     }

@@ -11,11 +11,12 @@ namespace Data.Repositories.UserFollowingRepo
 {
     public interface IUserFollowingRepo : IRepository<TblUserFollowing>
     {
-        Task FollowUser(Guid userId, Guid followerId);
+        public Task<bool> IsFollowing(Guid userId, Guid followerId);
 
-        Task UnfollowUser(Guid userId, Guid followerId);
+        public Task<TblUserFollowing> GetUserFollow(Guid userId, Guid followerId);
 
-        Task<bool> IsFollowing(Guid userId, Guid followerId);
+        public Task<List<TblUserFollowing>> GetFollowers(Guid userId);
 
+        public Task<List<TblUserFollowing>> GetFollowing(Guid userId);
     }
 }

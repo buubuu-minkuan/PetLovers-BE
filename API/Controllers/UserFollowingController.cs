@@ -32,18 +32,26 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _userFollowingService.FollowUser(userFollowing);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        /*[HttpGet("is-following")]
-        public async Task<IActionResult> IsFollowing(Guid userId, Guid followerId)
+        [HttpPost("unfollow")]
+        public async Task<IActionResult> Unfollow([FromBody] UserFollowingModel userFollowing)
         {
-            Data.Models.ResultModel.ResultModel result = await _userFollowingService.IsFollowing(userId, followerId);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            userFollowing.token = token;
+            Data.Models.ResultModel.ResultModel result = await _userFollowingService.UnFollowUser(userFollowing);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("unfollow-user")]
-        public async Task<IActionResult> UnfollowUser([FromBody] UserFollowingModel userFollowing)
+        [HttpGet("get-follower")]
+        public async Task<IActionResult> GetFollowers(Guid userId)
         {
-            Data.Models.ResultModel.ResultModel result = await _userFollowingService.UnfollowUser(userId, followerId);
+            Data.Models.ResultModel.ResultModel result = await _userFollowingService.GetFollowers(userId);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }*/
+        }
+        [HttpGet("get-following")]
+        public async Task<IActionResult> GetFollowings(Guid userId)
+        {
+            Data.Models.ResultModel.ResultModel result = await _userFollowingService.GetFollowings(userId);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
-        
-}
+    }
+

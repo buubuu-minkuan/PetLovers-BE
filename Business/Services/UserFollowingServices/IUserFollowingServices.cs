@@ -1,4 +1,5 @@
-﻿using Data.Models.ResultModel;
+﻿using Data.Entities;
+using Data.Models.ResultModel;
 using Data.Models.UserModel;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace Business.Services.UserFollowingServices
     public interface IUserFollowingServices
     {
         public Task<ResultModel> FollowUser(UserFollowingModel userFollowing);
-        /*public Task<ResultModel> UnfollowUser(Guid userId, Guid followerId);
-        public Task<ResultModel> IsFollowing(Guid userId, Guid followerId);*/
+        public Task<ResultModel> UnFollowUser(UserFollowingModel userFollowing);
+        public Task<ResultModel> GetFollowers(Guid userId);
+        public Task<ResultModel> GetFollowings(Guid userId);
     }
 }
