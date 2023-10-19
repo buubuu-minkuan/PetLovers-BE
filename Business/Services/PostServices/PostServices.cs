@@ -168,8 +168,6 @@ namespace Business.Services.PostServices
                         post.content = postReq.content;
                         tblPost.Content = postReq.content;
                     }
-                    tblPost.UpdateAt = now;
-                    _ = await _postRepo.Update(tblPost);
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
                     var attachmentsToAdd = new List<TblPostAttachment>();
@@ -205,6 +203,8 @@ namespace Business.Services.PostServices
                         }
                     }
 
+                    tblPost.UpdateAt = now;
+                    _ = await _postRepo.Update(tblPost);
                     post.attachment = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     result.IsSuccess = true;
                     result.Data = post;

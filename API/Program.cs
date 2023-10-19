@@ -2,7 +2,6 @@ using Data.Entities;
 using Azure.Identity;
 using Data.Repositories.UserRepo;
 using Data.Repositories.PostRepo;
-using Data.Repositories.CommentRepo;
 using Business.Services.PostServices;
 using Business.Services.CommentServices;
 using Business.Services.UserServices;
@@ -76,7 +75,7 @@ builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
 builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
-builder.Services.AddTransient<ICommentRepo, CommentRepo>();
+builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 
 
@@ -98,7 +97,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PetLovers API V1");
+    });
 }
 
 app.UseHttpsRedirection();

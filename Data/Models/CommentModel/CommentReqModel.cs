@@ -8,6 +8,8 @@ namespace Data.Models.CommentModel
 {
     public class CommentReqModel
     {
+        public string token { get; set; } = null!;
+        public Guid Id { get; set; }
         public String? content { get; set; }
         public String? attachment { get; set; }
     }
@@ -16,7 +18,7 @@ namespace Data.Models.CommentModel
     {
         public string token { get; set; } = null!;
         public Guid postId { get; set; }
-        public string content { get; set; } = null!;
-        public string attachment { get; set; } = null!;
+        public String? content { get; set; }
+        public String? attachment { get; set; }
     }
 }
