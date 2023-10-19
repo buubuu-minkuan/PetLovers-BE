@@ -77,7 +77,6 @@ builder.Services.AddScoped<IUserFollowingServices, UserFollowingServices>();
 builder.Services.AddTransient<IUserRepo, UserRepo>();
 builder.Services.AddTransient<IPostRepo, PostRepo>();
 builder.Services.AddTransient<IOTPRepo, OTPRepo>();
-builder.Services.AddTransient<ICommentRepo, CommentRepo>();
 builder.Services.AddTransient<IUserFollowingRepo, UserFollowingRepo>();
 builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
 builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
