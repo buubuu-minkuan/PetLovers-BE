@@ -11,12 +11,18 @@ namespace Data.Models.PostModel
     public class PostResModel
     {
         public Guid Id { get; set; }
-        public Guid userId { get; set; }
+        public PostAuthorModel author { get; set; }
         public string content { get; set; }
         public List<PostAttachmentResModel> attachment { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
         public int amountComment { get; set; }
         public int amountFeeling { get; set; }
+    }
+
+    public class PostAuthorModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }
