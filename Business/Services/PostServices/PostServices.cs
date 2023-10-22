@@ -26,12 +26,14 @@ namespace Business.Services.PostServices
         private readonly IPostRepo _postRepo;
         private readonly IPostAttachmentRepo _postAttachmentRepo;
         private readonly IPostReactionRepo _postReactionRepo;
+        private readonly IUserRepo _userRepo;
         private readonly UserAuthentication _userAuthentication;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo)
         {
             _postReactionRepo = postReactionRepo;
             _postAttachmentRepo = postAttachmentRepo;
+            _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
             _postRepo = postRepo;
         }
@@ -66,16 +68,20 @@ namespace Business.Services.PostServices
             try
             {
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
-                var data = await _postRepo.GetNewFeed(userId);
-                if (data == null)
+                List<PostResModel> postsFollow = await _postRepo.GetPostsFromFollow(userId);
+                postsFollow.Sort((x, y) => x.createdAt.CompareTo(y.createdAt));
+                List<PostResModel> allPosts = await _postRepo.GetAllPosts();
+                foreach(var post in postsFollow)
                 {
-                    result.IsSuccess = false;
-                    result.Message = "Not found";
-                    result.Code = 200;
-                    return result;
+                    if (allPosts.Contains(post))
+                    {
+                        allPosts.Remove(post);
+                        allPosts.Insert(0, post);
+                    }
                 }
+                result.Code = 200;
                 result.IsSuccess = true;
-                result.Data = data;
+                result.Data = allPosts;
             }
             catch (Exception e)
             {
@@ -92,6 +98,12 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             Guid userId = new Guid(_userAuthentication.decodeToken(newPost.token, "userid"));
             Guid postId = Guid.NewGuid();
+            var user = await _userRepo.GetUserById(userId);
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
             TblPost postReq = new()
             {
                 Id = postId,
@@ -119,7 +131,7 @@ namespace Business.Services.PostServices
                 PostResModel postResModel = new()
                 {
                     Id = postId,
-                    userId = userId,
+                    author = author,
                     content = newPost.content,
                     attachment = listAttachment,
                     createdAt = now,
@@ -154,7 +166,7 @@ namespace Business.Services.PostServices
                     result.Message = "Post not found";
                     return result;
                 } 
-                else if (!userId.Equals(post.userId))
+                else if (!userId.Equals(post.author.Id))
                 {
                     result.IsSuccess = false;
                     result.Code = 200;
@@ -236,7 +248,7 @@ namespace Business.Services.PostServices
                     result.Message = "Post not found";
                     return result;
                 }
-                else if (!userId.Equals(post.userId))
+                else if (!userId.Equals(post.author.Id))
                 {
                     result.IsSuccess = false;
                     result.Code = 200;
