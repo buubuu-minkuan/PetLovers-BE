@@ -38,4 +38,18 @@ namespace Data.Models.PostModel
         public string token { get; set; }
         public Guid postId { get; set; }
     }
+
+    public class PostTradeCreateReqModel
+    {
+        public string token { get; set; }
+        public string title { get; set; }
+        public string content { get; set; }
+        public string[]? attachment { get; set; }
+        public string? PetName { get; set; }
+        public string Type { get; set; } = null!;
+        public string Breed { get; set; } = null!;
+        public string Age { get; set; } = null!;
+        public string Gender { get; set; } = null!;
+        public decimal Weight { get; set; }
+    }
 }

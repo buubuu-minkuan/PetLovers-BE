@@ -20,6 +20,28 @@ namespace Data.Models.PostModel
         public int amountFeeling { get; set; }
     }
 
+    public class PostTradeResModel
+    {
+        public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public List<PostAttachmentResModel> Attachment { get; set; }
+        public PetPostTradeModel Pet { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
+    }
+
+    public class PetPostTradeModel
+    {
+        public string? Name { get; set; }
+        public string Type { get; set; } = null!;
+        public string Breed { get; set; } = null!;
+        public string Age { get; set; } = null!;
+        public string Gender { get; set; } = null!;
+        public decimal Weight { get; set; }
+    }
+
     public class PostAuthorModel
     {
         public Guid Id { get; set; }
