@@ -339,7 +339,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 checkExist.Status = Status.DEACTIVE;
-                _ = await _postStoredRepo.Insert(checkExist);
+                _ = await _postStoredRepo.Update(checkExist);
                 result.IsSuccess = true;
                 result.Code = 200;
             }
