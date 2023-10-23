@@ -9,6 +9,7 @@ using Data.Models.UserModel;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
+using Data.Repositories.PostStoredRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -27,11 +28,13 @@ namespace Business.Services.PostServices
         private readonly IPostAttachmentRepo _postAttachmentRepo;
         private readonly IPostReactionRepo _postReactionRepo;
         private readonly IUserRepo _userRepo;
+        private readonly IPostStoredRepo _postStoredRepo;
         private readonly UserAuthentication _userAuthentication;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPostStoredRepo postStoredRepo)
         {
             _postReactionRepo = postReactionRepo;
+            _postStoredRepo = postStoredRepo;
             _postAttachmentRepo = postAttachmentRepo;
             _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
@@ -276,6 +279,69 @@ namespace Business.Services.PostServices
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> StorePost(PostStoreReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                if(checkExist != null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "This post is already stored!";
+                    return result;
+                }
+                TblPostStored newPost = new()
+                {
+                    UserId = userId,
+                    PostId = postReq.postId,
+                    Status = Status.ACTIVE,
+                    CreateAt = now
+                };
+                _ = await _postStoredRepo.Insert(newPost);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> RemoveStorePost(PostStoreReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                if (checkExist == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "This post haven't been stored yet!";
+                    return result;
+                }
+                checkExist.Status = Status.DEACTIVE;
+                _ = await _postStoredRepo.Update(checkExist);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {

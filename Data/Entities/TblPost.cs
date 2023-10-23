@@ -8,7 +8,9 @@ namespace Data.Entities
         public TblPost()
         {
             TblNotifications = new HashSet<TblNotification>();
+            TblPetTradingPosts = new HashSet<TblPetTradingPost>();
             TblPostAttachments = new HashSet<TblPostAttachment>();
+            TblPostHashtags = new HashSet<TblPostHashtag>();
             TblPostReactions = new HashSet<TblPostReaction>();
             TblPostStoreds = new HashSet<TblPostStored>();
             TblReports = new HashSet<TblReport>();
@@ -27,10 +29,13 @@ namespace Data.Entities
         public string? Address { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
+        public string? Title { get; set; }
 
         public virtual TblUser User { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }
+        public virtual ICollection<TblPetTradingPost> TblPetTradingPosts { get; set; }
         public virtual ICollection<TblPostAttachment> TblPostAttachments { get; set; }
+        public virtual ICollection<TblPostHashtag> TblPostHashtags { get; set; }
         public virtual ICollection<TblPostReaction> TblPostReactions { get; set; }
         public virtual ICollection<TblPostStored> TblPostStoreds { get; set; }
         public virtual ICollection<TblReport> TblReports { get; set; }

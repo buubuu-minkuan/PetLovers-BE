@@ -32,4 +32,24 @@ namespace Data.Models.PostModel
         public string token { get; set; }
         public Guid postId { get; set; }
     }
+
+    public class PostStoreReqModel
+    {
+        public string token { get; set; }
+        public Guid postId { get; set; }
+    }
+
+    public class PostTradeCreateReqModel
+    {
+        public string Token { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public string[]? Attachment { get; set; }
+        public string? Name { get; set; }
+        public string Type { get; set; } = null!;
+        public string Breed { get; set; } = null!;
+        public string Age { get; set; } = null!;
+        public string Gender { get; set; } = null!;
+        public decimal Weight { get; set; }
+    }
 }
