@@ -29,6 +29,7 @@ namespace Data.Entities
         public string? Address { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
+        public string? Title { get; set; }
 
         public virtual TblUser User { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }

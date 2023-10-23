@@ -41,11 +41,11 @@ namespace Data.Models.PostModel
 
     public class PostTradeCreateReqModel
     {
-        public string token { get; set; }
-        public string title { get; set; }
-        public string content { get; set; }
-        public string[]? attachment { get; set; }
-        public string? PetName { get; set; }
+        public string Token { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public string[]? Attachment { get; set; }
+        public string? Name { get; set; }
         public string Type { get; set; } = null!;
         public string Breed { get; set; } = null!;
         public string Age { get; set; } = null!;

@@ -172,6 +172,11 @@ namespace Data.Entities
                     .IsUnicode(false)
                     .HasColumnName("status");
 
+                entity.Property(e => e.Title)
+                    .HasMaxLength(200)
+                    .IsUnicode(false)
+                    .HasColumnName("title");
+
                 entity.Property(e => e.Type)
                     .HasMaxLength(20)
                     .IsUnicode(false)
