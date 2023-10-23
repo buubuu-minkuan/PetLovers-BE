@@ -32,6 +32,22 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
+        [HttpGet("staff-pending-post")]
+        public async Task<IActionResult> GetAllPendingPost()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetAllPendingPost(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("user-pending-post")]
+        public async Task<IActionResult> GetUserPendingPost()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetUserPendingPost(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
         [HttpGet("news-feed")]
         public async Task<IActionResult> GetNewsFeed()
         {

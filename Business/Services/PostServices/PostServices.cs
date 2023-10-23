@@ -17,6 +17,7 @@ using Org.BouncyCastle.Math.Field;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -342,6 +343,53 @@ namespace Business.Services.PostServices
                 _ = await _postStoredRepo.Update(checkExist);
                 result.IsSuccess = true;
                 result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetAllPendingPost(string token)
+        {
+            ResultModel result = new();
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                List<PostResModel> listPost = await _postRepo.GetAllPendingPost();
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = listPost;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> GetUserPendingPost(string token)
+        {
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userId"));
+            try
+            {
+                List<PostResModel> listPost = await _postRepo.GetUserPendingPost(userId);
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = listPost;
             }
             catch (Exception e)
             {

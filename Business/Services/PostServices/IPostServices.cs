@@ -17,5 +17,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> DeletePost(PostDeleteReqModel post);
         public Task<ResultModel> StorePost(PostStoreReqModel post);
         public Task<ResultModel> RemoveStorePost(PostStoreReqModel post);
+        public Task<ResultModel> GetAllPendingPost(string token);
+        public Task<ResultModel> GetUserPendingPost(string token);
     }
 }

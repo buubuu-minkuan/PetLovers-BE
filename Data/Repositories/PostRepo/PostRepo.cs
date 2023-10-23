@@ -155,5 +155,56 @@ namespace Data.Repositories.PostRepo
             }
             return listResAttachement;
         }
+
+        public async Task<List<PostResModel>> GetAllPendingPost()
+        {
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING)).ToListAsync();
+            List<PostResModel> listResPost = new List<PostResModel>();
+            foreach(var post in listTblPost)
+            {
+                var attachment = await GetPostAttachment(post.Id);
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                };
+                listResPost.Add(new PostResModel()
+                {
+                    Id = post.Id,
+                    author = author,
+                    content = post.Content,
+                    attachment = attachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt
+                });
+            }
+            return listResPost;
+        }
+        public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
+        {
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING)).ToListAsync();
+            List<PostResModel> listResPost = new List<PostResModel>();
+            TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
+            foreach (var post in listTblPost)
+            {
+                var attachment = await GetPostAttachment(post.Id);
+                listResPost.Add(new PostResModel()
+                {
+                    Id = post.Id,
+                    author = author,
+                    content = post.Content,
+                    attachment = attachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt
+                });
+            }
+            return listResPost;
+        }
     }
 }
