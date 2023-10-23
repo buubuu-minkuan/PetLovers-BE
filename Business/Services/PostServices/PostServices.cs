@@ -285,5 +285,28 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+        public async Task<ResultModel> StorePost(PostStoreReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                TblPostStored newPost = new()
+                {
+                    UserId = userId,
+                    PostId = postReq.postId,
+                    Status = Status.ACTIVE,
+                    //CreateAt = now,
+                };
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

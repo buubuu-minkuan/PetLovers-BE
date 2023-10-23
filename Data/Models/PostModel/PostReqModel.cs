@@ -32,4 +32,10 @@ namespace Data.Models.PostModel
         public string token { get; set; }
         public Guid postId { get; set; }
     }
+
+    public class PostStoreReqModel
+    {
+        public string token { get; set; }
+        public Guid postId { get; set; }
+    }
 }

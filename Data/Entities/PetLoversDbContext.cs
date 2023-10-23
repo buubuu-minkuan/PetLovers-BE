@@ -18,6 +18,7 @@ namespace Data.Entities
 
         public virtual DbSet<TblNotification> TblNotifications { get; set; } = null!;
         public virtual DbSet<TblOtpverify> TblOtpverifies { get; set; } = null!;
+        public virtual DbSet<TblPetTradingPost> TblPetTradingPosts { get; set; } = null!;
         public virtual DbSet<TblPost> TblPosts { get; set; } = null!;
         public virtual DbSet<TblPostAttachment> TblPostAttachments { get; set; } = null!;
         public virtual DbSet<TblPostHashtag> TblPostHashtags { get; set; } = null!;
@@ -89,6 +90,50 @@ namespace Data.Entities
                     .HasMaxLength(6)
                     .IsUnicode(false)
                     .HasColumnName("otpCode");
+            });
+
+            modelBuilder.Entity<TblPetTradingPost>(entity =>
+            {
+                entity.ToTable("tblPetTradingPost");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
+
+                entity.Property(e => e.Age)
+                    .HasMaxLength(100)
+                    .HasColumnName("age");
+
+                entity.Property(e => e.Breed)
+                    .HasMaxLength(100)
+                    .IsUnicode(false)
+                    .HasColumnName("breed");
+
+                entity.Property(e => e.Gender)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
+                    .HasColumnName("gender");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
+
+                entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("type");
+
+                entity.Property(e => e.Weight)
+                    .HasColumnType("decimal(18, 0)")
+                    .HasColumnName("weight");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.TblPetTradingPosts)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__tblPetTra__postI__634EBE90");
             });
 
             modelBuilder.Entity<TblPost>(entity =>
@@ -185,6 +230,12 @@ namespace Data.Entities
                     .HasColumnName("hashtag");
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.TblPostHashtags)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__tblPostHa__postI__607251E5");
             });
 
             modelBuilder.Entity<TblPostReaction>(entity =>
@@ -250,7 +301,9 @@ namespace Data.Entities
                     .HasColumnName("id")
                     .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.CreateAt).HasColumnName("createAt");
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createAt");
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
 
