@@ -383,7 +383,7 @@ namespace Business.Services.PostServices
         public async Task<ResultModel> GetUserPendingPost(string token)
         {
             ResultModel result = new();
-            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userId"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
                 List<PostResModel> listPost = await _postRepo.GetUserPendingPost(userId);

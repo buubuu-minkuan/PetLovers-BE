@@ -147,7 +147,6 @@ namespace Data.Repositories.PostRepo
                 PostAttachmentResModel attachment = new()
                 {
                     Id = postAttachment.Id,
-                    PostId = postAttachment.PostId,
                     Attachment = postAttachment.Attachment,
                     Status = postAttachment.Status,
                 };
