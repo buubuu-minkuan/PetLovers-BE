@@ -325,7 +325,7 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> RemoveStorePost(PostStoreReqModel postReq)
+        public async Task<ResultModel> RemoveStorePost(PostReqModel postReq)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;

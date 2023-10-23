@@ -32,15 +32,7 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpGet("staff-pending-post")]
-        public async Task<IActionResult> GetAllPendingPost()
-        {
-            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _post.GetAllPendingPost(token);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpGet("user-pending-post")]
+        [HttpGet("pending-post")]
         public async Task<IActionResult> GetUserPendingPost()
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
@@ -65,24 +57,6 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPost("staff-approve-post")]
-        public async Task<IActionResult> ApprovePost([FromBody] PostReqModel Post)
-        {
-            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.ApprovePosting(Post);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpPost("staff-refuse-post")]
-        public async Task<IActionResult> RefusePost([FromBody] PostReqModel Post)
-        {
-            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.RefusePosting(Post);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
         [HttpPost("store-post")]
         public async Task<IActionResult> StorePost([FromBody] PostReqModel Post)
         {
@@ -102,7 +76,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("remove-store-post")]
-        public async Task<IActionResult> RemoveStorePost([FromBody] PostStoreReqModel Post)
+        public async Task<IActionResult> RemoveStorePost([FromBody] PostReqModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Post.token = token;
