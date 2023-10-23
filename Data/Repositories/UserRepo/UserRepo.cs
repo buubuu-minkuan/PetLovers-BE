@@ -71,32 +71,12 @@ namespace Data.Repositories.UserRepo
                 result.Add(UserModelPaste);
             }
             return result;
-
-
-            /*List<TblUserFollowing>? data = await _context.TblUserFollowings.Where(x => x.UserId.Equals(authorId)).ToListAsync();
-            int check = data.Count;
-            if (data.Any())
-            {
-                List<UserModel> following = new();
-                foreach (var users in data)
-                {
-                    TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(users.Id)).FirstOrDefaultAsync();
-                    following.Add(new UserModel()
-                    {
-                        Id = user.Id,
-                        Username = user.Username,
-                        Name = user.Name,
-                        Email = user.Email,
-                        Phone = user.Phone,
-                        RoleId = user.RoleId,
-                        Status = user.Status,
-                        CreateAt = user.CreateAt,
-                    });
-                }
-                return following;
-            }
-            return null;*/
         }
 
+        public async Task<string> GetRoleName(Guid id)
+        {
+            var role = await _context.TblRoles.Where(x => x.Id == id).FirstOrDefaultAsync();
+            return role.Name;
+        }
     }
 }
