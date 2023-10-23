@@ -18,6 +18,7 @@ using Data.Repositories.UserFollowingRepo;
 using Business.Services.UserFollowingServices;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
+using Data.Repositories.PostStoredRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,7 @@ builder.Services.AddTransient<IOTPRepo, OTPRepo>();
 builder.Services.AddTransient<IUserFollowingRepo, UserFollowingRepo>();
 builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
 builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
+builder.Services.AddTransient<IPostStoredRepo, PostStoredRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

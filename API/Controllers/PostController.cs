@@ -49,6 +49,24 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
+        [HttpPost("store-post")]
+        public async Task<IActionResult> StorePost([FromBody] PostStoreReqModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.StorePost(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("remove-store-post")]
+        public async Task<IActionResult> RemoveStorePost([FromBody] PostStoreReqModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.RemoveStorePost(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
         [HttpPut("update-post")]
         public async Task<IActionResult> UpdatePost([FromBody] PostUpdateReqModel post)
         {
