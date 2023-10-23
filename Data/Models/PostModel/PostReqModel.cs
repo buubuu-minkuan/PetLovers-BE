@@ -8,8 +8,8 @@ namespace Data.Models.PostModel
 {
     public class PostReqModel
     {
-        public String? content { get; set; }
-        public String? attachment { get; set; }
+        public string token { get; set; }
+        public Guid postId { get; set; }
     }
 
     public class PostCreateReqModel
