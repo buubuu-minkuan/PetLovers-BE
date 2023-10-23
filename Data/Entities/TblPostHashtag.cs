@@ -8,5 +8,7 @@ namespace Data.Entities
         public Guid Id { get; set; }
         public Guid PostId { get; set; }
         public string? Hashtag { get; set; }
+
+        public virtual TblPost Post { get; set; } = null!;
     }
 }

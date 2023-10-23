@@ -198,7 +198,7 @@ namespace Business.Services.PostServices
                     }
                     foreach (var attachment in attachmentsToAdd)
                     {
-                        await _postAttachmentRepo.Insert(attachment);
+                        _ = await _postAttachmentRepo.Insert(attachment);
                     }
 
                     foreach (var currentAttachment in currentAttachments)
@@ -210,7 +210,7 @@ namespace Business.Services.PostServices
                             {
                                 var getAttachment = await _postAttachmentRepo.GetAttachmentById(currentAttachment.Id);
                                 getAttachment.Status = Status.DEACTIVE;
-                                await _postAttachmentRepo.Update(getAttachment);
+                                _ = await _postAttachmentRepo.Update(getAttachment);
                             }
                         }
                     }
@@ -257,24 +257,48 @@ namespace Business.Services.PostServices
                 }
                 else
                 {
+                    tblPost.UpdateAt = now;
                     tblPost.Status = Status.DEACTIVE;
-                    _ = _postRepo.Update(tblPost);
+                    _ = await _postRepo.Update(tblPost);
                     List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(postReq.postId);
                     List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(postReq.postId);
                     foreach(var attachment in Attachments)
                     {
                         attachment.Status = Status.DEACTIVE;
-                        _ = _postAttachmentRepo.Update(attachment);
+                        _ = await _postAttachmentRepo.Update(attachment);
                     }
 
                     foreach(var reaction in Reactions)
                     {
                         reaction.Status = Status.DEACTIVE;
-                        _ = _postReactionRepo.Update(reaction);
+                        _ = await _postReactionRepo.Update(reaction);
                     }
-                    result.IsSuccess = false;
+                    result.IsSuccess = true;
                     result.Code = 200;
                 }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> StorePost(PostStoreReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                TblPostStored newPost = new()
+                {
+                    UserId = userId,
+                    PostId = postReq.postId,
+                    Status = Status.ACTIVE,
+                    //CreateAt = now,
+                };
             }
             catch (Exception e)
             {
