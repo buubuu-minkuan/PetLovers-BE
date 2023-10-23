@@ -27,13 +27,19 @@ namespace Data.Repositories.PostRepo
         public async Task<PostResModel> GetPostById(Guid id)
         {
             TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
             List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
             var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
             var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
             return new PostResModel
             {
                 Id = post.Id,
-                userId = post.UserId,
+                author = author,
                 amountComment = amountComment.Count,
                 amountFeeling = amountFeeling.Count,
                 content = post.Content,
@@ -43,21 +49,22 @@ namespace Data.Repositories.PostRepo
             };
         }
 
-        public async Task<List<PostResModel>> GetNewFeed(Guid userId)
+        public async Task<List<PostResModel>> GetPostsFromFollow(Guid userId)
         {
             var following = new List<UserModel>();
             var listFollowers = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId)).ToListAsync();
 
             foreach (var folower in listFollowers)
             {
-                var folowerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.FollowerId)).FirstOrDefaultAsync();
+                var followerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.FollowerId)).FirstOrDefaultAsync();
                 var UserModelPaste = new UserModel();
                 UserModelPaste.Id = folower.Id;
-                UserModelPaste.Username = folowerInfor.Username;
-                UserModelPaste.RoleId = folowerInfor.RoleId;
-                UserModelPaste.Status = folowerInfor.Status;
-                UserModelPaste.Email = folowerInfor.Email;
-                UserModelPaste.CreateAt = folowerInfor.CreateAt;
+                UserModelPaste.Name = followerInfor.Name;
+                UserModelPaste.Username = followerInfor.Username;
+                UserModelPaste.RoleId = followerInfor.RoleId;
+                UserModelPaste.Status = followerInfor.Status;
+                UserModelPaste.Email = followerInfor.Email;
+                UserModelPaste.CreateAt = followerInfor.CreateAt;
                 following.Add(UserModelPaste);
             }
             List<PostResModel> posts = new();
@@ -66,7 +73,14 @@ namespace Data.Repositories.PostRepo
             {
                 foreach (var postAuthor in following)
                 {
-                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
+                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
+                    PostAuthorModel author = new()
+                    {
+                        Id = postAuthor.Id,
+                        Name = postAuthor.Name,
+                    };
+                    if (postFollowing == null) continue;
+                    if ((now - postFollowing.CreateAt).TotalMilliseconds > 900000) continue;
                     var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
                     var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
                     List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postFollowing.Id);
@@ -75,7 +89,7 @@ namespace Data.Repositories.PostRepo
                         posts.Add(new PostResModel()
                         {
                             Id = postFollowing.Id,
-                            userId = postFollowing.UserId,
+                            author = author,
                             content = postFollowing.Content,
                             amountFeeling = amountFeeling.Count,
                             amountComment = amountComment.Count,
@@ -85,70 +99,36 @@ namespace Data.Repositories.PostRepo
                         });
                     }
                 }
+            }
+            return posts;
+        }
 
-                foreach (var postAuthor in following)
-                {
-                    List<TblPost> newPost = await _context.TblPosts.Where(x => !x.UserId.Equals(postAuthor.Id) && (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
-                    foreach(var post in newPost)
-                    {
-                        var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                        var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                        List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-                        posts.AddRange(newPost.Select(x => new PostResModel()
-                        {
-                            Id = x.Id,
-                            userId = x.UserId,
-                            content = x.Content,
-                            attachment = arrAttachment,
-                            createdAt = x.CreateAt,
-                            updatedAt = x.UpdateAt,
-                            amountFeeling = amountFeeling.Count,
-                            amountComment = amountComment.Count
-                        }));
-                    }
-                }
-            }
-            else
+        public async Task<List<PostResModel>> GetAllPosts()
+        {
+            List<PostResModel> posts = new();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            foreach (var post in newPost)
             {
-                List<TblPost> newPost = await _context.TblPosts.Where(x => (now - x.CreateAt).TotalMilliseconds <= 900000 && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
-                foreach (var post in newPost)
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
                 {
-                    var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                    var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                    List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-                    posts.AddRange(newPost.Select(x => new PostResModel()
-                    {
-                        Id = x.Id,
-                        userId = x.UserId,
-                        content = x.Content,
-                        attachment = arrAttachment,
-                        createdAt = x.CreateAt,
-                        updatedAt = x.UpdateAt,
-                        amountFeeling = amountFeeling.Count,
-                        amountComment = amountComment.Count
-                    }));
-                }
-            }
-            if (posts.Count <= 0)
-            {
-                var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderBy(x => x.CreateAt).ToListAsync();
-                foreach (var post in newPost)
+                    Id = user.Id,
+                    Name = user.Name,
+                };
+                var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
+                var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                posts.Add(new PostResModel()
                 {
-                    var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                    var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
-                    List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-                    posts.Add(new PostResModel()
-                    {
-                        Id = post.Id,
-                        userId = post.UserId,
-                        content = post.Content,
-                        attachment = arrAttachment,
-                        createdAt = post.CreateAt,
-                        updatedAt = post.UpdateAt,
-                        amountFeeling = amountFeeling.Count,
-                        amountComment = amountComment.Count
-                    });
-                }
+                    Id = post.Id,
+                    author = author,
+                    content = post.Content,
+                    attachment = arrAttachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt,
+                    amountFeeling = amountFeeling.Count,
+                    amountComment = amountComment.Count
+                });
             }
             return posts;
         }
