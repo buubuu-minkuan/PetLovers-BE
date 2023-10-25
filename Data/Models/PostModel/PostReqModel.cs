@@ -17,6 +17,7 @@ namespace Data.Models.PostModel
         public string token { get; set; } = null!;
         public string content { get; set; }
         public string[]? attachment { get; set; }
+        public string[]? hashtag { get; set; }
     }
 
     public class PostUpdateReqModel
