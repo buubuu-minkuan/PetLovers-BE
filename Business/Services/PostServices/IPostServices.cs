@@ -16,5 +16,9 @@ namespace Business.Services.PostServices
         public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
         public Task<ResultModel> DeletePost(PostDeleteReqModel post);
         public Task<ResultModel> StorePost(PostStoreReqModel post);
+        public Task<ResultModel> GetPostTradeById(Guid id);
+        public Task<ResultModel> CreatePostTrade(PostCreateReqModel newPost);
+        public Task<ResultModel> UpdatePostTrade(PostUpdateReqModel post);
+        public Task<ResultModel> DeletePostTrade(PostDeleteReqModel post);
     }
 }

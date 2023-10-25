@@ -47,5 +47,6 @@ namespace Data.Repositories.PostAttachmentRepo
         {
             return await _context.TblPostAttachments.Where(x => x.PostId.Equals(id)).ToListAsync();
         }
+
     }
 }

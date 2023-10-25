@@ -16,5 +16,8 @@ namespace Data.Repositories.PostRepo
         public Task<List<PostResModel>> GetPostsFromFollow(Guid userId);
         public Task<List<PostResModel>> GetAllPosts();
         public Task<TblPost> GetTblPostById(Guid id);
+        public Task<TblPost> GetTblPostTradeById(Guid id);
+        public Task<PostTradeResModel> GetPostTradeById(Guid id);
+        public Task<List<PostTradeResModel>> GetAllTradePostsTitle();
     }
 }

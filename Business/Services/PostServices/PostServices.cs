@@ -6,6 +6,7 @@ using Data.Models.PostAttachmentModel;
 using Data.Models.PostModel;
 using Data.Models.ResultModel;
 using Data.Models.UserModel;
+using Data.Repositories.PetPostTradeRepo;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
@@ -28,15 +29,18 @@ namespace Business.Services.PostServices
         private readonly IPostReactionRepo _postReactionRepo;
         private readonly IUserRepo _userRepo;
         private readonly UserAuthentication _userAuthentication;
+        private readonly IPetPostTradeRepo _petPostTradeRepo;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo)
         {
+            _petPostTradeRepo = petPostTradeRepo;
             _postReactionRepo = postReactionRepo;
             _postAttachmentRepo = postAttachmentRepo;
             _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
             _postRepo = postRepo;
         }
+        
         public async Task<ResultModel> GetPostById(Guid id)
         {
             ResultModel result = new();
@@ -299,6 +303,185 @@ namespace Business.Services.PostServices
                     Status = Status.ACTIVE,
                     //CreateAt = now,
                 };
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetPostTradeById(Guid id)
+        {
+            ResultModel result = new();
+            try
+            {
+                var post = await _postRepo.GetPostTradeById(id);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Message = "Not found";
+                    result.Code = 200;
+                    return result;
+                }
+                result.IsSuccess = true;
+                result.Data = post;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> CreatePostTrade(PostTradeCreateReqModel newPost)
+        {
+            DateTime now = DateTime.Now;
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(newPost.token, "userid"));
+            Guid postId = Guid.NewGuid();
+            var user = await _userRepo.GetUserById(userId);
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
+            TblPost postTradeReq = new()
+            {
+                Id = postId,
+                Type = PostingType.TRADING,
+                UserId = userId,
+                Status = PostingStatus.APPROVED,
+                IsProcessed = true,
+                Content = newPost.content,
+                CreateAt = now
+            };
+            try
+            {
+                _ = await _postRepo.Insert(postTradeReq);
+                foreach (var attachement in newPost.attachment)
+                {
+                    TblPostAttachment newAttachment = new()
+                    {
+                        PostId = postId,
+                        Attachment = attachement,
+                        Status = Status.ACTIVE
+                    };
+                    _ = await _postAttachmentRepo.Insert(newAttachment);
+                }
+                List<PostAttachmentResModel> listAttachment = await _postAttachmentRepo.GetListAttachmentByPostId(postId);
+                PostTradeResModel postResModel = new()
+                {
+                    Id = postId,
+                    Author = author,
+                    Content = newPost.content,
+                    Attachment = listAttachment,
+                    Title = newPost.title,
+                    createdAt = now,
+                    updatedAt = null,
+                    Type = newPost.Type,
+                    Amount = newPost.Amount,
+                    
+                };
+                PetPostTradeModel tradeResMoedel = new()
+                {
+                    Name = newPost.PetName,
+                    Type = newPost.Type,
+                    Breed = newPost.Breed,
+                    Age = newPost.Age,
+                    Gender = newPost.Gender,
+                    Weight = newPost.Weight,
+                };
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = postResModel;
+                result.Data = tradeResMoedel;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq)
+        {
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            ResultModel result = new();
+            try
+            {
+                PostTradeResModel post = await _postRepo.GetPostTradeById(postReq.postId);
+                TblPost tblPost = await _postRepo.GetTblPostTradeById(postReq.postId);
+                TblPetTradingPost tblPet = await _petPostTradeRepo.GetTblPetPostTradingByPostId(postReq.postId);
+                PetPostTradeModel pet = await _petPostTradeRepo.GetPetByPostId(postReq.postId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                else if (!userId.Equals(post.Author.Id))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "You do not have permission to update this post";
+                    return result;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(postReq.content) && !post.Content.Equals(postReq.content))
+                    {
+                        post.Content = postReq.content;
+                        tblPost.Content = postReq.content;
+                    }
+                    if (!string.IsNullOrEmpty(postReq.) && !post.)
+                    var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
+                    var newAttachments = postReq.attachment;
+                    var attachmentsToAdd = new List<TblPostAttachment>();
+                    foreach (var newAttachment in newAttachments)
+                    {
+                        var isAttachmentExist = currentAttachments.Any(x => x.Attachment.Equals(newAttachment));
+                        if (!isAttachmentExist)
+                        {
+                            attachmentsToAdd.Add(new TblPostAttachment()
+                            {
+                                PostId = postReq.postId,
+                                Attachment = newAttachment,
+                                Status = Status.ACTIVE
+                            });
+                        }
+                    }
+                    foreach (var attachment in attachmentsToAdd)
+                    {
+                        _ = await _postAttachmentRepo.Insert(attachment);
+                    }
+
+                    foreach (var currentAttachment in currentAttachments)
+                    {
+                        if (currentAttachment.Status != Status.DEACTIVE)
+                        {
+                            var isAttachmentExist = newAttachments.Any(x => x.Equals(currentAttachment.Attachment));
+                            if (!isAttachmentExist)
+                            {
+                                var getAttachment = await _postAttachmentRepo.GetAttachmentById(currentAttachment.Id);
+                                getAttachment.Status = Status.DEACTIVE;
+                                _ = await _postAttachmentRepo.Update(getAttachment);
+                            }
+                        }
+                    }
+
+                    tblPost.UpdateAt = now;
+                    _ = await _postRepo.Update(tblPost);
+                    post.Attachment = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
+                    result.IsSuccess = true;
+                    result.Data = post;
+                    result.Code = 200;
+                }
             }
             catch (Exception e)
             {

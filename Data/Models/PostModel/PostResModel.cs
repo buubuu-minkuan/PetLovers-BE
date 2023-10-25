@@ -30,6 +30,8 @@ namespace Data.Models.PostModel
         public PetPostTradeModel Pet { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
+        public string Type { get; set; }
+        public decimal? Amount { get; set; }
     }
 
     public class PetPostTradeModel
@@ -46,5 +48,14 @@ namespace Data.Models.PostModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
+    }
+    public class PostTradeTitleModel
+    {
+        public Guid Id { get; set; }
+        public List<PostAttachmentResModel> Attachment { get; set; }
+        public string Title { get; set; }
+        public string Type { get; set; }
+
+
     }
 }
