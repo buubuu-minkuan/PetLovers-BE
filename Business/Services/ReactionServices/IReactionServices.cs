@@ -1,4 +1,5 @@
-﻿using Data.Models.ResultModel;
+﻿using Data.Models.CommentModel;
+using Data.Models.ResultModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace Business.Services.ReactionServices
 {
     public interface IReactionServices
     {
-        public Task<ResultModel> CreateFeeling();
+        public Task<ResultModel> GetCommentById(Guid id);
+        public Task<ResultModel> GetCommentsForPost(Guid postId);
+        public Task<ResultModel> CreateComment(CommentCreateReqModel newComment);
+        public Task<ResultModel> UpdateComment(CommentReqModel Comment);
+        public Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment);
     }
 }

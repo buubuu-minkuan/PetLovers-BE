@@ -19,6 +19,7 @@ using Business.Services.UserFollowingServices;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostStoredRepo;
+using Business.Services.ReactionServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +71,7 @@ builder.Services.AddDbContext<PetLoversDbContext>(option => option.UseSqlServer(
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IPostServices, PostServices>();
 builder.Services.AddScoped<IEmailServices, EmailServices>();
-builder.Services.AddScoped<ICommentServices, CommentServices>();
+builder.Services.AddScoped<IReactionServices, ReactionServices>();
 builder.Services.AddScoped<IUserFollowingServices, UserFollowingServices>();
 
 
