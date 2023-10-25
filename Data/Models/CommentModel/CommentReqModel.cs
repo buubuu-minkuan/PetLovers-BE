@@ -26,4 +26,5 @@ namespace Data.Models.CommentModel
     {
         public string token { get; set; }
         public Guid Id { get; set; }
+    }
 }
