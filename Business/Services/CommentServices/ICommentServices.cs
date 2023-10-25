@@ -15,5 +15,6 @@ namespace Business.Services.CommentServices
         public Task<ResultModel> GetCommentsForPost(Guid postId);
         public Task<ResultModel> CreateComment(CommentCreateReqModel newComment);
         public Task<ResultModel> UpdateComment(CommentReqModel Comment);
+        public Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment);
     }
 }

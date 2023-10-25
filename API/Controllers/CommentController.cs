@@ -56,5 +56,14 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _comment.UpdateComment(Comment);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpDelete("delete-comment")]
+        public async Task<IActionResult> DeleteComment([FromBody] CommentDeleteReqModel Comment)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Comment.token = token;
+            Data.Models.ResultModel.ResultModel result = await _comment.DeleteComment(Comment);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

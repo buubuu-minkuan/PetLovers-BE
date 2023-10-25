@@ -9,7 +9,6 @@ namespace Data.Models.PostAttachmentModel
     public class PostAttachmentResModel
     {
         public Guid Id { get; set; }
-        public Guid PostId { get; set; }
         public string? Attachment { get; set; }
         public string? Status { get; set; }
     }
