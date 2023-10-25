@@ -13,6 +13,7 @@ using Data.Repositories.PostRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Math.Field;
 using System;
 using System.Collections.Generic;
@@ -153,7 +154,7 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-
+        
         public async Task<ResultModel> UpdatePost(PostUpdateReqModel postReq)
         {
             DateTime now = DateTime.Now;
@@ -342,6 +343,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             Guid userId = new Guid(_userAuthentication.decodeToken(newPost.token, "userid"));
             Guid postId = Guid.NewGuid();
+            Guid petId = Guid.NewGuid();
             var user = await _userRepo.GetUserById(userId);
             PostAuthorModel author = new()
             {
@@ -372,6 +374,27 @@ namespace Business.Services.PostServices
                     _ = await _postAttachmentRepo.Insert(newAttachment);
                 }
                 List<PostAttachmentResModel> listAttachment = await _postAttachmentRepo.GetListAttachmentByPostId(postId);
+                TblPetTradingPost tblPet = new()
+                {
+                    Id = petId,
+                    PostId = postId,
+                    Name = newPost.PetName,
+                    Type = newPost.Type,
+                    Breed = newPost.Breed,
+                    Age = newPost.Age,
+                    Gender = newPost.Gender,
+                    Weight = newPost.Weight,
+                };
+                _ = await _petPostTradeRepo.Insert(tblPet);
+                PetPostTradeModel newPet = new()
+                {
+                    Name = newPost.PetName,
+                    Type = newPost.Type,
+                    Breed = newPost.Breed,
+                    Age = newPost.Age,
+                    Gender = newPost.Gender,
+                    Weight = newPost.Weight,
+                };
                 PostTradeResModel postResModel = new()
                 {
                     Id = postId,
@@ -383,21 +406,12 @@ namespace Business.Services.PostServices
                     updatedAt = null,
                     Type = newPost.Type,
                     Amount = newPost.Amount,
-                    
-                };
-                PetPostTradeModel tradeResMoedel = new()
-                {
-                    Name = newPost.PetName,
-                    Type = newPost.Type,
-                    Breed = newPost.Breed,
-                    Age = newPost.Age,
-                    Gender = newPost.Gender,
-                    Weight = newPost.Weight,
+                    Pet = newPet
+
                 };
                 result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = postResModel;
-                result.Data = tradeResMoedel;
             }
             catch (Exception e)
             {
@@ -439,7 +453,41 @@ namespace Business.Services.PostServices
                         post.Content = postReq.content;
                         tblPost.Content = postReq.content;
                     }
-                    if (!string.IsNullOrEmpty(postReq.) && !post.)
+                    if (!string.IsNullOrEmpty(postReq.PetName) && !pet.Name.Equals(postReq.PetName))
+                    {
+                        pet.Name = postReq.PetName;
+                        tblPet.Name = postReq.PetName;
+                    }
+                    if (!string.IsNullOrEmpty(postReq.Type) && !pet.Type.Equals(postReq.Type))
+                    {
+                        pet.Type = postReq.Type;
+                        tblPet.Type = postReq.Type;
+                    }
+                    if (!string.IsNullOrEmpty(postReq.Breed) && !pet.Type.Equals(postReq.Breed))
+                    {
+                        pet.Breed = postReq.Breed;
+                        tblPet.Breed = postReq.Breed;
+                    }
+                    if (!string.IsNullOrEmpty(postReq.Age) && !pet.Type.Equals(postReq.Age))
+                    {
+                        pet.Age = postReq.Age;
+                        tblPet.Age = postReq.Age;
+                    }
+                    if (!string.IsNullOrEmpty(postReq.Gender) && !pet.Type.Equals(postReq.Gender))
+                    {
+                        pet.Gender = postReq.Gender;
+                        tblPet.Gender = postReq.Gender;
+                    }
+                    if (postReq.Weight != null && !pet.Type.Equals(postReq.Weight))
+                    {
+                        pet.Weight = postReq.Weight;
+                        tblPet.Weight = postReq.Weight;
+                    }
+                    if(postReq.Amount != null && !post.Amount.Equals(postReq.Amount))
+                    {
+                        post.Amount = postReq.Amount;
+                        tblPost.Amount = postReq.Amount;
+                    }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
                     var attachmentsToAdd = new List<TblPostAttachment>();
@@ -477,9 +525,56 @@ namespace Business.Services.PostServices
 
                     tblPost.UpdateAt = now;
                     _ = await _postRepo.Update(tblPost);
+                    post.Pet = pet;
                     post.Attachment = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     result.IsSuccess = true;
                     result.Data = post;
+                    result.Code = 200;
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> DeletePostTrade(PostDeleteReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                PostTradeResModel post = await _postRepo.GetPostTradeById(postReq.postId);
+                TblPost tblPost = await _postRepo.GetTblPostTradeById(postReq.postId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                else if (!userId.Equals(post.Author.Id))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "You do not have permission to delete this post";
+                    return result;
+                }
+                else
+                {
+                    tblPost.UpdateAt = now;
+                    tblPost.Status = Status.DEACTIVE;
+                    _ = await _postRepo.Update(tblPost);
+                    List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(postReq.postId);
+                    foreach (var attachment in Attachments)
+                    {
+                        attachment.Status = Status.DEACTIVE;
+                        _ = await _postAttachmentRepo.Update(attachment);
+                    }
+                    result.IsSuccess = true;
                     result.Code = 200;
                 }
             }

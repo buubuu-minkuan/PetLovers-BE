@@ -27,8 +27,13 @@ namespace Data.Repositories.PetPostTradeRepo
         {
             var pet = await _context.TblPetTradingPosts.Where(x => x.PostId.Equals(postId)).FirstOrDefaultAsync();
             PetPostTradeModel newPet = new();
-            newPet.Gender = pet.Gender
-            return newPet
+            newPet.Name = pet.Name;
+            newPet.Type = pet.Type;
+            newPet.Breed = pet.Breed;
+            newPet.Age = pet.Age;
+            newPet.Weight = pet.Weight;
+            newPet.Gender = pet.Gender;
+            return newPet;
         }
     }
 }
