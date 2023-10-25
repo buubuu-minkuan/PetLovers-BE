@@ -166,5 +166,45 @@ namespace Business.Services.CommentServices
             }
             return result;
         }
+        public async Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(Comment.token, "userid"));
+            try
+            {
+                CommentResModel resComment = await _reactionRepo.GetCommentById(Comment.Id);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(Comment.Id);
+                if (resComment == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Comment not found";
+                    return result;
+                }
+                else if (!userId.Equals(resComment.UserId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "You do not have permission to delete this comment";
+                    return result;
+                }
+                else
+                {
+                    tblPostReaction.UpdateAt = now;
+                    tblPostReaction.Status = Status.DEACTIVE;
+                    _ = await _reactionRepo.Update(tblPostReaction);
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }
