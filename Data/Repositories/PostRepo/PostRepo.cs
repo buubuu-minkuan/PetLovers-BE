@@ -26,7 +26,7 @@ namespace Data.Repositories.PostRepo
         }
         public async Task<PostResModel> GetPostById(Guid id)
         {
-            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
             PostAuthorModel author = new()
             {
@@ -73,7 +73,7 @@ namespace Data.Repositories.PostRepo
             {
                 foreach (var postAuthor in following)
                 {
-                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
+                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
                     PostAuthorModel author = new()
                     {
                         Id = postAuthor.Id,
@@ -106,7 +106,7 @@ namespace Data.Repositories.PostRepo
         public async Task<List<PostResModel>> GetAllPosts()
         {
             List<PostResModel> posts = new();
-            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var post in newPost)
             {
                 TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
@@ -135,7 +135,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<TblPost> GetTblPostById(Guid id)
         {
-            return await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
         }
 
         private async Task<List<PostAttachmentResModel>> GetPostAttachment(Guid postId)
@@ -157,7 +157,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<List<PostResModel>> GetAllPendingPost()
         {
-            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING)).ToListAsync();
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
             foreach(var post in listTblPost)
             {
@@ -182,7 +182,7 @@ namespace Data.Repositories.PostRepo
         }
         public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
         {
-            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING)).ToListAsync();
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
             PostAuthorModel author = new()
