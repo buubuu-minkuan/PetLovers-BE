@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
 using Data.Models.UserModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -37,6 +38,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id:Guid}")]
+        [Authorize]
         public async Task<IActionResult> GetUser(Guid id)
         {
             Data.Models.ResultModel.ResultModel result = await _user.GetUser(id);
@@ -44,6 +46,7 @@ namespace API.Controllers
         }
 
         [HttpPatch("Update")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser(UserUpdateReqModel model)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
