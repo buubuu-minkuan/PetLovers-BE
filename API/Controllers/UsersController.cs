@@ -41,7 +41,8 @@ namespace API.Controllers
         [Authorize]
         public async Task<IActionResult> GetUser(Guid id)
         {
-            Data.Models.ResultModel.ResultModel result = await _user.GetUser(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _user.GetUser(id, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -51,6 +52,15 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _user.UpdateUser(model, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPatch("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(UserChangePasswordModel model)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _user.ChangePassword(model, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

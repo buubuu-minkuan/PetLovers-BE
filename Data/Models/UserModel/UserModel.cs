@@ -34,6 +34,19 @@ namespace Data.Models.UserModel
         public List<PostResModel>? posts { get; set; }
     }
 
+    public class OtherUserPageModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string? Image { get; set; }
+        public bool isFollowed { get; set; }
+        public Guid RoleId { get; set; }
+        public int Following { get; set; }
+        public int Follower { get; set; }
+        public List<PostResModel>? posts { get; set; }
+    }
+
     public class UserResgisterModel
     {
         [Required]
