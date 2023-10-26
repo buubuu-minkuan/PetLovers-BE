@@ -24,7 +24,7 @@ namespace Data.Repositories.PostRepo
             //_mapper = mapper;
             _context = context;
         }
-        public async Task<PostResModel> GetPostById(Guid id)
+        public async Task<PostResModel> GetPostById(Guid id, Guid userId)
         {
             TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
@@ -34,15 +34,24 @@ namespace Data.Repositories.PostRepo
                 Name = user.Name,
             };
             List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-            var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-            var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+            var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
+            var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+            bool isFeeling = false;
+            foreach(var feeling in Feeling)
+            {
+                if (!feeling.UserId.Equals(userId))
+                {
+                    isFeeling = true; break;
+                }
+            }
             return new PostResModel
             {
                 Id = post.Id,
                 author = author,
-                amountComment = amountComment.Count,
-                amountFeeling = amountFeeling.Count,
+                amountComment = Comment.Count,
+                amountFeeling = Feeling.Count,
                 content = post.Content,
+                isFeeling = isFeeling,
                 attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
@@ -81,8 +90,16 @@ namespace Data.Repositories.PostRepo
                     };
                     if (postFollowing == null) continue;
                     if ((now - postFollowing.CreateAt).TotalMilliseconds > 900000) continue;
-                    var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                    var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                    var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
+                    var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                    bool isFeeling = false;
+                    foreach (var feeling in Feeling)
+                    {
+                        if (!feeling.UserId.Equals(userId))
+                        {
+                            isFeeling = true; break;
+                        }
+                    }
                     List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postFollowing.Id);
                     if (postFollowing != null)
                     {
@@ -91,8 +108,9 @@ namespace Data.Repositories.PostRepo
                             Id = postFollowing.Id,
                             author = author,
                             content = postFollowing.Content,
-                            amountFeeling = amountFeeling.Count,
-                            amountComment = amountComment.Count,
+                            amountFeeling = Feeling.Count,
+                            isFeeling = isFeeling,
+                            amountComment = Comment.Count,
                             attachment = arrAttachment,
                             createdAt = postFollowing.CreateAt,
                             updatedAt = postFollowing.UpdateAt
@@ -103,7 +121,7 @@ namespace Data.Repositories.PostRepo
             return posts;
         }
 
-        public async Task<List<PostResModel>> GetAllPosts()
+        public async Task<List<PostResModel>> GetAllPosts(Guid userId)
         {
             List<PostResModel> posts = new();
             var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).OrderByDescending(x => x.CreateAt).ToListAsync();
@@ -115,8 +133,16 @@ namespace Data.Repositories.PostRepo
                     Id = user.Id,
                     Name = user.Name,
                 };
-                var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
+                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                bool isFeeling = false;
+                foreach (var feeling in Feeling)
+                {
+                    if (!feeling.UserId.Equals(userId))
+                    {
+                        isFeeling = true; break;
+                    }
+                }
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 posts.Add(new PostResModel()
                 {
@@ -124,10 +150,11 @@ namespace Data.Repositories.PostRepo
                     author = author,
                     content = post.Content,
                     attachment = arrAttachment,
+                    isFeeling = isFeeling,
                     createdAt = post.CreateAt,
                     updatedAt = post.UpdateAt,
-                    amountFeeling = amountFeeling.Count,
-                    amountComment = amountComment.Count
+                    amountFeeling = Feeling.Count,
+                    amountComment = Comment.Count
                 });
             }
             return posts;

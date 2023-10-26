@@ -28,7 +28,8 @@ namespace API.Controllers
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetPost(Guid id)
         {
-            Data.Models.ResultModel.ResultModel result = await _post.GetPostById(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetPostById(id, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
