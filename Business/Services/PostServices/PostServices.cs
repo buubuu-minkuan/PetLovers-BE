@@ -384,6 +384,7 @@ namespace Business.Services.PostServices
                     Age = newPost.Age,
                     Gender = newPost.Gender,
                     Weight = newPost.Weight,
+                    Status = Status.ACTIVE
                 };
                 _ = await _petPostTradeRepo.Insert(tblPet);
                 PetPostTradeModel newPet = new()
@@ -548,7 +549,8 @@ namespace Business.Services.PostServices
             try
             {
                 PostTradeResModel post = await _postRepo.GetPostTradeById(postReq.postId);
-                TblPost tblPost = await _postRepo.GetTblPostTradeById(postReq.postId);
+                TblPost tblPost = await _postRepo.Get(postReq.postId);
+                TblPetTradingPost tblPet = await _petPostTradeRepo.GetTblPetPostTradingByPostId(postReq.postId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -567,6 +569,8 @@ namespace Business.Services.PostServices
                 {
                     tblPost.UpdateAt = now;
                     tblPost.Status = Status.DEACTIVE;
+                    tblPet.Status = Status.DEACTIVE;
+                    _ = await _petPostTradeRepo.Update(tblPet);
                     _ = await _postRepo.Update(tblPost);
                     List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(postReq.postId);
                     foreach (var attachment in Attachments)

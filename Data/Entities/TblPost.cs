@@ -30,6 +30,7 @@ namespace Data.Entities
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
         public string? Title { get; set; }
+        public Guid? ModeratorId { get; set; }
 
         public virtual TblUser User { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }

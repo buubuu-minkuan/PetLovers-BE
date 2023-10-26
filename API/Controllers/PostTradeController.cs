@@ -56,7 +56,7 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.DeletePost(post);
+            Data.Models.ResultModel.ResultModel result = await _post.DeletePostTrade(post);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
