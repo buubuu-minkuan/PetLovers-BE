@@ -41,6 +41,12 @@ namespace Data.Models.UserModel
         public string Password { get; set; } = null!;
     }
 
+    public class UserChangePasswordModel
+    {
+        public string oldPassword { get; set; }
+        public string newPassword { get; set; }
+    }
+
     public class UserUpdateReqModel
     {
         public string Username { get; set; }
