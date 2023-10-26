@@ -14,6 +14,7 @@ namespace Data.Repositories.PostRepo
     {
         public Task<PostResModel> GetPostById(Guid id, Guid userId);
         public Task<List<PostResModel>> GetPostsFromFollow(Guid userId);
+        public Task<List<PostResModel>> GetPostsFromUser(Guid userId);
         public Task<List<PostResModel>> GetAllPosts(Guid userId);
         public Task<TblPost> GetTblPostById(Guid id);
         public Task<List<PostResModel>> GetAllPendingPost();
