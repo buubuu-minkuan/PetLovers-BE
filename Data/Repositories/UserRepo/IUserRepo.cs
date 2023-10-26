@@ -13,6 +13,7 @@ namespace Data.Repositories.UserRepo
     {
         public Task<TblUser> getUserByUsername(string username);
         public Task<Guid> GetRoleId(string RoleName);
+        public Task<string> GetRoleName(Guid id);
         public Task<TblUser> GetUserByEmail(string Email);
         public Task<UserModel> GetUserById(Guid id);
         public Task<List<UserModel>> GetFollowingUser(Guid authorId);

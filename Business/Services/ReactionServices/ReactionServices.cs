@@ -1,28 +1,23 @@
-﻿using Data.Entities;
+﻿using Business.Ultilities.UserAuthentication;
+using Data.Entities;
+using Data.Enums;
 using Data.Models.CommentModel;
 using Data.Models.ResultModel;
-using Business.Ultilities.UserAuthentication;
-using Data.Models.UserModel;
-using Data.Repositories.PostRepo;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Data.Repositories.PostReactRepo;
+using Data.Repositories.UserRepo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-using Data.Enums;
-using Data.Models.PostModel;
-using Data.Repositories.PostReactRepo;
 
-namespace Business.Services.CommentServices
+namespace Business.Services.ReactionServices
 {
-    public class CommentServices : ICommentServices //ko biết sao lỗi
+    public class ReactionServices : IReactionServices //ko biết sao lỗi
     {
         private readonly IPostReactionRepo _reactionRepo;
         private readonly UserAuthentication _userAuthentication;
-        public CommentServices(IPostReactionRepo CommentRepo)
+        public ReactionServices(IPostReactionRepo CommentRepo)
         {
             _userAuthentication = new UserAuthentication();
             _reactionRepo = CommentRepo;
@@ -157,6 +152,46 @@ namespace Business.Services.CommentServices
                 result.IsSuccess = false;
                 result.Code = 200;
                 result.Data = resComment;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(Comment.token, "userid"));
+            try
+            {
+                CommentResModel resComment = await _reactionRepo.GetCommentById(Comment.Id);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(Comment.Id);
+                if (resComment == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "Comment not found";
+                    return result;
+                }
+                else if (!userId.Equals(resComment.UserId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 200;
+                    result.Message = "You do not have permission to delete this comment";
+                    return result;
+                }
+                else
+                {
+                    tblPostReaction.UpdateAt = now;
+                    tblPostReaction.Status = Status.DEACTIVE;
+                    _ = await _reactionRepo.Update(tblPostReaction);
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                }
             }
             catch (Exception e)
             {

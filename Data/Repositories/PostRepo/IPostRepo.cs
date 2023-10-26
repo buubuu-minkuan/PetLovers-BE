@@ -12,12 +12,15 @@ namespace Data.Repositories.PostRepo
 {
     public interface IPostRepo : IRepository<TblPost>
     {
-        public Task<PostResModel> GetPostById(Guid id);
+        public Task<PostResModel> GetPostById(Guid id, Guid userId);
         public Task<List<PostResModel>> GetPostsFromFollow(Guid userId);
-        public Task<List<PostResModel>> GetAllPosts();
+        public Task<List<PostResModel>> GetPostsFromUser(Guid userId);
+        public Task<List<PostResModel>> GetAllPosts(Guid userId);
         public Task<TblPost> GetTblPostById(Guid id);
         public Task<TblPost> GetTblPostTradeById(Guid id);
         public Task<PostTradeResModel> GetPostTradeById(Guid id);
         public Task<List<PostTradeResModel>> GetAllTradePostsTitle();
+        public Task<List<PostResModel>> GetAllPendingPost();
+        public Task<List<PostResModel>> GetUserPendingPost(Guid userId);
     }
 }

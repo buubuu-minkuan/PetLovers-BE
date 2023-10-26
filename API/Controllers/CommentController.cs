@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
-using Business.Services.CommentServices;
+using Business.Services.ReactionServices;
 using Data.Models.CommentModel;
 using Microsoft.AspNetCore.Authorization;
 
@@ -18,9 +18,9 @@ namespace API.Controllers
     [ApiController]
     public class CommentController : Controller
     {
-        private readonly ICommentServices _comment;
+        private readonly IReactionServices _comment;
 
-        public CommentController(ICommentServices comment)
+        public CommentController(IReactionServices comment)
         {
             _comment = comment;
         }
@@ -54,6 +54,15 @@ namespace API.Controllers
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Comment.token = token;
             Data.Models.ResultModel.ResultModel result = await _comment.UpdateComment(Comment);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete("delete-comment")]
+        public async Task<IActionResult> DeleteComment([FromBody] CommentDeleteReqModel Comment)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Comment.token = token;
+            Data.Models.ResultModel.ResultModel result = await _comment.DeleteComment(Comment);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

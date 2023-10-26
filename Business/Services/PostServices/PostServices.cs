@@ -1,4 +1,4 @@
-﻿using Business.Ultilities.UserAuthentication;
+using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
 using Data.Models.CommentModel;
@@ -10,14 +10,17 @@ using Data.Repositories.PetPostTradeRepo;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
+using Data.Repositories.PostStoredRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Math.Field;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -29,25 +32,28 @@ namespace Business.Services.PostServices
         private readonly IPostAttachmentRepo _postAttachmentRepo;
         private readonly IPostReactionRepo _postReactionRepo;
         private readonly IUserRepo _userRepo;
+        private readonly IPostStoredRepo _postStoredRepo;
         private readonly UserAuthentication _userAuthentication;
         private readonly IPetPostTradeRepo _petPostTradeRepo;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo)
         {
             _petPostTradeRepo = petPostTradeRepo;
             _postReactionRepo = postReactionRepo;
+            _postStoredRepo = postStoredRepo;
             _postAttachmentRepo = postAttachmentRepo;
             _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
             _postRepo = postRepo;
         }
         
-        public async Task<ResultModel> GetPostById(Guid id)
+        public async Task<ResultModel> GetPostById(Guid id, string token)
         {
             ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-                var post = await _postRepo.GetPostById(id);
+                var post = await _postRepo.GetPostById(id, userId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -75,7 +81,7 @@ namespace Business.Services.PostServices
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 List<PostResModel> postsFollow = await _postRepo.GetPostsFromFollow(userId);
                 postsFollow.Sort((x, y) => x.createdAt.CompareTo(y.createdAt));
-                List<PostResModel> allPosts = await _postRepo.GetAllPosts();
+                List<PostResModel> allPosts = await _postRepo.GetAllPosts(userId);
                 foreach(var post in postsFollow)
                 {
                     if (allPosts.Contains(post))
@@ -162,7 +168,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             try
             {
-                PostResModel post = await _postRepo.GetPostById(postReq.postId);
+                PostResModel post = await _postRepo.GetPostById(postReq.postId, userId);
                 TblPost tblPost = await _postRepo.GetTblPostById(postReq.postId);
                 if (post == null)
                 {
@@ -237,14 +243,14 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> DeletePost(PostDeleteReqModel postReq)
+        public async Task<ResultModel> DeletePost(PostReqModel postReq)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             try
             {
-                PostResModel post = await _postRepo.GetPostById(postReq.postId);
+                PostResModel post = await _postRepo.GetPostById(postReq.postId, userId);
                 TblPost tblPost = await _postRepo.GetTblPostById(postReq.postId);
                 if (post == null)
                 {
@@ -290,20 +296,167 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        public async Task<ResultModel> StorePost(PostStoreReqModel postReq)
+        public async Task<ResultModel> StorePost(PostReqModel postReq)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             try
             {
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                if(checkExist != null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "This post is already stored!";
+                    return result;
+                }
                 TblPostStored newPost = new()
                 {
                     UserId = userId,
                     PostId = postReq.postId,
                     Status = Status.ACTIVE,
-                    //CreateAt = now,
+                    CreateAt = now
                 };
+                _ = await _postStoredRepo.Insert(newPost);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> RemoveStorePost(PostReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                if (checkExist == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "This post haven't been stored yet!";
+                    return result;
+                }
+                checkExist.Status = Status.DEACTIVE;
+                _ = await _postStoredRepo.Update(checkExist);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetAllPendingPost(string token)
+        {
+            ResultModel result = new();
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                List<PostResModel> listPost = await _postRepo.GetAllPendingPost();
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = listPost;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> GetUserPendingPost(string token)
+        {
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                List<PostResModel> listPost = await _postRepo.GetUserPendingPost(userId);
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = listPost;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> ApprovePosting(PostReqModel post)
+        {
+            ResultModel result = new();
+            Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                TblPost getPost = await _postRepo.GetTblPostById(post.postId);
+                getPost.Status = PostingStatus.APPROVED;
+                getPost.IsProcessed = true;
+                _ = await _postRepo.Update(getPost);
+                result.Code = 200;
+                result.IsSuccess = true;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> RefusePosting(PostReqModel post)
+        {
+            ResultModel result = new();
+            Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                TblPost getPost = await _postRepo.GetTblPostById(post.postId);
+                getPost.Status = PostingStatus.REFUSED;
+                getPost.IsProcessed = true;
+                _ = await _postRepo.Update(getPost);
+                result.Code = 200;
+                result.IsSuccess = true;
             }
             catch (Exception e)
             {

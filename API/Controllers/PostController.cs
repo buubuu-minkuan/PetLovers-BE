@@ -28,7 +28,16 @@ namespace API.Controllers
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetPost(Guid id)
         {
-            Data.Models.ResultModel.ResultModel result = await _post.GetPostById(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetPostById(id, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("pending-post")]
+        public async Task<IActionResult> GetUserPendingPost()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetUserPendingPost(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -49,6 +58,15 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
+        [HttpPost("store-post")]
+        public async Task<IActionResult> StorePost([FromBody] PostReqModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.StorePost(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
         [HttpPut("update-post")]
         public async Task<IActionResult> UpdatePost([FromBody] PostUpdateReqModel post)
         {
@@ -58,8 +76,17 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
+        [HttpDelete("remove-store-post")]
+        public async Task<IActionResult> RemoveStorePost([FromBody] PostReqModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.RemoveStorePost(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
         [HttpDelete("delete-post")]
-        public async Task<IActionResult> DeletePost([FromBody] PostDeleteReqModel post)
+        public async Task<IActionResult> DeletePost([FromBody] PostReqModel post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             post.token = token;

@@ -27,9 +27,9 @@ namespace Data.Repositories.PostRepo
             //_mapper = mapper;
             _context = context;
         }
-        public async Task<PostResModel> GetPostById(Guid id)
+        public async Task<PostResModel> GetPostById(Guid id, Guid userId)
         {
-            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
             PostAuthorModel author = new()
             {
@@ -37,15 +37,24 @@ namespace Data.Repositories.PostRepo
                 Name = user.Name,
             };
             List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-            var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-            var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+            var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+            var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+            bool isFeeling = false;
+            foreach(var feeling in Feeling)
+            {
+                if (!feeling.UserId.Equals(userId))
+                {
+                    isFeeling = true; break;
+                }
+            }
             return new PostResModel
             {
                 Id = post.Id,
                 author = author,
-                amountComment = amountComment.Count,
-                amountFeeling = amountFeeling.Count,
+                amountComment = Comment.Count,
+                amountFeeling = Feeling.Count,
                 content = post.Content,
+                isFeeling = isFeeling,
                 attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
@@ -76,7 +85,7 @@ namespace Data.Repositories.PostRepo
             {
                 foreach (var postAuthor in following)
                 {
-                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).FirstOrDefaultAsync();
+                    var postFollowing = await _context.TblPosts.Where(x => x.UserId.Equals(postAuthor.Id) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
                     PostAuthorModel author = new()
                     {
                         Id = postAuthor.Id,
@@ -84,8 +93,16 @@ namespace Data.Repositories.PostRepo
                     };
                     if (postFollowing == null) continue;
                     if ((now - postFollowing.CreateAt).TotalMilliseconds > 900000) continue;
-                    var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                    var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                    var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                    var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postFollowing.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                    bool isFeeling = false;
+                    foreach (var feeling in Feeling)
+                    {
+                        if (!feeling.UserId.Equals(userId))
+                        {
+                            isFeeling = true; break;
+                        }
+                    }
                     List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postFollowing.Id);
                     if (postFollowing != null)
                     {
@@ -94,8 +111,9 @@ namespace Data.Repositories.PostRepo
                             Id = postFollowing.Id,
                             author = author,
                             content = postFollowing.Content,
-                            amountFeeling = amountFeeling.Count,
-                            amountComment = amountComment.Count,
+                            amountFeeling = Feeling.Count,
+                            isFeeling = isFeeling,
+                            amountComment = Comment.Count,
                             attachment = arrAttachment,
                             createdAt = postFollowing.CreateAt,
                             updatedAt = postFollowing.UpdateAt
@@ -106,10 +124,49 @@ namespace Data.Repositories.PostRepo
             return posts;
         }
 
-        public async Task<List<PostResModel>> GetAllPosts()
+        public async Task<List<PostResModel>> GetPostsFromUser(Guid userId)
+        {
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
+            List<PostResModel> listPostRes = new();
+            foreach (var p in post)
+            {
+                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(p.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(p.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                bool isFeeling = false;
+                foreach (var feeling in Feeling)
+                {
+                    if (!feeling.UserId.Equals(userId))
+                    {
+                        isFeeling = true; break;
+                    }
+                }
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(p.Id);
+                listPostRes.Add(new PostResModel()
+                {
+                    Id = p.Id,
+                    author = author,
+                    content = p.Content,
+                    amountFeeling = Feeling.Count,
+                    isFeeling = isFeeling,
+                    amountComment = Comment.Count,
+                    attachment = arrAttachment,
+                    createdAt = p.CreateAt,
+                    updatedAt = p.UpdateAt
+                });
+            }
+            return listPostRes;
+        }
+
+        public async Task<List<PostResModel>> GetAllPosts(Guid userId)
         {
             List<PostResModel> posts = new();
-            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed && x.Type.Equals(PostingType.POSTING)).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var post in newPost)
             {
                 TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
@@ -118,8 +175,16 @@ namespace Data.Repositories.PostRepo
                     Id = user.Id,
                     Name = user.Name,
                 };
-                var amountComment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT)).ToListAsync();
-                var amountFeeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING)).ToListAsync();
+                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                bool isFeeling = false;
+                foreach (var feeling in Feeling)
+                {
+                    if (!feeling.UserId.Equals(userId))
+                    {
+                        isFeeling = true; break;
+                    }
+                }
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 posts.Add(new PostResModel()
                 {
@@ -127,10 +192,11 @@ namespace Data.Repositories.PostRepo
                     author = author,
                     content = post.Content,
                     attachment = arrAttachment,
+                    isFeeling = isFeeling,
                     createdAt = post.CreateAt,
                     updatedAt = post.UpdateAt,
-                    amountFeeling = amountFeeling.Count,
-                    amountComment = amountComment.Count
+                    amountFeeling = Feeling.Count,
+                    amountComment = Comment.Count
                 });
             }
             return posts;
@@ -138,7 +204,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<TblPost> GetTblPostById(Guid id)
         {
-            return await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.POSTING)).FirstOrDefaultAsync();
         }
 
         private async Task<List<PostAttachmentResModel>> GetPostAttachment(Guid postId)
@@ -150,7 +216,6 @@ namespace Data.Repositories.PostRepo
                 PostAttachmentResModel attachment = new()
                 {
                     Id = postAttachment.Id,
-                    PostId = postAttachment.PostId,
                     Attachment = postAttachment.Attachment,
                     Status = postAttachment.Status,
                 };
@@ -158,6 +223,7 @@ namespace Data.Repositories.PostRepo
             }
             return listResAttachement;
         }
+        
         public async Task<PostTradeResModel> GetPostTradeById(Guid id)
         {
             TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
@@ -194,6 +260,7 @@ namespace Data.Repositories.PostRepo
                 updatedAt = post.UpdateAt,
             };
         }
+        
         public async Task<List<PostTradeResModel>> GetAllTradePostsTitle()
         {
             List<PostTradeResModel> posts = new();
@@ -206,7 +273,8 @@ namespace Data.Repositories.PostRepo
                     Id = user.Id,
                     Name = user.Name,
                 };
-                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+            }
+            List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 posts.Add(new PostTradeResModel()
                 {
                     Id = post.Id,
@@ -221,10 +289,62 @@ namespace Data.Repositories.PostRepo
             }
             return posts;
         }
+
+        public async Task<List<PostResModel>> GetAllPendingPost()
+        {
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
+            List<PostResModel> listResPost = new List<PostResModel>();
+            foreach(var post in listTblPost)
+            {
+                var attachment = await GetPostAttachment(post.Id);
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                };
+                listResPost.Add(new PostResModel()
+                {
+                    Id = post.Id,
+                    author = author,
+                    content = post.Content,
+                    attachment = attachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt
+                });
+            }
+            return listResPost;
+        }
+                
         public async Task<TblPost> GetTblPostTradeById(Guid id)
         {
             return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING)).FirstOrDefaultAsync();
         }
-
+                
+        public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
+        {
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
+            List<PostResModel> listResPost = new List<PostResModel>();
+            TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
+            foreach (var post in listTblPost)
+            {
+                var attachment = await GetPostAttachment(post.Id);
+                listResPost.Add(new PostResModel()
+                {
+                    Id = post.Id,
+                    author = author,
+                    content = post.Content,
+                    attachment = attachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt
+                });
+            }
+            return listResPost;
+        }
     }
 }

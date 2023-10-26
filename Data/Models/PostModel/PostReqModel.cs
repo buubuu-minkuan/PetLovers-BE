@@ -8,8 +8,8 @@ namespace Data.Models.PostModel
 {
     public class PostReqModel
     {
-        public String? content { get; set; }
-        public String? attachment { get; set; }
+        public string token { get; set; }
+        public Guid postId { get; set; }
     }
 
     public class PostCreateReqModel
@@ -17,6 +17,7 @@ namespace Data.Models.PostModel
         public string token { get; set; } = null!;
         public string content { get; set; }
         public string[]? attachment { get; set; }
+        public string[]? hashtag { get; set; }
     }
 
     public class PostUpdateReqModel
@@ -41,11 +42,11 @@ namespace Data.Models.PostModel
 
     public class PostTradeCreateReqModel
     {
-        public string token { get; set; }
-        public string title { get; set; }
-        public string content { get; set; }
-        public string[]? attachment { get; set; }
-        public string? PetName { get; set; }
+        public string Token { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public string[]? Attachment { get; set; }
+        public string? Name { get; set; }
         public string Type { get; set; } = null!;
         public string Breed { get; set; } = null!;
         public string Age { get; set; } = null!;
