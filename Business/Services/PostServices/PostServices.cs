@@ -494,7 +494,7 @@ namespace Business.Services.PostServices
         {
             DateTime now = DateTime.Now;
             ResultModel result = new();
-            Guid userId = new Guid(_userAuthentication.decodeToken(newPost.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(newPost.Token, "userid"));
             Guid postId = Guid.NewGuid();
             Guid petId = Guid.NewGuid();
             var user = await _userRepo.GetUserById(userId);
@@ -510,13 +510,13 @@ namespace Business.Services.PostServices
                 UserId = userId,
                 Status = PostingStatus.APPROVED,
                 IsProcessed = true,
-                Content = newPost.content,
+                Content = newPost.Content,
                 CreateAt = now
             };
             try
             {
                 _ = await _postRepo.Insert(postTradeReq);
-                foreach (var attachement in newPost.attachment)
+                foreach (var attachement in newPost.Attachment)
                 {
                     TblPostAttachment newAttachment = new()
                     {
@@ -553,9 +553,9 @@ namespace Business.Services.PostServices
                 {
                     Id = postId,
                     Author = author,
-                    Content = newPost.content,
+                    Content = newPost.Content,
                     Attachment = listAttachment,
-                    Title = newPost.title,
+                    Title = newPost.Title,
                     createdAt = now,
                     updatedAt = null,
                     Type = newPost.Type,

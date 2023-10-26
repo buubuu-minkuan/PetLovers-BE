@@ -37,7 +37,7 @@ namespace API.Controllers
         public async Task<IActionResult> CreatePostTrade([FromBody] PostTradeCreateReqModel newPost)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            newPost.token = token;
+            newPost.Token = token;
             Data.Models.ResultModel.ResultModel result = await _post.CreatePostTrade(newPost);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }

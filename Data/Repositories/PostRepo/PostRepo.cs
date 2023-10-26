@@ -273,8 +273,8 @@ namespace Data.Repositories.PostRepo
                     Id = user.Id,
                     Name = user.Name,
                 };
-            }
-            List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 posts.Add(new PostTradeResModel()
                 {
                     Id = post.Id,
