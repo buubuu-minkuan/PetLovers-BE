@@ -12,6 +12,9 @@ using Data.Models.UserModel;
 using Data.Enums;
 using System.Net.Mail;
 using Data.Models.PostAttachmentModel;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 
 namespace Data.Repositories.PostRepo
 {
@@ -220,6 +223,72 @@ namespace Data.Repositories.PostRepo
             }
             return listResAttachement;
         }
+        
+        public async Task<PostTradeResModel> GetPostTradeById(Guid id)
+        {
+            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            TblPetTradingPost pet = await _context.TblPetTradingPosts.Where(x => x.PostId.Equals(id)).FirstOrDefaultAsync();
+            TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+            PostAuthorModel author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+            };
+            PetPostTradeModel petpost = new()
+            {
+                Name = pet.Name,
+                Type = pet.Type,
+                Breed = pet.Breed,
+                Age = pet.Age,
+                Gender = pet.Gender,
+                Weight = pet.Weight
+
+            };
+
+            List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+            return new PostTradeResModel
+            {
+                Id = post.Id,
+                Author = author,
+                Title = post.Title,
+                Content = post.Content,
+                Type = post.Type,
+                Amount = post.Amount,
+                Pet = petpost,
+                Attachment = arrAttachment,
+                createdAt = post.CreateAt,
+                updatedAt = post.UpdateAt,
+            };
+        }
+        
+        public async Task<List<PostTradeResModel>> GetAllTradePostsTitle()
+        {
+            List<PostTradeResModel> posts = new();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            foreach (var post in newPost)
+            {
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                };
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                posts.Add(new PostTradeResModel()
+                {
+                    Id = post.Id,
+                    Author = author,
+                    Title = post.Title,
+                    Type = post.Type,
+                    Amount = post.Amount,
+                    Attachment = arrAttachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt,
+                });
+            }
+            return posts;
+        }
 
         public async Task<List<PostResModel>> GetAllPendingPost()
         {
@@ -246,6 +315,12 @@ namespace Data.Repositories.PostRepo
             }
             return listResPost;
         }
+                
+        public async Task<TblPost> GetTblPostTradeById(Guid id)
+        {
+            return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING)).FirstOrDefaultAsync();
+        }
+                
         public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
         {
             List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
