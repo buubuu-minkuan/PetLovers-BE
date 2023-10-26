@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Models.PostModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -19,6 +20,18 @@ namespace Data.Models.UserModel
         public Guid RoleId { get; set; }
         public string Status { get; set; } = null!;
         public DateTime CreateAt { get; set; }
+    }
+
+    public class UserPageModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string? Image { get; set; }
+        public Guid RoleId { get; set; }
+        public int Following { get; set; }
+        public int Follower { get; set; }
+        public List<PostResModel>? posts { get; set; }
     }
 
     public class UserResgisterModel

@@ -10,16 +10,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
 using Newtonsoft.Json.Linq;
+using Data.Repositories.UserFollowingRepo;
+using Data.Repositories.PostRepo;
 
 namespace Business.Services.UserServices
 {
     public class UserServices : IUserServices
     {
         private readonly IUserRepo _userRepo;
+        private readonly IUserFollowingRepo _userFollowingRepo;
+        private readonly IPostRepo _postRepo;
         private readonly UserAuthentication _userAuthentication;
 
-        public UserServices(IUserRepo userRepo)
+        public UserServices(IUserRepo userRepo, IUserFollowingRepo userFollowingRepo, IPostRepo postRepo)
         {
+            _postRepo = postRepo;
+            _userFollowingRepo = userFollowingRepo;
             _userAuthentication = new UserAuthentication();
             _userRepo = userRepo;
         }
@@ -124,6 +130,20 @@ namespace Business.Services.UserServices
             try
             {
                 var User = await _userRepo.GetUserById(id);
+                var Followings = await _userFollowingRepo.GetFollowing(id);
+                var Followers = await _userFollowingRepo.GetFollowers(id);
+                var Posts = await _postRepo.GetPostsFromUser(id);
+                UserPageModel userPageModel = new()
+                {
+                    Id = id,
+                    Name = User.Name,
+                    Image = User.Image,
+                    Follower = Followers.Count,
+                    Following = Followings.Count,
+                    posts = Posts,
+                    RoleId = User.RoleId,
+                    Username = User.Username,
+                };
                 if (User == null)
                 {
                     result.IsSuccess = false;
@@ -133,7 +153,7 @@ namespace Business.Services.UserServices
                 }
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = User;
+                result.Data = userPageModel;
                 return result;
 
             }
