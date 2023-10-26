@@ -176,5 +176,44 @@ namespace Business.Services.UserServices
             }
             return result;
         }
+
+        public async Task<ResultModel> ChangePassword(UserChangePasswordModel model, string token)
+        {
+            ResultModel result = new();
+            try
+            {
+                Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+                var User = await _userRepo.Get(userId);
+                if (User == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "User not found";
+                    return result;
+                }
+                byte[] hashOldPassword = UserAuthentication.CreatePasswordHash(model.oldPassword);
+                bool isMatch = UserAuthentication.VerifyPasswordHash(hashOldPassword, User.Password);
+                if (!isMatch)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Old password is wrong";
+                    return result;
+                }
+                byte[] hashNewPassword = UserAuthentication.CreatePasswordHash(model.newPassword);
+                User.Password = hashNewPassword;
+                _ = await _userRepo.Update(User);
+                result.IsSuccess = true;
+                result.Code = 200;
+                return result;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

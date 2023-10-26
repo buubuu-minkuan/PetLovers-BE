@@ -42,12 +42,13 @@ namespace Business.Services.PostServices
             _userAuthentication = new UserAuthentication();
             _postRepo = postRepo;
         }
-        public async Task<ResultModel> GetPostById(Guid id)
+        public async Task<ResultModel> GetPostById(Guid id, string token)
         {
             ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-                var post = await _postRepo.GetPostById(id);
+                var post = await _postRepo.GetPostById(id, userId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -75,7 +76,7 @@ namespace Business.Services.PostServices
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 List<PostResModel> postsFollow = await _postRepo.GetPostsFromFollow(userId);
                 postsFollow.Sort((x, y) => x.createdAt.CompareTo(y.createdAt));
-                List<PostResModel> allPosts = await _postRepo.GetAllPosts();
+                List<PostResModel> allPosts = await _postRepo.GetAllPosts(userId);
                 foreach(var post in postsFollow)
                 {
                     if (allPosts.Contains(post))
@@ -162,7 +163,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             try
             {
-                PostResModel post = await _postRepo.GetPostById(postReq.postId);
+                PostResModel post = await _postRepo.GetPostById(postReq.postId, userId);
                 TblPost tblPost = await _postRepo.GetTblPostById(postReq.postId);
                 if (post == null)
                 {
@@ -244,7 +245,7 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             try
             {
-                PostResModel post = await _postRepo.GetPostById(postReq.postId);
+                PostResModel post = await _postRepo.GetPostById(postReq.postId, userId);
                 TblPost tblPost = await _postRepo.GetTblPostById(postReq.postId);
                 if (post == null)
                 {

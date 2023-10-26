@@ -10,7 +10,7 @@ namespace Business.Services.PostServices
 {
     public interface IPostServices
     {
-        public Task<ResultModel> GetPostById(Guid id);
+        public Task<ResultModel> GetPostById(Guid id, string token);
         public Task<ResultModel> GetNewsFeed(string token);
         public Task<ResultModel> CreatePost(PostCreateReqModel newPost);
         public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
