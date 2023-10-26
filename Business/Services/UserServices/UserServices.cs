@@ -124,38 +124,65 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public async Task<ResultModel> GetUser(Guid id)
+        public async Task<ResultModel> GetUser(Guid id, string token)
         {
             ResultModel result = new();
             try
             {
+                Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 var User = await _userRepo.GetUserById(id);
                 var Followings = await _userFollowingRepo.GetFollowing(id);
                 var Followers = await _userFollowingRepo.GetFollowers(id);
                 var Posts = await _postRepo.GetPostsFromUser(id);
-                UserPageModel userPageModel = new()
+                if (id.Equals(userId))
                 {
-                    Id = id,
-                    Name = User.Name,
-                    Image = User.Image,
-                    Follower = Followers.Count,
-                    Following = Followings.Count,
-                    posts = Posts,
-                    RoleId = User.RoleId,
-                    Username = User.Username,
-                };
-                if (User == null)
+                    UserPageModel userPageModel = new()
+                    {
+                        Id = id,
+                        Name = User.Name,
+                        Image = User.Image,
+                        Follower = Followers.Count,
+                        Following = Followings.Count,
+                        posts = Posts,
+                        RoleId = User.RoleId,
+                        Username = User.Username,
+                    };
+                    if (User == null)
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "User not found";
+                        return result;
+                    }
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                    result.Data = userPageModel;
+                } else
                 {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "User not found";
-                    return result;
+                    bool isFollowed = await _userFollowingRepo.IsFollowing(userId, id);
+                    OtherUserPageModel userPageModel = new()
+                    {
+                        Id = id,
+                        Name = User.Name,
+                        Image = User.Image,
+                        Follower = Followers.Count,
+                        Following = Followings.Count,
+                        isFollowed = isFollowed,
+                        posts = Posts,
+                        RoleId = User.RoleId,
+                        Username = User.Username,
+                    };
+                    if (User == null)
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "User not found";
+                        return result;
+                    }
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                    result.Data = userPageModel;
                 }
-                result.IsSuccess = true;
-                result.Code = 200;
-                result.Data = userPageModel;
-                return result;
-
             }
             catch (Exception e)
             {
