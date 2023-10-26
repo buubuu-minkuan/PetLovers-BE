@@ -123,7 +123,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<List<PostResModel>> GetPostsFromUser(Guid userId)
         {
-            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.POSTING) && x.Status.Equals(Status.ACTIVE) && x.IsProcessed).ToListAsync();
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
             PostAuthorModel author = new()
             {
