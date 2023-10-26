@@ -46,7 +46,7 @@ namespace Data.Models.PostModel
         public string Title { get; set; }
         public string Content { get; set; }
         public string[]? Attachment { get; set; }
-        public string? Name { get; set; }
+        public string? PetName { get; set; }
         public string Type { get; set; } = null!;
         public string Breed { get; set; } = null!;
         public string Age { get; set; } = null!;
