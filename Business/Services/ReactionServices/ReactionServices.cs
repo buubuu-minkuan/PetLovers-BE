@@ -3,11 +3,13 @@ using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
 using Data.Models.CommentModel;
+using Data.Models.FeelingModel;
 using Data.Models.ResultModel;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.UserRepo;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,11 +19,13 @@ namespace Business.Services.ReactionServices
     public class ReactionServices : IReactionServices //ko biết sao lỗi
     {
         private readonly IPostReactionRepo _reactionRepo;
+        private readonly IUserRepo _userRepo;
         private readonly UserAuthentication _userAuthentication;
-        public ReactionServices(IPostReactionRepo CommentRepo)
+        public ReactionServices(IPostReactionRepo reactionRepo, IUserRepo userRepo)
         {
             _userAuthentication = new UserAuthentication();
-            _reactionRepo = CommentRepo;
+            _reactionRepo = reactionRepo;
+            _userRepo = userRepo;
         }
         public async Task<ResultModel> GetCommentById(Guid id)
         {
@@ -90,6 +94,7 @@ namespace Business.Services.ReactionServices
                 UserId = userId,
                 Content = newComment.content,
                 Attachment = newComment.attachment,
+                Status = Status.ACTIVE,
                 CreateAt = now
             };
             try
@@ -193,6 +198,50 @@ namespace Business.Services.ReactionServices
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> CreateFeeling(FeelingCreateReqModel newFeeling)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(newFeeling.token, "userid"));
+            Guid feelingId = Guid.NewGuid();
+            TblPostReaction newTblFeeling = new()
+            {
+                Id = feelingId,
+                PostId = newFeeling.postId,
+                Type = ReactionType.FEELING,
+                UserId = userId,
+                TypeReact = FeelingType.LIKE,
+                Status = Status.ACTIVE,
+                CreateAt = now
+            };
+            try
+            {
+                _ = await _reactionRepo.Insert(newTblFeeling);
+                var user = await _userRepo.GetUserById(userId);
+                FeelingResModel Feeling = new()
+                {
+                    Id = feelingId,
+                    Author = new FeelingAuthorModel()
+                    {
+                        Id = userId,
+                        Name = user.Name
+                    },
+                    Type = FeelingType.LIKE,
+                    createdAt = now
+                };
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = Feeling;
             }
             catch (Exception e)
             {

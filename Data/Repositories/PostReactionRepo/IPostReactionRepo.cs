@@ -1,11 +1,7 @@
 ﻿using Data.Entities;
 using Data.Models.CommentModel;
+using Data.Models.PostModel;
 using Data.Repositories.GenericRepository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Repositories.PostReactRepo
 {
@@ -15,5 +11,6 @@ namespace Data.Repositories.PostReactRepo
         public Task<CommentResModel> GetCommentById(Guid id);
         public Task<List<CommentResModel>> GetCommentsByPostId(Guid postId);
         public Task<TblPostReaction> GetTblPostReactionByPostId(Guid id);
+        public Task<List<PostFeelingResModel>> GetListFeelingByPostId(Guid postId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Data.Models.CommentModel;
+using Data.Models.FeelingModel;
 using Data.Models.ResultModel;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,8 @@ namespace Business.Services.ReactionServices
         public Task<ResultModel> CreateComment(CommentCreateReqModel newComment);
         public Task<ResultModel> UpdateComment(CommentReqModel Comment);
         public Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment);
+        public Task<ResultModel> CreateFeeling(FeelingCreateReqModel newFeeling);
+        public Task<ResultModel> UpdateFeeling(FeelingReqModel Feeling);
+
     }
 }
