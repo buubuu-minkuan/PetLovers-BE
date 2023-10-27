@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
-using Business.Services.CommentServices;
+using Business.Services.ReactionServices;
 using Data.Models.CommentModel;
 using Microsoft.AspNetCore.Authorization;
 
@@ -18,9 +18,9 @@ namespace API.Controllers
     [ApiController]
     public class CommentController : Controller
     {
-        private readonly ICommentServices _comment;
+        private readonly IReactionServices _comment;
 
-        public CommentController(ICommentServices comment)
+        public CommentController(IReactionServices comment)
         {
             _comment = comment;
         }

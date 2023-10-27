@@ -10,10 +10,14 @@ namespace Business.Services.PostServices
 {
     public interface IPostServices
     {
-        public Task<ResultModel> GetPostById(Guid id);
+        public Task<ResultModel> GetPostById(Guid id, string token);
         public Task<ResultModel> GetNewsFeed(string token);
         public Task<ResultModel> CreatePost(PostCreateReqModel newPost);
         public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
+        public Task<ResultModel> GetPostTradeById(Guid id);
+        public Task<ResultModel> CreatePostTrade(PostTradeCreateReqModel newPost);
+        public Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq);
+        public Task<ResultModel> DeletePostTrade(PostDeleteReqModel post);
         public Task<ResultModel> DeletePost(PostReqModel post);
         public Task<ResultModel> StorePost(PostReqModel post);
         public Task<ResultModel> RemoveStorePost(PostReqModel post);

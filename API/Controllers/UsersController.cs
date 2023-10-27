@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Business.Services.UserServices;
 using Data.Entities;
 using Data.Models.UserModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
@@ -37,17 +38,29 @@ namespace API.Controllers
         }
 
         [HttpGet("{id:Guid}")]
+        [Authorize]
         public async Task<IActionResult> GetUser(Guid id)
         {
-            Data.Models.ResultModel.ResultModel result = await _user.GetUser(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _user.GetUser(id, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPatch("Update")]
+        [Authorize]
         public async Task<IActionResult> UpdateUser(UserUpdateReqModel model)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _user.UpdateUser(model, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPatch("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(UserChangePasswordModel model)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _user.ChangePassword(model, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

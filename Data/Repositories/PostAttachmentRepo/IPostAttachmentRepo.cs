@@ -16,5 +16,6 @@ namespace Data.Repositories.PostAttachmentRepo
         public Task<TblPostAttachment> GetAttachmentById (Guid id);
 
         public Task<List<TblPostAttachment>> GetListTblPostAttachmentById (Guid id);
+        
     }
 }
