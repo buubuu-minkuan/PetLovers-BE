@@ -60,13 +60,13 @@ namespace Data.Entities
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.TblNotifications)
                     .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("FK__tblNotifi__postI__02084FDA");
+                    .HasConstraintName("FK__tblNotifi__postI__10566F31");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblNotifications)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblNotifi__userI__0C85DE4D");
+                    .HasConstraintName("FK__tblNotifi__userI__114A936A");
             });
 
             modelBuilder.Entity<TblOtpverify>(entity =>
@@ -120,6 +120,11 @@ namespace Data.Entities
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
 
+                entity.Property(e => e.Status)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
+
                 entity.Property(e => e.Type)
                     .HasMaxLength(30)
                     .IsUnicode(false)
@@ -133,7 +138,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblPetTradingPosts)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPetTra__postI__634EBE90");
+                    .HasConstraintName("FK__tblPetTra__postI__123EB7A3");
             });
 
             modelBuilder.Entity<TblPost>(entity =>
@@ -161,6 +166,8 @@ namespace Data.Entities
                 entity.Property(e => e.IsFree).HasColumnName("isFree");
 
                 entity.Property(e => e.IsProcessed).HasColumnName("isProcessed");
+
+                entity.Property(e => e.ModeratorId).HasColumnName("moderatorId");
 
                 entity.Property(e => e.Phone)
                     .HasMaxLength(12)
@@ -192,7 +199,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblPosts)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPost__userId__03F0984C");
+                    .HasConstraintName("FK__tblPost__userId__1332DBDC");
             });
 
             modelBuilder.Entity<TblPostAttachment>(entity =>
@@ -218,7 +225,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblPostAttachments)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostAt__postI__4F47C5E3");
+                    .HasConstraintName("FK__tblPostAt__postI__14270015");
             });
 
             modelBuilder.Entity<TblPostHashtag>(entity =>
@@ -240,7 +247,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblPostHashtags)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostHa__postI__607251E5");
+                    .HasConstraintName("FK__tblPostHa__postI__151B244E");
             });
 
             modelBuilder.Entity<TblPostReaction>(entity =>
@@ -289,13 +296,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblPostReactions)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostRe__postI__02FC7413");
+                    .HasConstraintName("FK__tblPostRe__postI__160F4887");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblPostReactions)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostRe__userI__0A9D95DB");
+                    .HasConstraintName("FK__tblPostRe__userI__17036CC0");
             });
 
             modelBuilder.Entity<TblPostStored>(entity =>
@@ -323,13 +330,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblPostStoreds)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostSt__postI__06CD04F7");
+                    .HasConstraintName("FK__tblPostSt__postI__17F790F9");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblPostStoreds)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblPostSt__userI__04E4BC85");
+                    .HasConstraintName("FK__tblPostSt__userI__18EBB532");
             });
 
             modelBuilder.Entity<TblReport>(entity =>
@@ -374,18 +381,18 @@ namespace Data.Entities
                 entity.HasOne(d => d.Comment)
                     .WithMany(p => p.TblReports)
                     .HasForeignKey(d => d.CommentId)
-                    .HasConstraintName("FK__tblReport__comme__7F2BE32F");
+                    .HasConstraintName("FK__tblReport__comme__19DFD96B");
 
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.TblReports)
                     .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("FK__tblReport__postI__7E37BEF6");
+                    .HasConstraintName("FK__tblReport__postI__1AD3FDA4");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblReports)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblReport__userI__7D439ABD");
+                    .HasConstraintName("FK__tblReport__userI__1BC821DD");
             });
 
             modelBuilder.Entity<TblReward>(entity =>
@@ -455,13 +462,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblTradeRequests)
                     .HasForeignKey(d => d.PostId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblTradeR__postI__0E6E26BF");
+                    .HasConstraintName("FK__tblTradeR__postI__1CBC4616");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblTradeRequests)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblTradeR__userI__00200768");
+                    .HasConstraintName("FK__tblTradeR__userI__1DB06A4F");
             });
 
             modelBuilder.Entity<TblUser>(entity =>
@@ -516,7 +523,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblUsers)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUser__roleId__05D8E0BE");
+                    .HasConstraintName("FK__tblUser__roleId__1EA48E88");
             });
 
             modelBuilder.Entity<TblUserFollowing>(entity =>
@@ -540,13 +547,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblUserFollowingFollowers)
                     .HasForeignKey(d => d.FollowerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserFo__follo__07C12930");
+                    .HasConstraintName("FK__tblUserFo__follo__1F98B2C1");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblUserFollowingUsers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserFo__userI__09A971A2");
+                    .HasConstraintName("FK__tblUserFo__userI__208CD6FA");
             });
 
             modelBuilder.Entity<TblUserReward>(entity =>
@@ -572,13 +579,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblUserRewards)
                     .HasForeignKey(d => d.RewardId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserRe__rewar__08B54D69");
+                    .HasConstraintName("FK__tblUserRe__rewar__2180FB33");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblUserRewards)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserRe__userI__0D7A0286");
+                    .HasConstraintName("FK__tblUserRe__userI__22751F6C");
             });
 
             modelBuilder.Entity<TblUserTimeout>(entity =>
@@ -607,13 +614,13 @@ namespace Data.Entities
                     .WithMany(p => p.TblUserTimeoutModerators)
                     .HasForeignKey(d => d.ModeratorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserTi__moder__01142BA1");
+                    .HasConstraintName("FK__tblUserTi__moder__236943A5");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.TblUserTimeoutUsers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblUserTi__userI__0B91BA14");
+                    .HasConstraintName("FK__tblUserTi__userI__245D67DE");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -10,16 +10,22 @@ using System.Text;
 using System.Threading.Tasks;
 using Data.Models.UserModel;
 using Newtonsoft.Json.Linq;
+using Data.Repositories.UserFollowingRepo;
+using Data.Repositories.PostRepo;
 
 namespace Business.Services.UserServices
 {
     public class UserServices : IUserServices
     {
         private readonly IUserRepo _userRepo;
+        private readonly IUserFollowingRepo _userFollowingRepo;
+        private readonly IPostRepo _postRepo;
         private readonly UserAuthentication _userAuthentication;
 
-        public UserServices(IUserRepo userRepo)
+        public UserServices(IUserRepo userRepo, IUserFollowingRepo userFollowingRepo, IPostRepo postRepo)
         {
+            _postRepo = postRepo;
+            _userFollowingRepo = userFollowingRepo;
             _userAuthentication = new UserAuthentication();
             _userRepo = userRepo;
         }
@@ -118,24 +124,65 @@ namespace Business.Services.UserServices
             return result;
         }
 
-        public async Task<ResultModel> GetUser(Guid id)
+        public async Task<ResultModel> GetUser(Guid id, string token)
         {
             ResultModel result = new();
             try
             {
+                Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 var User = await _userRepo.GetUserById(id);
-                if (User == null)
+                var Followings = await _userFollowingRepo.GetFollowing(id);
+                var Followers = await _userFollowingRepo.GetFollowers(id);
+                var Posts = await _postRepo.GetPostsFromUser(id);
+                if (id.Equals(userId))
                 {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "User not found";
-                    return result;
+                    UserPageModel userPageModel = new()
+                    {
+                        Id = id,
+                        Name = User.Name,
+                        Image = User.Image,
+                        Follower = Followers.Count,
+                        Following = Followings.Count,
+                        posts = Posts,
+                        RoleId = User.RoleId,
+                        Username = User.Username,
+                    };
+                    if (User == null)
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "User not found";
+                        return result;
+                    }
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                    result.Data = userPageModel;
+                } else
+                {
+                    bool isFollowed = await _userFollowingRepo.IsFollowing(userId, id);
+                    OtherUserPageModel userPageModel = new()
+                    {
+                        Id = id,
+                        Name = User.Name,
+                        Image = User.Image,
+                        Follower = Followers.Count,
+                        Following = Followings.Count,
+                        isFollowed = isFollowed,
+                        posts = Posts,
+                        RoleId = User.RoleId,
+                        Username = User.Username,
+                    };
+                    if (User == null)
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "User not found";
+                        return result;
+                    }
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                    result.Data = userPageModel;
                 }
-                result.IsSuccess = true;
-                result.Code = 200;
-                result.Data = User;
-                return result;
-
             }
             catch (Exception e)
             {
@@ -166,6 +213,45 @@ namespace Business.Services.UserServices
                 result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = User;
+                return result;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> ChangePassword(UserChangePasswordModel model, string token)
+        {
+            ResultModel result = new();
+            try
+            {
+                Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+                var User = await _userRepo.Get(userId);
+                if (User == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "User not found";
+                    return result;
+                }
+                byte[] hashOldPassword = UserAuthentication.CreatePasswordHash(model.oldPassword);
+                bool isMatch = UserAuthentication.VerifyPasswordHash(hashOldPassword, User.Password);
+                if (!isMatch)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Old password is wrong";
+                    return result;
+                }
+                byte[] hashNewPassword = UserAuthentication.CreatePasswordHash(model.newPassword);
+                User.Password = hashNewPassword;
+                _ = await _userRepo.Update(User);
+                result.IsSuccess = true;
+                result.Code = 200;
                 return result;
             }
             catch (Exception e)

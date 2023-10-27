@@ -3,7 +3,6 @@ using Azure.Identity;
 using Data.Repositories.UserRepo;
 using Data.Repositories.PostRepo;
 using Business.Services.PostServices;
-using Business.Services.CommentServices;
 using Business.Services.UserServices;
 using Business.Services.EmailServices;
 using Newtonsoft.Json.Linq;
@@ -18,6 +17,7 @@ using Data.Repositories.UserFollowingRepo;
 using Business.Services.UserFollowingServices;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
+using Data.Repositories.PetPostTradeRepo;
 using Data.Repositories.PostStoredRepo;
 using Business.Services.ReactionServices;
 
@@ -82,6 +82,7 @@ builder.Services.AddTransient<IOTPRepo, OTPRepo>();
 builder.Services.AddTransient<IUserFollowingRepo, UserFollowingRepo>();
 builder.Services.AddTransient<IPostAttachmentRepo, PostAttachmentRepo>();
 builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
+builder.Services.AddTransient<IPetPostTradeRepo, PetPostTradeRepo>();
 builder.Services.AddTransient<IPostStoredRepo, PostStoredRepo>();
 
 
