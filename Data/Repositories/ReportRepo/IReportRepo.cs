@@ -10,5 +10,6 @@ namespace Data.Repositories.ReportRepo
 {
     public interface IReportRepo : IRepository<TblReport>
     {
+        
     }
 }
