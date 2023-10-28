@@ -93,5 +93,13 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.DeletePost(post);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpPost("report-post")]
+        public async Task<IActionResult> ReportPost([FromBody] PostReportModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Post.token = token;
+            Data.Models.ResultModel.ResultModel result = await _post.ReportPost(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

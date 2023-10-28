@@ -91,8 +91,8 @@ namespace Business.Services.UserServices
             ResultModel result = new();
             try
             {
-                TblUser getUser = await _userRepo.getUserByUsername(User.Username);
-                if (User == null)
+                var getUser = await _userRepo.getUserByUsername(User.Username);
+                if (getUser == null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;

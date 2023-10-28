@@ -25,5 +25,6 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetUserPendingPost(string token);
         public Task<ResultModel> ApprovePosting(PostReqModel post);
         public Task<ResultModel> RefusePosting(PostReqModel post);
+        public Task<ResultModel> ReportPost(PostReportModel post);
     }
 }

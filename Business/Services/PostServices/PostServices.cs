@@ -11,6 +11,7 @@ using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
 using Data.Repositories.PostStoredRepo;
+using Data.Repositories.ReportRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -35,9 +36,11 @@ namespace Business.Services.PostServices
         private readonly IPostStoredRepo _postStoredRepo;
         private readonly UserAuthentication _userAuthentication;
         private readonly IPetPostTradeRepo _petPostTradeRepo;
+        private readonly IReportRepo _reportRepo;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo)
         {
+            _reportRepo = reportRepo;
             _petPostTradeRepo = petPostTradeRepo;
             _postReactionRepo = postReactionRepo;
             _postStoredRepo = postStoredRepo;
@@ -734,6 +737,44 @@ namespace Business.Services.PostServices
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> ReportPost(PostReportModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                var post = _postRepo.Get(postReq.postId);
+                if(post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                TblReport newReport = new()
+                {
+                    UserId = userId,
+                    PostId = postReq.postId,
+                    Type = postReq.Type,
+                    Reason = postReq.Reason,
+                    Status = ReportingStatus.INPROGRESS,
+                    IsProcessed = false,
+                    CreateAt = now,
+                };
+                _ = await _reportRepo.Insert(newReport);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {
