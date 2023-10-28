@@ -52,11 +52,13 @@ namespace Data.Models.PostModel
         public string Age { get; set; } = null!;
         public string Gender { get; set; } = null!;
         public decimal Weight { get; set; }
+        public string Color { get; set; } = null!;
         public decimal? Amount { get; set; }
     }
     public class PostTradeUpdateReqModel
     {
         public string token { get; set; } = null!;
+        public string Title { get; set; }
         public Guid postId { get; set; }
         public string? content { get; set; }
         public string[]? attachment { get; set; }
@@ -66,6 +68,7 @@ namespace Data.Models.PostModel
         public string Age { get; set; } = null!;
         public string Gender { get; set; } = null!;
         public decimal Weight { get; set; }
+        public string Color { get; set; } = null!;
         public decimal? Amount { get; set; }
     }
 

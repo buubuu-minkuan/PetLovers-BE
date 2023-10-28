@@ -455,6 +455,12 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 TblPost getPost = await _postRepo.GetTblPostById(post.postId);
+                List<TblPostAttachment> attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(post.postId);
+                foreach(var attachment in attachments)
+                {
+                    attachment.Status = Status.DEACTIVE;
+                    _ = await _postAttachmentRepo.Update(attachment);
+                }
                 getPost.Status = PostingStatus.REFUSED;
                 getPost.IsProcessed = true;
                 _ = await _postRepo.Update(getPost);
@@ -510,6 +516,7 @@ namespace Business.Services.PostServices
             {
                 Id = postId,
                 Type = PostingType.TRADING,
+                Title = newPost.Title,
                 UserId = userId,
                 Status = PostingStatus.APPROVED,
                 IsProcessed = true,

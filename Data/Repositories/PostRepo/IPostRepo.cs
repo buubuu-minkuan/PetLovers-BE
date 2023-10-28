@@ -22,5 +22,6 @@ namespace Data.Repositories.PostRepo
         public Task<List<PostTradeResModel>> GetAllTradePostsTitle();
         public Task<List<PostResModel>> GetAllPendingPost();
         public Task<List<PostResModel>> GetUserPendingPost(Guid userId);
+        public Task<List<PostTradeResModel>> GetPostTradePendingByUserId(Guid userId);
     }
 }

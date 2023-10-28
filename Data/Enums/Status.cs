@@ -19,6 +19,12 @@
         public static readonly string REFUSED = "Refused";
     }
 
+    public class TradingStatus
+    {
+        public static readonly string INPROGRESS = "In Progress";
+        public static readonly string DONE = "Done";
+    }
+
     public class ReportingStatus
     {
         public static readonly string INPROGRESS = "In progress";

@@ -14,7 +14,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetNewsFeed(string token);
         public Task<ResultModel> CreatePost(PostCreateReqModel newPost);
         public Task<ResultModel> UpdatePost(PostUpdateReqModel post);
-        public Task<ResultModel> GetPostTradeById(Guid id);
+        public Task<ResultModel> GetPostTradeById(Guid id, string token);
         public Task<ResultModel> CreatePostTrade(PostTradeCreateReqModel newPost);
         public Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq);
         public Task<ResultModel> DeletePostTrade(PostDeleteReqModel post);

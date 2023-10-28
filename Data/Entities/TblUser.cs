@@ -8,9 +8,10 @@ namespace Data.Entities
         public TblUser()
         {
             TblNotifications = new HashSet<TblNotification>();
+            TblPostModerators = new HashSet<TblPost>();
             TblPostReactions = new HashSet<TblPostReaction>();
             TblPostStoreds = new HashSet<TblPostStored>();
-            TblPosts = new HashSet<TblPost>();
+            TblPostUsers = new HashSet<TblPost>();
             TblReports = new HashSet<TblReport>();
             TblTradeRequests = new HashSet<TblTradeRequest>();
             TblUserFollowingFollowers = new HashSet<TblUserFollowing>();
@@ -34,9 +35,10 @@ namespace Data.Entities
 
         public virtual TblRole Role { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }
+        public virtual ICollection<TblPost> TblPostModerators { get; set; }
         public virtual ICollection<TblPostReaction> TblPostReactions { get; set; }
         public virtual ICollection<TblPostStored> TblPostStoreds { get; set; }
-        public virtual ICollection<TblPost> TblPosts { get; set; }
+        public virtual ICollection<TblPost> TblPostUsers { get; set; }
         public virtual ICollection<TblReport> TblReports { get; set; }
         public virtual ICollection<TblTradeRequest> TblTradeRequests { get; set; }
         public virtual ICollection<TblUserFollowing> TblUserFollowingFollowers { get; set; }

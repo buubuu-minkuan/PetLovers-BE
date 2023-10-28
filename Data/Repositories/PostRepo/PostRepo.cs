@@ -264,7 +264,7 @@ namespace Data.Repositories.PostRepo
         public async Task<List<PostTradeResModel>> GetAllTradePostsTitle()
         {
             List<PostTradeResModel> posts = new();
-            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(TradingStatus.INPROGRESS) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var post in newPost)
             {
                 TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
@@ -345,6 +345,35 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return listResPost;
+        }
+
+        public async Task<List<PostTradeResModel>> GetPostTradingByUserId(Guid userId)
+        {
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING) && x.Status.Equals(TradingStatus.INPROGRESS)).ToListAsync();
+            List<PostTradeResModel> posts = new();
+            foreach (var p in post)
+            {
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(p.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                };
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(p.Id);
+                posts.Add(new PostTradeResModel()
+                {
+                    Id = p.Id,
+                    Author = author,
+                    Title = p.Title,
+                    Type = p.Type,
+                    Amount = p.Amount,
+                    Attachment = arrAttachment,
+                    createdAt = p.CreateAt,
+                    updatedAt = p.UpdateAt,
+                });
+            }
+            return posts;
         }
     }
 }

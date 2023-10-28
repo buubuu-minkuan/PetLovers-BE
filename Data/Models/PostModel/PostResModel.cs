@@ -42,7 +42,8 @@ namespace Data.Models.PostModel
         public string Type { get; set; } = null!;
         public string Breed { get; set; } = null!;
         public string Age { get; set; } = null!;
-        public string Gender { get; set; } = null!;
+        public string Gender { get; set; } = null!; 
+        public string Color { get; set; } = null!;
         public decimal Weight { get; set; }
     }
 
