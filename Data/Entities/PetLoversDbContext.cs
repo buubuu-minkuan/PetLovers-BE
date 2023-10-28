@@ -453,8 +453,6 @@ namespace Data.Entities
                     .HasColumnType("datetime")
                     .HasColumnName("createAt");
 
-                entity.Property(e => e.IsProcessed).HasColumnName("isProcessed");
-
                 entity.Property(e => e.PostId).HasColumnName("postId");
 
                 entity.Property(e => e.Status)

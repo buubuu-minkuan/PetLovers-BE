@@ -21,6 +21,7 @@ using Data.Repositories.PetPostTradeRepo;
 using Data.Repositories.PostStoredRepo;
 using Business.Services.ReactionServices;
 using Data.Repositories.ReportRepo;
+using Data.Repositories.PostTradeRequestRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,7 @@ builder.Services.AddTransient<IPostReactionRepo, PostReactionRepo>();
 builder.Services.AddTransient<IPetPostTradeRepo, PetPostTradeRepo>();
 builder.Services.AddTransient<IPostStoredRepo, PostStoredRepo>();
 builder.Services.AddTransient<IReportRepo, ReportRepo>();
+builder.Services.AddTransient<IPostTradeRequestRepo, PostTradeRequestRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

@@ -241,12 +241,12 @@ namespace Data.Repositories.PostRepo
                 Breed = pet.Breed,
                 Age = pet.Age,
                 Gender = pet.Gender,
-                Weight = pet.Weight
-
+                Weight = pet.Weight,
+                Color = pet.Color
             };
 
             List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-            return new PostTradeResModel
+            PostTradeResModel res = new()
             {
                 Id = post.Id,
                 Author = author,
@@ -259,6 +259,14 @@ namespace Data.Repositories.PostRepo
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
             };
+            if(post.Status.Equals(TradingStatus.INPROGRESS))
+            {
+                res.isTrading = true;
+            } else
+            {
+                res.isTrading = false;
+            }
+            return res;
         }
         
         public async Task<List<PostTradeResModel>> GetAllTradePostsTitle()

@@ -9,7 +9,7 @@ namespace Data.Models.PostModel
     public class PostReqModel
     {
         public string token { get; set; }
-        public Guid postId { get; set; }
+        public List<Guid> postId { get; set; }
     }
 
     public class PostCreateReqModel
@@ -78,5 +78,11 @@ namespace Data.Models.PostModel
         public Guid postId { get; set; }
         public string Type { get; set; }
         public string Reason { get; set; } = null!;
+    }
+
+    public class PostTradeProcessModel
+    {
+        public Guid IdRequest { get; set; }
+        public Guid PostId { get; set; }
     }
 }

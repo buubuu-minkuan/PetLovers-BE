@@ -19,8 +19,9 @@ namespace Business.Services.PostServices
         public Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq);
         public Task<ResultModel> DeletePostTrade(PostDeleteReqModel post);
         public Task<ResultModel> DeletePost(PostReqModel post);
-        public Task<ResultModel> StorePost(PostReqModel post);
-        public Task<ResultModel> RemoveStorePost(PostReqModel post);
+        public Task<ResultModel> StorePost(Guid postId, string token);
+        public Task<ResultModel> RemoveStorePost(Guid postId, string token);
+        public Task<ResultModel> AcceptTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> GetAllPendingPost(string token);
         public Task<ResultModel> GetUserPendingPost(string token);
         public Task<ResultModel> ApprovePosting(PostReqModel post);

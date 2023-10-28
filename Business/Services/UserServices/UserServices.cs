@@ -262,5 +262,24 @@ namespace Business.Services.UserServices
             }
             return result;
         }
+
+        public async Task<ResultModel> GetRoleName(Guid roleId)
+        {
+            ResultModel result = new();
+            try
+            {
+                var role = await _userRepo.GetRoleName(roleId);
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = role;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }
