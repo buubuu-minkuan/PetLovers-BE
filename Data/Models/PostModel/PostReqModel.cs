@@ -68,4 +68,12 @@ namespace Data.Models.PostModel
         public decimal Weight { get; set; }
         public decimal? Amount { get; set; }
     }
+
+    public class PostReportModel
+    {
+        public string token { get; set; }
+        public Guid postId { get; set; }
+        public string Type { get; set; }
+        public string Reason { get; set; } = null!;
+    }
 }

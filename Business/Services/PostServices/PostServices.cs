@@ -743,5 +743,36 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+
+        public async Task<ResultModel> ReportPost(PostReqModel postReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            try
+            {
+                var post = _postRepo.Get(postReq.postId);
+                if(post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                TblReport newReport = new()
+                {
+                    UserId = userId,
+                    PostId = postReq.postId,
+                    CreateAt = now,
+                };
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

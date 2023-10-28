@@ -3,6 +3,7 @@ using Data.Models.PostAttachmentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,5 +59,16 @@ namespace Data.Models.PostModel
         public string Type { get; set; }
 
 
+    }
+
+    public class ReportResModel
+    {
+        public Guid Id { get; set;}
+        public Guid userId { get; set; }
+        public Guid? postId { get; set; }
+        public Guid? commentId { get; set; }
+        public string type { get; set; }
+        public string reason { get; set; }
+        public DateTime createdAt { get; set; }
     }
 }
