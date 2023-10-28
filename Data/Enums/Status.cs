@@ -18,4 +18,10 @@
         public static readonly string APPROVED = "Approved";
         public static readonly string REFUSED = "Refused";
     }
+
+    public class ReportingStatus
+    {
+        public static readonly string INPROGRESS = "In progress";
+        public static readonly string COMPLETE = "Complete";
+    }
 }
