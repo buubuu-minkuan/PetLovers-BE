@@ -69,6 +69,8 @@ namespace Business.Services.EmailServices
                 await smtp.AuthenticateAsync(from, pass);
                 _ = await smtp.SendAsync(message);
                 await smtp.DisconnectAsync(true);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {
