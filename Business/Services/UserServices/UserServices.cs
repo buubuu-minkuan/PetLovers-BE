@@ -221,8 +221,13 @@ namespace Business.Services.UserServices
             {
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 var User = await _userRepo.Get(userId);
-                User.Username = model.Username;
+                User.Phone = model.Phone;
+                User.Email = model.Email;
                 User.Name = model.Name;
+                if(model.Image != null)
+                {
+                    User.Image = model.Image;
+                }
                 var check = await _userRepo.Update(User);
                 if (!check)
                 {
