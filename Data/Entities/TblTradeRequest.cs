@@ -9,7 +9,6 @@ namespace Data.Entities
         public Guid PostId { get; set; }
         public Guid UserId { get; set; }
         public string Status { get; set; } = null!;
-        public bool IsProcessed { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
 

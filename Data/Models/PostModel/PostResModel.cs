@@ -32,8 +32,34 @@ namespace Data.Models.PostModel
         public PetPostTradeModel Pet { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
+        public bool isTrading { get; set; }
         public string Type { get; set; }
         public decimal? Amount { get; set; }
+        public PostTradeUserRequestModel UserRequest { get; set; }
+    }
+
+    public class PostTradeAuthorResModel
+    {
+        public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public List<PostAttachmentResModel> Attachment { get; set; }
+        public PetPostTradeModel Pet { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
+        public string Type { get; set; }
+        public decimal? Amount { get; set; }
+        public List<PostTradeUserRequestModel> UserRequest { get; set; }
+    }
+
+    public class PostTradeUserRequestModel
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string? Name { get; set; }
+        public string Status { get; set; }
+        public DateTime createdAt { get; set; }
     }
 
     public class PetPostTradeModel
@@ -42,7 +68,8 @@ namespace Data.Models.PostModel
         public string Type { get; set; } = null!;
         public string Breed { get; set; } = null!;
         public string Age { get; set; } = null!;
-        public string Gender { get; set; } = null!;
+        public string Gender { get; set; } = null!; 
+        public string Color { get; set; } = null!;
         public decimal Weight { get; set; }
     }
 

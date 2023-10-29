@@ -59,11 +59,10 @@ namespace API.Controllers
         }
 
         [HttpPost("store-post")]
-        public async Task<IActionResult> StorePost([FromBody] PostReqModel Post)
+        public async Task<IActionResult> StorePost([FromBody] Guid postId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.StorePost(Post);
+            Data.Models.ResultModel.ResultModel result = await _post.StorePost(postId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -77,11 +76,10 @@ namespace API.Controllers
         }
 
         [HttpDelete("remove-store-post")]
-        public async Task<IActionResult> RemoveStorePost([FromBody] PostReqModel Post)
+        public async Task<IActionResult> RemoveStorePost([FromBody] Guid postId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.RemoveStorePost(Post);
+            Data.Models.ResultModel.ResultModel result = await _post.RemoveStorePost(postId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
