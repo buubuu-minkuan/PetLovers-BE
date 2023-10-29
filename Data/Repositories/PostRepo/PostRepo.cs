@@ -182,6 +182,11 @@ namespace Data.Repositories.PostRepo
                 var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 bool isFeeling = false;
+                bool isAuthor = false;
+                if (post.UserId.Equals(userId))
+                {
+                    isAuthor = true;
+                }
                 foreach (var feeling in Feeling)
                 {
                     if (!feeling.UserId.Equals(userId))
@@ -197,11 +202,12 @@ namespace Data.Repositories.PostRepo
                     content = post.Content,
                     attachment = arrAttachment,
                     isFeeling = isFeeling,
+                    isAuthor = isAuthor,
                     createdAt = post.CreateAt,
                     updatedAt = post.UpdateAt,
                     amountFeeling = Feeling.Count,
                     amountComment = Comment.Count
-                });
+                }) ;
             }
             return posts;
         }

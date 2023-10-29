@@ -18,6 +18,7 @@ namespace Data.Models.PostModel
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
         public bool isFeeling { get; set; }
+        public bool isAuthor { get; set; } = false;
         public int amountComment { get; set; }
         public int amountFeeling { get; set; }
     }
