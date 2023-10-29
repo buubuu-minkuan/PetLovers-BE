@@ -108,10 +108,31 @@ namespace Business.Services.UserServices
                     result.Message = "Mat khau sai";
                     return result;
                 }
-                string token = UserAuthentication.GenerateJWT(getUser);
+                var roleName = await _userRepo.GetRoleName(getUser.RoleId);
+                var role = new RoleModel()
+                {
+                    Id = getUser.RoleId,
+                    Name = roleName
+                };
+                UserModel userModel = new UserModel()
+                {
+                    Id = getUser.Id,
+                    Name = getUser.Name,
+                    Email = getUser.Email,
+                    Phone = getUser.Phone,
+                    CreateAt = getUser.CreateAt,
+                    Image = getUser.Image,
+                    Role = role,
+                    Status = getUser.Status,
+                    Username = getUser.Username
+                };
+                string token = UserAuthentication.GenerateJWT(userModel);
+                UserLoginResModel userLoginResModel = new UserLoginResModel();
+                userLoginResModel.UserModel = userModel;
+                userLoginResModel.token = token;
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = token;
+                result.Data = userLoginResModel;
                 return result;
 
             }
@@ -144,7 +165,7 @@ namespace Business.Services.UserServices
                         Follower = Followers.Count,
                         Following = Followings.Count,
                         posts = Posts,
-                        RoleId = User.RoleId,
+                        Role = User.Role,
                         Username = User.Username,
                     };
                     if (User == null)
@@ -169,7 +190,7 @@ namespace Business.Services.UserServices
                         Following = Followings.Count,
                         isFollowed = isFollowed,
                         posts = Posts,
-                        RoleId = User.RoleId,
+                        Role = User.Role,
                         Username = User.Username,
                     };
                     if (User == null)

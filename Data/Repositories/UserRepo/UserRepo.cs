@@ -38,6 +38,10 @@ namespace Data.Repositories.UserRepo
         public async Task<UserModel> GetUserById(Guid id)
         {
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(id)).FirstOrDefaultAsync();
+            var role = await _context.TblRoles.Where(x => x.Id.Equals(user.RoleId)).FirstOrDefaultAsync();
+            RoleModel roleInfor = new();
+            roleInfor.Id = role.Id;
+            roleInfor.Name = role.Name;
             UserModel reponseUser = new UserModel()
             {
                 Id = id,
@@ -46,7 +50,7 @@ namespace Data.Repositories.UserRepo
                 Email = user.Email,
                 Image = user.Image,
                 Phone = user.Phone,
-                RoleId = user.RoleId,
+                Role = roleInfor,
                 Status = user.Status,
                 CreateAt = user.CreateAt,
             };
@@ -61,10 +65,14 @@ namespace Data.Repositories.UserRepo
             foreach (var folower in listFollowers)
             {
                 var folowerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.Id)).FirstOrDefaultAsync();
+                var role = await _context.TblRoles.Where(x => x.Id.Equals(folowerInfor.RoleId)).FirstOrDefaultAsync();
+                RoleModel roleInfor = new();
+                roleInfor.Id = role.Id;
+                roleInfor.Name = role.Name;
                 var UserModelPaste = new UserModel();
                 UserModelPaste.Id = folower.Id;
                 UserModelPaste.Username = folowerInfor.Username;
-                UserModelPaste.RoleId = folowerInfor.RoleId;
+                UserModelPaste.Role = roleInfor;
                 UserModelPaste.Status = folowerInfor.Status;
                 UserModelPaste.Email = folowerInfor.Email;
                 UserModelPaste.CreateAt = folowerInfor.CreateAt;

@@ -513,6 +513,10 @@ namespace Data.Entities
 
                 entity.Property(e => e.RoleId).HasColumnName("roleId");
 
+                entity.Property(e => e.SocialCredit)
+                    .HasColumnName("socialCredit")
+                    .HasDefaultValueSql("((100))");
+
                 entity.Property(e => e.Status)
                     .HasMaxLength(30)
                     .IsUnicode(false)
@@ -572,7 +576,9 @@ namespace Data.Entities
                     .HasColumnName("id")
                     .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.CreateAt).HasColumnName("createAt");
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createAt");
 
                 entity.Property(e => e.RewardId).HasColumnName("rewardId");
 

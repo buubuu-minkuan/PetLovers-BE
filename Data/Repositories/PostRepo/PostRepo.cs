@@ -69,11 +69,15 @@ namespace Data.Repositories.PostRepo
             foreach (var folower in listFollowers)
             {
                 var followerInfor = await _context.TblUsers.Where(x => x.Id.Equals(folower.FollowerId)).FirstOrDefaultAsync();
+                var role = _context.TblRoles.Where(x => x.Id == followerInfor.RoleId).FirstOrDefault();
+                RoleModel getRole = new();
+                role.Id = role.Id;
+                role.Name = role.Name;
                 var UserModelPaste = new UserModel();
                 UserModelPaste.Id = folower.Id;
                 UserModelPaste.Name = followerInfor.Name;
                 UserModelPaste.Username = followerInfor.Username;
-                UserModelPaste.RoleId = followerInfor.RoleId;
+                UserModelPaste.Role = getRole;
                 UserModelPaste.Status = followerInfor.Status;
                 UserModelPaste.Email = followerInfor.Email;
                 UserModelPaste.CreateAt = followerInfor.CreateAt;
@@ -355,9 +359,9 @@ namespace Data.Repositories.PostRepo
             return listResPost;
         }
 
-        public async Task<List<PostTradeResModel>> GetPostTradingByUserId(Guid userId)
+        public async Task<List<PostTradeResModel>> GetPostTradingInProgressByUserId(Guid userId)
         {
-            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING) && x.Status.Equals(TradingStatus.INPROGRESS)).ToListAsync();
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DONE)).ToListAsync();
             List<PostTradeResModel> posts = new();
             foreach (var p in post)
             {
@@ -382,6 +386,16 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return posts;
+        }
+
+        public async Task<List<TblPost>> GetListPostTradingByUserId(Guid userId)
+        {
+            return await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING)).ToListAsync();
+        }
+
+        public async Task<List<TblPost>> GetPostsApproveByUserId(Guid userId)
+        {
+            return await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
         }
     }
 }

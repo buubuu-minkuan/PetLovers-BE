@@ -13,5 +13,6 @@ namespace Data.Repositories.PostTradeRequestRepo
     {
         public Task<List<PostTradeUserRequestModel>> GetListRequestPostTradeByPostId(Guid postId);
         public Task<PostTradeUserRequestModel> GetRequestPostTrade(Guid postId, Guid userId);
+        public Task<List<TblTradeRequest>> GetListRequestCancelByAuthor(Guid postId);
     }
 }

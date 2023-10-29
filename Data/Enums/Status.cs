@@ -38,6 +38,7 @@
         public static readonly string ACCEPT = "Accept";
         public static readonly string DENY = "Deny";
         public static readonly string SUCCESS = "Success";
-        public static readonly string CANCEL = "Cancel";
+        public static readonly string CANCELBYUSER = "CancelByUser";
+        public static readonly string CANCELBYAUTHOR = "CancelByAuthor";
     }
 }

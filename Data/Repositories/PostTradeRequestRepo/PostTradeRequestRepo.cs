@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Enums;
 using Data.Models.PostModel;
 using Data.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
@@ -48,6 +49,10 @@ namespace Data.Repositories.PostTradeRequestRepo
                 createdAt = req.CreateAt
             };
             return userReq;
+        }
+        public async Task<List<TblTradeRequest>> GetListRequestCancelByAuthor(Guid postId)
+        {
+            return await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.Status.Equals(TradeRequestStatus.CANCELBYAUTHOR)).ToListAsync();
         }
     }
 }
