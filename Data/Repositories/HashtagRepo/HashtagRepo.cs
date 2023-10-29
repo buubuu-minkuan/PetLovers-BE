@@ -1,5 +1,6 @@
 ﻿using Data.Entities;
 using Data.Repositories.GenericRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,11 @@ namespace Data.Repositories.HashtagRepo
         {
             //_mapper = mapper;
             _context = context;
+        }
+
+        public async Task<List<TblPostHashtag>> GetListHashTagByPostId(Guid postId)
+        {
+            return await _context.TblPostHashtags.Where(x => x.PostId.Equals(postId)).ToListAsync();
         }
     }
 }

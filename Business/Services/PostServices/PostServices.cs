@@ -157,6 +157,8 @@ namespace Business.Services.PostServices
                     {
                         PostId = postId,
                         Hashtag = hashtag,
+                        Status = Status.ACTIVE,
+                        CreateAt = now
                     };
                     _ = await _hashtagRepo.Insert(newHashtag);
                 }
@@ -295,6 +297,7 @@ namespace Business.Services.PostServices
                         tblPost.UpdateAt = now;
                         tblPost.Status = Status.DEACTIVE;
                         _ = await _postRepo.Update(tblPost);
+                        List<TblPostHashtag> Hashtags = await _hashtagRepo.GetListHashTagByPostId(pReq);
                         List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
                         List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(pReq);
                         foreach (var attachment in Attachments)
@@ -307,6 +310,12 @@ namespace Business.Services.PostServices
                         {
                             reaction.Status = Status.DEACTIVE;
                             _ = await _postReactionRepo.Update(reaction);
+                        }
+
+                        foreach(var hashtag in Hashtags)
+                        {
+                            hashtag.Status = Status.DEACTIVE;
+                            _ = await _hashtagRepo.Update(hashtag);
                         }
                         result.IsSuccess = true;
                         result.Code = 200;

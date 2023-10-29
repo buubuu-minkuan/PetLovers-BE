@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Data.Entities;
+using Data.Repositories.GenericRepository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace Data.Repositories.HashtagRepo
 {
-    internal interface IHashtagRepo
+    public interface IHashtagRepo : IRepository<TblPostHashtag>
     {
+        public Task<List<TblPostHashtag>> GetListHashTagByPostId(Guid postId);
     }
 }
