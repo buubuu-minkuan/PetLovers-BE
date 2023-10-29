@@ -7,10 +7,11 @@ namespace Data.Repositories.PostReactRepo
 {
     public interface IPostReactionRepo : IRepository<TblPostReaction>
     {
-        public Task<List<TblPostReaction>> GetListReactionById(Guid Id);
-        public Task<CommentResModel> GetCommentById(Guid id);
-        public Task<List<CommentResModel>> GetCommentsByPostId(Guid postId);
-        public Task<TblPostReaction> GetTblPostReactionByPostId(Guid id);
-        public Task<List<PostFeelingResModel>> GetListFeelingByPostId(Guid postId);
+        Task<List<TblPostReaction>> GetListReactionById(Guid id);
+        Task<CommentResModel> GetCommentById(Guid id);
+        Task<List<CommentResModel>> GetCommentsByPostId(Guid postId);
+        Task<TblPostReaction> GetTblPostReactionByPostId(Guid id);
+        Task<PostFeelingResModel> GetListFeelingByPostId(Guid postId);
     }
+
 }

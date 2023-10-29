@@ -250,5 +250,64 @@ namespace Business.Services.ReactionServices
             }
             return result;
         }
+
+        public async Task<ResultModel> UpdateFeeling(FeelingReqModel feeling)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(feeling.token, "userid"));
+            try
+            {
+                Guid postId;
+                if (!Guid.TryParse(feeling.postId, out postId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Invalid postId format";
+                    return result;
+                }
+
+                // Get the feeling and post reaction by post ID
+                FeelingResModel resFeeling = await _reactionRepo.GetListFeelingByPostId(postId);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(postId);
+
+                if (resFeeling == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 404;
+                    result.Message = "Feeling not found";
+                    return result;
+                }
+                else if (!userId.Equals(resFeeling.Author.Id))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 403;
+                    result.Message = "You do not have permission to update this feeling";
+                    return result;
+                }
+
+                if (resFeeling.Type != feeling.type)
+                {
+                    resFeeling.Type = feeling.type;
+                    tblPostReaction.TypeReact = feeling.type;
+                }
+                tblPostReaction.CreateAt = now;
+                _ = await _reactionRepo.Update(tblPostReaction);
+
+                resFeeling.createdAt = now;
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = resFeeling;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
     }
 }
+
