@@ -1,3 +1,4 @@
+using Azure.Core;
 using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
@@ -11,7 +12,9 @@ using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
 using Data.Repositories.PostStoredRepo;
+using Data.Repositories.PostTradeRequestRepo;
 using Data.Repositories.ReportRepo;
+using Data.Repositories.RewardRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -36,10 +39,14 @@ namespace Business.Services.PostServices
         private readonly IPostStoredRepo _postStoredRepo;
         private readonly UserAuthentication _userAuthentication;
         private readonly IPetPostTradeRepo _petPostTradeRepo;
+        private readonly IPostTradeRequestRepo _postTradeRequestRepo;
         private readonly IReportRepo _reportRepo;
+        private readonly IUserRewardRepo _rewardRepo;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo, IPostTradeRequestRepo postTradeRequestRepo, IUserRewardRepo rewardRepo)
         {
+            _rewardRepo = rewardRepo;
+            _postTradeRequestRepo = postTradeRequestRepo;
             _reportRepo = reportRepo;
             _petPostTradeRepo = petPostTradeRepo;
             _postReactionRepo = postReactionRepo;
@@ -253,42 +260,45 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             try
             {
-                PostResModel post = await _postRepo.GetPostById(postReq.postId, userId);
-                TblPost tblPost = await _postRepo.GetTblPostById(postReq.postId);
-                if (post == null)
+                foreach (var pReq in postReq.postId)
                 {
-                    result.IsSuccess = false;
-                    result.Code = 200;
-                    result.Message = "Post not found";
-                    return result;
-                }
-                else if (!userId.Equals(post.author.Id))
-                {
-                    result.IsSuccess = false;
-                    result.Code = 200;
-                    result.Message = "You do not have permission to delete this post";
-                    return result;
-                }
-                else
-                {
-                    tblPost.UpdateAt = now;
-                    tblPost.Status = Status.DEACTIVE;
-                    _ = await _postRepo.Update(tblPost);
-                    List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(postReq.postId);
-                    List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(postReq.postId);
-                    foreach(var attachment in Attachments)
+                    PostResModel post = await _postRepo.GetPostById(pReq, userId);
+                    TblPost tblPost = await _postRepo.GetTblPostById(pReq);
+                    if (post == null)
                     {
-                        attachment.Status = Status.DEACTIVE;
-                        _ = await _postAttachmentRepo.Update(attachment);
+                        result.IsSuccess = false;
+                        result.Code = 200;
+                        result.Message = "Post not found";
+                        return result;
                     }
+                    else if (!userId.Equals(post.author.Id))
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 200;
+                        result.Message = "You do not have permission to delete this post";
+                        return result;
+                    }
+                    else
+                    {
+                        tblPost.UpdateAt = now;
+                        tblPost.Status = Status.DEACTIVE;
+                        _ = await _postRepo.Update(tblPost);
+                        List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
+                        List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(pReq);
+                        foreach (var attachment in Attachments)
+                        {
+                            attachment.Status = Status.DEACTIVE;
+                            _ = await _postAttachmentRepo.Update(attachment);
+                        }
 
-                    foreach(var reaction in Reactions)
-                    {
-                        reaction.Status = Status.DEACTIVE;
-                        _ = await _postReactionRepo.Update(reaction);
+                        foreach (var reaction in Reactions)
+                        {
+                            reaction.Status = Status.DEACTIVE;
+                            _ = await _postReactionRepo.Update(reaction);
+                        }
+                        result.IsSuccess = true;
+                        result.Code = 200;
                     }
-                    result.IsSuccess = true;
-                    result.Code = 200;
                 }
             }
             catch (Exception e)
@@ -299,14 +309,15 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        public async Task<ResultModel> StorePost(PostReqModel postReq)
+
+        public async Task<ResultModel> StorePost(Guid postId, string token)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postId);
                 if(checkExist != null)
                 {
                     result.IsSuccess = false;
@@ -317,7 +328,7 @@ namespace Business.Services.PostServices
                 TblPostStored newPost = new()
                 {
                     UserId = userId,
-                    PostId = postReq.postId,
+                    PostId = postId,
                     Status = Status.ACTIVE,
                     CreateAt = now
                 };
@@ -334,14 +345,14 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> RemoveStorePost(PostReqModel postReq)
+        public async Task<ResultModel> RemoveStorePost(Guid postId, string token)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-                var checkExist = await _postStoredRepo.GetStoredPost(userId, postReq.postId);
+                var checkExist = await _postStoredRepo.GetStoredPost(userId, postId);
                 if (checkExist == null)
                 {
                     result.IsSuccess = false;
@@ -413,6 +424,8 @@ namespace Business.Services.PostServices
         public async Task<ResultModel> ApprovePosting(PostReqModel post)
         {
             ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
             string roleName = await _userRepo.GetRoleName(roleId);
             try
@@ -424,12 +437,39 @@ namespace Business.Services.PostServices
                     result.Message = "User role invalid";
                     return result;
                 }
-                TblPost getPost = await _postRepo.GetTblPostById(post.postId);
-                getPost.Status = PostingStatus.APPROVED;
-                getPost.IsProcessed = true;
-                _ = await _postRepo.Update(getPost);
-                result.Code = 200;
-                result.IsSuccess = true;
+                foreach (var pReq in post.postId)
+                {
+                    TblPost getPost = await _postRepo.GetTblPostById(pReq);
+                    if (getPost.ModeratorId != null && getPost.IsProcessed)
+                    {
+                        result.Code = 400;
+                        result.IsSuccess = false;
+                        result.Message = "The post is processed by other moderator!";
+                        return result;
+                    }
+                    var totalPost = await _postRepo.GetPostsApproveByUserId(userId);
+                    var listReward = await _rewardRepo.GetListPostReward();
+                    foreach (var reward in listReward)
+                    {
+                        if(totalPost.Count >= reward.TotalPost)
+                        {
+                            TblUserReward userReward = new()
+                            {
+                                UserId = getPost.UserId,
+                                RewardId = reward.Id,
+                                Status = Status.ACTIVE,
+                                CreateAt = now
+                            };
+                            _ = await _rewardRepo.Insert(userReward);
+                        }
+                    }
+                    getPost.Status = PostingStatus.APPROVED;
+                    getPost.ModeratorId = userId;
+                    getPost.IsProcessed = true;
+                    _ = await _postRepo.Update(getPost);
+                    result.Code = 200;
+                    result.IsSuccess = true;
+                }
             }
             catch (Exception e)
             {
@@ -454,12 +494,28 @@ namespace Business.Services.PostServices
                     result.Message = "User role invalid";
                     return result;
                 }
-                TblPost getPost = await _postRepo.GetTblPostById(post.postId);
-                getPost.Status = PostingStatus.REFUSED;
-                getPost.IsProcessed = true;
-                _ = await _postRepo.Update(getPost);
-                result.Code = 200;
-                result.IsSuccess = true;
+                foreach (var pReq in post.postId)
+                {
+                    TblPost getPost = await _postRepo.GetTblPostById(pReq);
+                    if (getPost.ModeratorId != null && getPost.IsProcessed)
+                    {
+                        result.Code = 400;
+                        result.IsSuccess = false;
+                        result.Message = "The post is processed by other moderator!";
+                        return result;
+                    }
+                    List<TblPostAttachment> attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
+                    foreach (var attachment in attachments)
+                    {
+                        attachment.Status = Status.DEACTIVE;
+                        _ = await _postAttachmentRepo.Update(attachment);
+                    }
+                    getPost.Status = PostingStatus.REFUSED;
+                    getPost.IsProcessed = true;
+                    _ = await _postRepo.Update(getPost);
+                    result.Code = 200;
+                    result.IsSuccess = true;
+                }
             }
             catch (Exception e)
             {
@@ -469,12 +525,15 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        public async Task<ResultModel> GetPostTradeById(Guid id)
+        public async Task<ResultModel> GetPostTradeById(Guid id, string token)
         {
             ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
                 var post = await _postRepo.GetPostTradeById(id);
+                var user = await _userRepo.Get(userId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -482,8 +541,40 @@ namespace Business.Services.PostServices
                     result.Code = 200;
                     return result;
                 }
-                result.IsSuccess = true;
-                result.Data = post;
+                if (post.Author.Id.Equals(userId))
+                {
+                    var req = await _postTradeRequestRepo.GetListRequestPostTradeByPostId(id);
+                    foreach (var r in req)
+                    {
+                        var u = await _userRepo.Get(r.UserId);
+                        r.Name = u.Name;
+                    }
+                    PostTradeAuthorResModel postRes = new()
+                    {
+                        Id = post.Id,
+                        Author = post.Author,
+                        Title = post.Title,
+                        Content = post.Content,
+                        Attachment = post.Attachment,
+                        Amount = post.Amount,
+                        Pet = post.Pet,
+                        Type = post.Type,
+                        createdAt = post.createdAt,
+                        UserRequest = req
+                    };
+                    result.IsSuccess = true;
+                    result.Data = postRes;
+                    result.Code = 200;
+                } else if(!post.Author.Id.Equals(userId))
+                {
+                    var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
+                    var u = await _userRepo.Get(req.UserId);
+                    req.Name = u.Name;
+                    post.UserRequest = req;
+                    result.IsSuccess = true;
+                    result.Data = post;
+                    result.Code = 200;
+                }
             }
             catch (Exception e)
             {
@@ -510,14 +601,23 @@ namespace Business.Services.PostServices
             {
                 Id = postId,
                 Type = PostingType.TRADING,
+                Title = newPost.Title,
                 UserId = userId,
-                Status = PostingStatus.APPROVED,
+                Status = TradingStatus.INPROGRESS,
                 IsProcessed = true,
                 Content = newPost.Content,
                 CreateAt = now
             };
             try
             {
+                var check = await _postRepo.GetPostTradingInProgressByUserId(userId);
+                if(check.Count >= 3)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You can only create 3 trade post per time. Please check the previous post to continue";
+                    return result;
+                }
                 _ = await _postRepo.Insert(postTradeReq);
                 foreach (var attachement in newPost.Attachment)
                 {
@@ -538,6 +638,7 @@ namespace Business.Services.PostServices
                     Type = newPost.Type,
                     Breed = newPost.Breed,
                     Age = newPost.Age,
+                    Color = newPost.Color,
                     Gender = newPost.Gender,
                     Weight = newPost.Weight,
                     Status = Status.ACTIVE
@@ -578,6 +679,7 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+
         public async Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq)
         {
             DateTime now = DateTime.Now;
@@ -609,6 +711,11 @@ namespace Business.Services.PostServices
                     {
                         post.Content = postReq.content;
                         tblPost.Content = postReq.content;
+                    }
+                    if(!string.IsNullOrEmpty(postReq.Title) && !post.Title.Equals(postReq.Title))
+                    {
+                        post.Title = postReq.Title;
+                        tblPost.Title = postReq.Title;
                     }
                     if (!string.IsNullOrEmpty(postReq.PetName) && !pet.Name.Equals(postReq.PetName))
                     {
@@ -644,6 +751,10 @@ namespace Business.Services.PostServices
                     {
                         post.Amount = postReq.Amount;
                         tblPost.Amount = postReq.Amount;
+                    }if(!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
+                    {
+                        pet.Color = postReq.Color;
+                        tblPet.Color = postReq.Color;
                     }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
@@ -775,6 +886,205 @@ namespace Business.Services.PostServices
                 _ = await _reportRepo.Insert(newReport);
                 result.IsSuccess = true;
                 result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> RequestTrading(Guid postId, string token)
+        {
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            ResultModel result = new();
+            try
+            {
+                var post = await _postRepo.Get(postId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found!";
+                    return result;
+                }
+                else if (!post.Type.Equals(PostingType.TRADING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "This is not Trading Post!";
+                    return result;
+                }
+                else if (post.UserId.Equals(userId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Author not available to request trading!";
+                    return result;
+                }
+                var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
+                if (req != null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You have already request!";
+                    return result;
+                } else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You already cancelled this request!";
+                    return result;
+                }
+                TblTradeRequest tradeRequest = new()
+                {
+                    PostId = postId,
+                    UserId = userId,
+                    Status = TradeRequestStatus.PENDING,
+                    CreateAt = now
+                };
+                _ = _postTradeRequestRepo.Insert(tradeRequest);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> AcceptTrading(PostTradeProcessModel req, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.Get(req.PostId);
+                if(post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                if (!post.UserId.Equals(userId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 403;
+                    result.Message = "You do not have permission to do this!";
+                    return result;
+                }
+                post.Status = TradingStatus.INPROGRESS;
+                _ = _postRepo.Update(post);
+                var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                getReq.Status = TradeRequestStatus.ACCEPT;
+                getReq.UpdateAt = now;
+                _ = _postTradeRequestRepo.Update(getReq);
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> DenyTrading(PostTradeProcessModel req, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.Get(req.PostId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                if (!post.UserId.Equals(userId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 403;
+                    result.Message = "You do not have permission to do this!";
+                    return result;
+                }
+                var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                getReq.Status = TradeRequestStatus.DENY;
+                getReq.UpdateAt = now;
+                _ = _postTradeRequestRepo.Update(getReq);
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> CancelTrading(PostTradeProcessModel req, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.Get(req.PostId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                if (!post.UserId.Equals(userId))
+                {
+                    var user = await _userRepo.Get(userId);
+                    user.SocialCredit -= 10;
+                    _ = await _userRepo.Update(user);
+                    post.Status = TradingStatus.ACTIVE;
+                    _ = await _postRepo.Update(post);
+                    var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                    getReq.Status = TradeRequestStatus.CANCELBYUSER;
+                    _ = await _postTradeRequestRepo.Update(getReq);
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                } else
+                {
+                    var user = await _userRepo.Get(userId);
+                    var postTrading = await _postRepo.GetListPostTradingByUserId(userId);
+                    List<TblTradeRequest> checkReq = new();
+                    foreach (var p in postTrading)
+                    {
+                        var reqCancel = await _postTradeRequestRepo.GetListRequestCancelByAuthor(p.Id);
+                        foreach (var r in reqCancel)
+                        {
+                            checkReq.Add(r);
+                        }
+                    }
+                    if((checkReq.Count + 1) % 5 == 0)
+                    {
+                        user.SocialCredit -= 15;
+                        _ = await _userRepo.Update(user);
+                    }
+                    post.Status = TradingStatus.ACTIVE;
+                    _ = await _postRepo.Update(post);
+                    var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                    getReq.Status = TradeRequestStatus.CANCELBYAUTHOR;
+                    _ = await _postTradeRequestRepo.Update(getReq);
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                }
             }
             catch (Exception e)
             {

@@ -9,7 +9,7 @@ namespace Data.Entities
         public Guid UserId { get; set; }
         public Guid RewardId { get; set; }
         public string Status { get; set; } = null!;
-        public long CreateAt { get; set; }
+        public DateTime CreateAt { get; set; }
 
         public virtual TblReward Reward { get; set; } = null!;
         public virtual TblUser User { get; set; } = null!;
