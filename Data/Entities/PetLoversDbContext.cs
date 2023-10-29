@@ -246,12 +246,21 @@ namespace Data.Entities
                     .HasColumnName("id")
                     .HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.CreateAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("createAt");
+
                 entity.Property(e => e.Hashtag)
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("hashtag");
 
                 entity.Property(e => e.PostId).HasColumnName("postId");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(30)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
 
                 entity.HasOne(d => d.Post)
                     .WithMany(p => p.TblPostHashtags)

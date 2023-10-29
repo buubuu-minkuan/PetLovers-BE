@@ -23,6 +23,7 @@ using Business.Services.ReactionServices;
 using Data.Repositories.ReportRepo;
 using Data.Repositories.PostTradeRequestRepo;
 using Data.Repositories.RewardRepo;
+using Data.Repositories.HashtagRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +91,7 @@ builder.Services.AddTransient<IPostStoredRepo, PostStoredRepo>();
 builder.Services.AddTransient<IReportRepo, ReportRepo>();
 builder.Services.AddTransient<IPostTradeRequestRepo, PostTradeRequestRepo>();
 builder.Services.AddTransient<IUserRewardRepo, UserRewardRepo>();
+builder.Services.AddTransient<IHashtagRepo, HashtagRepo>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

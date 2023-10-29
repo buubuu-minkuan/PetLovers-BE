@@ -7,6 +7,7 @@ using Data.Models.PostAttachmentModel;
 using Data.Models.PostModel;
 using Data.Models.ResultModel;
 using Data.Models.UserModel;
+using Data.Repositories.HashtagRepo;
 using Data.Repositories.PetPostTradeRepo;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostReactRepo;
@@ -41,10 +42,12 @@ namespace Business.Services.PostServices
         private readonly IPetPostTradeRepo _petPostTradeRepo;
         private readonly IPostTradeRequestRepo _postTradeRequestRepo;
         private readonly IReportRepo _reportRepo;
+        private readonly IHashtagRepo _hashtagRepo;
         private readonly IUserRewardRepo _rewardRepo;
 
-        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo, IPostTradeRequestRepo postTradeRequestRepo, IUserRewardRepo rewardRepo)
+        public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo, IPostTradeRequestRepo postTradeRequestRepo, IUserRewardRepo rewardRepo, IHashtagRepo hashtagRepo)
         {
+            _hashtagRepo = hashtagRepo;
             _rewardRepo = rewardRepo;
             _postTradeRequestRepo = postTradeRequestRepo;
             _reportRepo = reportRepo;
@@ -147,6 +150,17 @@ namespace Business.Services.PostServices
                         Status = Status.ACTIVE
                     };
                     _ = await _postAttachmentRepo.Insert(newAttachment);
+                }
+                foreach (var hashtag in newPost.hashtag)
+                {
+                    TblPostHashtag newHashtag = new()
+                    {
+                        PostId = postId,
+                        Hashtag = hashtag,
+                        Status = Status.ACTIVE,
+                        CreateAt = now
+                    };
+                    _ = await _hashtagRepo.Insert(newHashtag);
                 }
                 List<PostAttachmentResModel> listAttachment = await _postAttachmentRepo.GetListAttachmentByPostId(postId);
                 PostResModel postResModel = new()
@@ -283,6 +297,7 @@ namespace Business.Services.PostServices
                         tblPost.UpdateAt = now;
                         tblPost.Status = Status.DEACTIVE;
                         _ = await _postRepo.Update(tblPost);
+                        List<TblPostHashtag> Hashtags = await _hashtagRepo.GetListHashTagByPostId(pReq);
                         List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
                         List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(pReq);
                         foreach (var attachment in Attachments)
@@ -295,6 +310,12 @@ namespace Business.Services.PostServices
                         {
                             reaction.Status = Status.DEACTIVE;
                             _ = await _postReactionRepo.Update(reaction);
+                        }
+
+                        foreach(var hashtag in Hashtags)
+                        {
+                            hashtag.Status = Status.DEACTIVE;
+                            _ = await _hashtagRepo.Update(hashtag);
                         }
                         result.IsSuccess = true;
                         result.Code = 200;
