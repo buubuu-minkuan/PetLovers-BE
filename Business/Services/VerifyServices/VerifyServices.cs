@@ -51,6 +51,7 @@ namespace Business.Services.VerifyServices
                 {
                     UserId = userId,
                     OtpCode = OTPCode,
+                    IsUsed = false,
                     ExpiredAt = expiredAt,
                 };
                 _ = await _OTPRepo.Insert(newOTP);
