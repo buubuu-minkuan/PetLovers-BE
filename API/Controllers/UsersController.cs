@@ -46,14 +46,6 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpGet("get-role-name")]
-        [Authorize]
-        public async Task<IActionResult> GetRoleName(Guid id)
-        {
-            Data.Models.ResultModel.ResultModel result = await _user.GetRoleName(id);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
         [HttpPatch("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser(UserUpdateReqModel model)

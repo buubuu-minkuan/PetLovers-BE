@@ -10,5 +10,6 @@ namespace Data.Repositories.OTPRepository
 {
     public interface IOTPRepo : IRepository<TblOtpverify>
     {
+        public Task<TblOtpverify> GetOTP(string OTPCode, Guid userId);
     }
 }
