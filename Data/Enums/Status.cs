@@ -9,6 +9,7 @@
     public class UserStatus
     {
         public static readonly string ACTIVE = "Active";
+        public static readonly string VERIFYING = "Verifying";
         public static readonly string DEACTIVE = "Deactive";
     }
 

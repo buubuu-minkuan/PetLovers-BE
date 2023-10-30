@@ -6,8 +6,10 @@ namespace Data.Entities
     public partial class TblOtpverify
     {
         public Guid Id { get; set; }
-        public string Email { get; set; } = null!;
+        public Guid UserId { get; set; }
         public string OtpCode { get; set; } = null!;
         public DateTime ExpiredAt { get; set; }
+
+        public virtual TblUser User { get; set; } = null!;
     }
 }
