@@ -3,6 +3,7 @@ using Data.Entities;
 using Data.Enums;
 using Data.Models.CommentModel;
 using Data.Models.FeelingModel;
+using Data.Models.PostModel;
 using Data.Models.ResultModel;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.UserRepo;
@@ -251,53 +252,26 @@ namespace Business.Services.ReactionServices
             return result;
         }
 
-        public async Task<ResultModel> UpdateFeeling(FeelingReqModel feeling)
+        public async Task<ResultModel> RemoveFeeling(FeelingReqModel Feeling)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(feeling.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(Feeling.token, "userid"));
             try
             {
-                Guid postId;
-                if (!Guid.TryParse(feeling.postId, out postId))
+                var isFeeling = await _reactionRepo.isFeeling(Feeling.postId, userId);
+                if(isFeeling == null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
-                    result.Message = "Invalid postId format";
+                    result.Message = "You have not liked this post yet";
                     return result;
                 }
-
-                // Get the feeling and post reaction by post ID
-                FeelingResModel resFeeling = await _reactionRepo.GetListFeelingByPostId(postId);
-                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(postId);
-
-                if (resFeeling == null)
-                {
-                    result.IsSuccess = false;
-                    result.Code = 404;
-                    result.Message = "Feeling not found";
-                    return result;
-                }
-                else if (!userId.Equals(resFeeling.Author.Id))
-                {
-                    result.IsSuccess = false;
-                    result.Code = 403;
-                    result.Message = "You do not have permission to update this feeling";
-                    return result;
-                }
-
-                if (resFeeling.Type != feeling.type)
-                {
-                    resFeeling.Type = feeling.type;
-                    tblPostReaction.TypeReact = feeling.type;
-                }
-                tblPostReaction.CreateAt = now;
-                _ = await _reactionRepo.Update(tblPostReaction);
-
-                resFeeling.createdAt = now;
+                isFeeling.Status = Status.DEACTIVE;
+                isFeeling.UpdateAt = now;
+                _ = await _reactionRepo.Update(isFeeling);
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = resFeeling;
             }
             catch (Exception e)
             {
@@ -307,7 +281,7 @@ namespace Business.Services.ReactionServices
             }
             return result;
         }
-
     }
 }
 
+    

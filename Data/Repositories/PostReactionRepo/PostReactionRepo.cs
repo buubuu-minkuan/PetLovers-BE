@@ -66,29 +66,9 @@ namespace Data.Repositories.PostReactRepo
             return await _context.TblPostReactions.Where(x => x.PostId.Equals(Id)).ToListAsync();
         }
 
-        public async Task<PostFeelingResModel> GetListFeelingByPostId(Guid postId)
+        public async Task<TblPostReaction> isFeeling(Guid postId, Guid userId)
         {
-            var feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
-            PostFeelingResModel res = new();
-            res.Id = postId;
-            List<FeelingListResModel> listFeeling = new();
-            foreach (var feel in feeling)
-            {
-                var user = await _context.TblUsers.Where(x => x.Id.Equals(feel.UserId)).FirstOrDefaultAsync();
-                listFeeling.Add(new FeelingListResModel()
-                {
-                    Id = feel.Id,
-                    Author = new FeelingAuthorModel()
-                    {
-                        Id = user.Id,
-                        Name = user.Name,
-                    },
-                    Type = feel.Type,
-                    createdAt = feel.CreateAt
-                });
-            }
-            res.feeling = listFeeling;
-            return res;
+            return await _context.TblPostReactions.Where(x => x.UserId.Equals(userId) && x.PostId.Equals(postId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
         }
     }
 }

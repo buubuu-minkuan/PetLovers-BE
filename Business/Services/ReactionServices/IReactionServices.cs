@@ -17,7 +17,7 @@ namespace Business.Services.ReactionServices
         public Task<ResultModel> UpdateComment(CommentReqModel Comment);
         public Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment);
         public Task<ResultModel> CreateFeeling(FeelingCreateReqModel newFeeling);
-        public Task<ResultModel> UpdateFeeling(FeelingReqModel Feeling);
+        public Task<ResultModel> RemoveFeeling(FeelingReqModel Feeling);
 
     }
 }

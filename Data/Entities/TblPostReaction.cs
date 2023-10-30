@@ -19,7 +19,7 @@ namespace Data.Entities
         public string? TypeReact { get; set; }
         public DateTime CreateAt { get; set; }
         public DateTime? UpdateAt { get; set; }
-        public string? Status { get; set; }
+        public string Status { get; set; } = null!;
 
         public virtual TblPost Post { get; set; } = null!;
         public virtual TblUser User { get; set; } = null!;

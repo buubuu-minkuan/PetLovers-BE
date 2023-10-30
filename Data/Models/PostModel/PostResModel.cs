@@ -26,6 +26,7 @@ namespace Data.Models.PostModel
     {
         public Guid Id { get; set; }
         public List<FeelingListResModel>? feeling { get; set; }
+        public string Type { get; set; }
     }
 
     public class PostTradeResModel

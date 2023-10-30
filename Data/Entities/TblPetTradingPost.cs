@@ -13,6 +13,7 @@ namespace Data.Entities
         public string Age { get; set; } = null!;
         public string Gender { get; set; } = null!;
         public decimal Weight { get; set; }
+        public string Color { get; set; } = null!;
         public string Status { get; set; } = null!;
 
         public virtual TblPost Post { get; set; } = null!;

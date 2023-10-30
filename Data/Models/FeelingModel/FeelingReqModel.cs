@@ -9,13 +9,11 @@ namespace Data.Models.FeelingModel
     public class FeelingReqModel
     {
         public string token {  get; set; }
-        public string postId { get; set; }
-        public string type { get; set; }
+        public Guid postId { get; set; }
     }
     public class FeelingCreateReqModel
     {
         public string token { get; set; }
         public Guid postId { get; set; }
-        public string type { get; set; }
     }
 }
