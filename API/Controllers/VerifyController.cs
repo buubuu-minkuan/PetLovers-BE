@@ -30,5 +30,13 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _email.SendMail(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpPost("{otp}")]
+        public async Task<IActionResult> Verify([FromBody] string OTPCode)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _email.VerifyOTPCode(OTPCode,token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
