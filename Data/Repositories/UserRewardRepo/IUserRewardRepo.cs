@@ -6,10 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Data.Repositories.OTPRepository
+namespace Data.Repositories.RewardRepo
 {
-    public interface IOTPRepo : IRepository<TblOtpverify>
+    public interface IUserRewardRepo : IRepository<TblUserReward>
     {
-        public Task<TblOtpverify> GetOTP(string OTPCode, Guid userId);
+        public Task<List<TblReward>> GetListPostReward();
     }
 }

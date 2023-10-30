@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Business.Services.EmailServices
+namespace Business.Services.ManageServices
 {
-    public interface IEmailServices
+    public interface IManageServices
     {
-        public Task<ResultModel> SendMail(string toEmail);
+        //public Task<ResultModel> 
     }
 }

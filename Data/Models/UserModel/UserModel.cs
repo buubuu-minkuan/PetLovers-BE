@@ -17,9 +17,21 @@ namespace Data.Models.UserModel
         public string Email { get; set; } = null!;
         public string? Image { get; set; }
         public string Phone { get; set; } = null!;
-        public Guid RoleId { get; set; }
+        public RoleModel Role { get; set; }
         public string Status { get; set; } = null!;
         public DateTime CreateAt { get; set; }
+    }
+
+    public class RoleModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class UserLoginResModel
+    {
+        public UserModel UserModel { get; set; }
+        public string? token { get; set; }
     }
 
     public class UserPageModel
@@ -28,7 +40,7 @@ namespace Data.Models.UserModel
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string? Image { get; set; }
-        public Guid RoleId { get; set; }
+        public RoleModel Role { get; set; }
         public int Following { get; set; }
         public int Follower { get; set; }
         public List<PostResModel>? posts { get; set; }
@@ -41,7 +53,7 @@ namespace Data.Models.UserModel
         public string Username { get; set; } = null!;
         public string? Image { get; set; }
         public bool isFollowed { get; set; }
-        public Guid RoleId { get; set; }
+        public RoleModel Role { get; set; }
         public int Following { get; set; }
         public int Follower { get; set; }
         public List<PostResModel>? posts { get; set; }
@@ -75,9 +87,10 @@ namespace Data.Models.UserModel
 
     public class UserUpdateReqModel
     {
-        public string Username { get; set; }
         public string Name { get; set; }
-
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string? Image { get; set; }
     }
 
     public class UserFollowingModel
