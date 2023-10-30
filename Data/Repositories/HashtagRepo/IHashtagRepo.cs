@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Models.HashtagModel;
 using Data.Repositories.GenericRepository;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,7 @@ namespace Data.Repositories.HashtagRepo
     public interface IHashtagRepo : IRepository<TblPostHashtag>
     {
         public Task<List<TblPostHashtag>> GetListHashTagByPostId(Guid postId);
+        public Task<List<Guid>> GetListPostIdByHashtag(string hashtag);
+        public Task<List<HashtagTrendingModel>> GetListHashtagTrending();
     }
 }

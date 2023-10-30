@@ -4,7 +4,7 @@ using Data.Repositories.UserRepo;
 using Data.Repositories.PostRepo;
 using Business.Services.PostServices;
 using Business.Services.UserServices;
-using Business.Services.EmailServices;
+using Business.Services.VerifyServices;
 using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore;
 using Business.Services.SecretServices;
@@ -74,7 +74,7 @@ builder.Services.AddDbContext<PetLoversDbContext>(option => option.UseSqlServer(
 // Subcribe service
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<IPostServices, PostServices>();
-builder.Services.AddScoped<IEmailServices, EmailServices>();
+builder.Services.AddScoped<IVerifyServices, VerifyServices>();
 builder.Services.AddScoped<IReactionServices, ReactionServices>();
 builder.Services.AddScoped<IUserFollowingServices, UserFollowingServices>();
 

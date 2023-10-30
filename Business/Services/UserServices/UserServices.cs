@@ -66,7 +66,7 @@ namespace Business.Services.UserServices
                     Username = User.Username,
                     Name = User.Name,
                     Phone = User.Phone,
-                    Status = UserStatus.ACTIVE,
+                    Status = UserStatus.VERIFYING,
                     RoleId = getUserRoleId,
                     CreateAt = Date,
                 };

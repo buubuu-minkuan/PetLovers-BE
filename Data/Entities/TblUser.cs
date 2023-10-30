@@ -8,6 +8,7 @@ namespace Data.Entities
         public TblUser()
         {
             TblNotifications = new HashSet<TblNotification>();
+            TblOtpverifies = new HashSet<TblOtpverify>();
             TblPostModerators = new HashSet<TblPost>();
             TblPostReactions = new HashSet<TblPostReaction>();
             TblPostStoreds = new HashSet<TblPostStored>();
@@ -36,6 +37,7 @@ namespace Data.Entities
 
         public virtual TblRole Role { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }
+        public virtual ICollection<TblOtpverify> TblOtpverifies { get; set; }
         public virtual ICollection<TblPost> TblPostModerators { get; set; }
         public virtual ICollection<TblPostReaction> TblPostReactions { get; set; }
         public virtual ICollection<TblPostStored> TblPostStoreds { get; set; }

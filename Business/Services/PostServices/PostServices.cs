@@ -612,7 +612,14 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(newPost.Token, "userid"));
             Guid postId = Guid.NewGuid();
             Guid petId = Guid.NewGuid();
-            var user = await _userRepo.GetUserById(userId);
+            var user = await _userRepo.Get(userId);
+            if (user.Status.Equals(UserStatus.VERIFYING))
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.Message = "You need verify your email before do this!";
+                return result;
+            }
             PostAuthorModel author = new()
             {
                 Id = user.Id,
@@ -706,8 +713,16 @@ namespace Business.Services.PostServices
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             ResultModel result = new();
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 PostTradeResModel post = await _postRepo.GetPostTradeById(postReq.postId);
                 TblPost tblPost = await _postRepo.GetTblPostTradeById(postReq.postId);
                 TblPetTradingPost tblPet = await _petPostTradeRepo.GetTblPetPostTradingByPostId(postReq.postId);
@@ -834,8 +849,16 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 PostTradeResModel post = await _postRepo.GetPostTradeById(postReq.postId);
                 TblPost tblPost = await _postRepo.Get(postReq.postId);
                 TblPetTradingPost tblPet = await _petPostTradeRepo.GetTblPetPostTradingByPostId(postReq.postId);
@@ -922,8 +945,16 @@ namespace Business.Services.PostServices
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             ResultModel result = new();
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 var post = await _postRepo.Get(postId);
                 if (post == null)
                 {
@@ -985,8 +1016,16 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 var post = await _postRepo.Get(req.PostId);
                 if(post == null)
                 {
@@ -1023,8 +1062,16 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 var post = await _postRepo.Get(req.PostId);
                 if (post == null)
                 {
@@ -1058,8 +1105,16 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            var user = await _userRepo.Get(userId);
             try
             {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
                 var post = await _postRepo.Get(req.PostId);
                 if (post == null)
                 {
@@ -1070,7 +1125,6 @@ namespace Business.Services.PostServices
                 }
                 if (!post.UserId.Equals(userId))
                 {
-                    var user = await _userRepo.Get(userId);
                     user.SocialCredit -= 10;
                     _ = await _userRepo.Update(user);
                     post.Status = TradingStatus.ACTIVE;
@@ -1082,7 +1136,6 @@ namespace Business.Services.PostServices
                     result.Code = 200;
                 } else
                 {
-                    var user = await _userRepo.Get(userId);
                     var postTrading = await _postRepo.GetListPostTradingByUserId(userId);
                     List<TblTradeRequest> checkReq = new();
                     foreach (var p in postTrading)
