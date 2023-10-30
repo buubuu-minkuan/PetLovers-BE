@@ -52,27 +52,16 @@ namespace Business.Ultilities.UserAuthentication
             return true;
         }
 
-        public static string GenerateJWT(TblUser User)
+        public static string GenerateJWT(UserModel User)
         {
-            UserModel UserInfo = new UserModel()
-            {
-                Id = User.Id,
-                Username = User.Username,
-                Name = User.Name,
-                RoleId = User.RoleId,
-                Status = User.Status,
-                Email = User.Email,
-                Phone = User.Phone,
-                CreateAt = User.CreateAt
-            };
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
             var credential = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             List<Claim> claims = new()
             {
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, UserInfo.RoleId.ToString()),
-                new Claim("userid", UserInfo.Id.ToString()),
-                new Claim("username", UserInfo.Username),
-                new Claim("email", UserInfo.Email),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, User.Role.Id.ToString()),
+                new Claim("userid", User.Id.ToString()),
+                new Claim("username", User.Username),
+                new Claim("email", User.Email),
             };
 
             var token = new JwtSecurityToken(

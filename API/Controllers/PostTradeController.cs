@@ -28,7 +28,8 @@ namespace API.Controllers
         [HttpGet("{id:Guid}")]
         public async Task<IActionResult> GetPostTrade(Guid id)
         {
-            Data.Models.ResultModel.ResultModel result = await _post.GetPostTradeById(id);
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetPostTradeById(id, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
@@ -57,6 +58,38 @@ namespace API.Controllers
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             post.token = token;
             Data.Models.ResultModel.ResultModel result = await _post.DeletePostTrade(post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("request-trading")]
+        public async Task<IActionResult> RequestTrading([FromBody] Guid postId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.RequestTrading(postId, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("accept-trading")]
+        public async Task<IActionResult> AcceptTrading([FromBody] PostTradeProcessModel reqPost)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.AcceptTrading(reqPost, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("deny-trading")]
+        public async Task<IActionResult> DenyTrading([FromBody] PostTradeProcessModel reqPost)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.DenyTrading(reqPost, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("cancel-trading")]
+        public async Task<IActionResult> CancelTrading([FromBody] PostTradeProcessModel reqPost)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.CancelTrading(reqPost, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

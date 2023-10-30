@@ -46,7 +46,7 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPatch("Update")]
+        [HttpPatch("update")]
         [Authorize]
         public async Task<IActionResult> UpdateUser(UserUpdateReqModel model)
         {

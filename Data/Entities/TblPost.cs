@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Data.Entities
@@ -32,6 +32,7 @@ namespace Data.Entities
         public string? Title { get; set; }
         public Guid? ModeratorId { get; set; }
 
+        public virtual TblUser? Moderator { get; set; }
         public virtual TblUser User { get; set; } = null!;
         public virtual ICollection<TblNotification> TblNotifications { get; set; }
         public virtual ICollection<TblPetTradingPost> TblPetTradingPosts { get; set; }
