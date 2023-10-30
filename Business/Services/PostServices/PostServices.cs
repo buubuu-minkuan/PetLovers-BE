@@ -849,7 +849,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
-            var user = _userRepo.Get(userId);
+            var user = await _userRepo.Get(userId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -945,7 +945,7 @@ namespace Business.Services.PostServices
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             ResultModel result = new();
-            var user = _userRepo.Get(userId);
+            var user = await _userRepo.Get(userId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -1016,7 +1016,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
-            var user = _userRepo.Get(userId);
+            var user = await _userRepo.Get(userId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -1062,7 +1062,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
-            var user = _userRepo.Get(userId);
+            var user = await _userRepo.Get(userId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -1105,7 +1105,7 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
-            var user = _userRepo.Get(userId);
+            var user = await _userRepo.Get(userId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -1125,7 +1125,6 @@ namespace Business.Services.PostServices
                 }
                 if (!post.UserId.Equals(userId))
                 {
-                    var user = await _userRepo.Get(userId);
                     user.SocialCredit -= 10;
                     _ = await _userRepo.Update(user);
                     post.Status = TradingStatus.ACTIVE;
@@ -1137,7 +1136,6 @@ namespace Business.Services.PostServices
                     result.Code = 200;
                 } else
                 {
-                    var user = await _userRepo.Get(userId);
                     var postTrading = await _postRepo.GetListPostTradingByUserId(userId);
                     List<TblTradeRequest> checkReq = new();
                     foreach (var p in postTrading)
