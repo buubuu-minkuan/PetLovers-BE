@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Models.FeelingModel;
 using Data.Models.PostAttachmentModel;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,13 @@ namespace Data.Models.PostModel
         public bool isAuthor { get; set; } = false;
         public int amountComment { get; set; }
         public int amountFeeling { get; set; }
+    }
+
+    public class PostFeelingResModel
+    {
+        public Guid Id { get; set; }
+        public List<FeelingListResModel>? feeling { get; set; }
+        public string Type { get; set; }
     }
 
     public class PostTradeResModel
