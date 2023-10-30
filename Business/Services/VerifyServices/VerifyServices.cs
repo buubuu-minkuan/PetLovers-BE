@@ -16,6 +16,7 @@ using static System.Net.WebRequestMethods;
 using System.Net.Mail;
 using Data.Repositories.UserRepo;
 using Business.Ultilities.UserAuthentication;
+using Data.Enums;
 
 namespace Business.Services.VerifyServices
 {
@@ -94,9 +95,30 @@ namespace Business.Services.VerifyServices
         {
             DateTime now = DateTime.Now;
             ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-
+                var check = await _OTPRepo.GetOTP(OTP, userId);
+                var user = await _userRepo.Get(userId);
+                if (check == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "OTP is invalid";
+                    return result;
+                } else if ((now - check.ExpiredAt).TotalMilliseconds >= 600000)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "OTP is expired";
+                    return result;
+                }
+                check.IsUsed = true;
+                _ = await _OTPRepo.Update(check);
+                user.Status = UserStatus.ACTIVE;
+                _ = await _userRepo.Update(user);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {
