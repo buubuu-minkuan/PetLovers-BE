@@ -81,6 +81,8 @@ namespace Data.Entities
                     .HasColumnType("datetime")
                     .HasColumnName("expiredAt");
 
+                entity.Property(e => e.IsUsed).HasColumnName("isUsed");
+
                 entity.Property(e => e.OtpCode)
                     .HasMaxLength(6)
                     .IsUnicode(false)
@@ -92,7 +94,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblOtpverifies)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblOTPVer__userI__3C34F16F");
+                    .HasConstraintName("FK__tblOTPVer__userI__3F115E1A");
             });
 
             modelBuilder.Entity<TblPetTradingPost>(entity =>
