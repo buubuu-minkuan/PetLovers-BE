@@ -41,7 +41,7 @@ namespace API.Controllers
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPost("{otp}")]
+        [HttpPost("otp")]
         public async Task<IActionResult> Verify([FromBody] OTPVerifyReqModel OTPCode)
         {
             Data.Models.ResultModel.ResultModel result = await _email.VerifyOTPCode(OTPCode);
