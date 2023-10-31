@@ -127,6 +127,7 @@ namespace Business.Services.PostServices
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             TblPost postReq = new()
             {
@@ -624,6 +625,7 @@ namespace Business.Services.PostServices
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             TblPost postTradeReq = new()
             {

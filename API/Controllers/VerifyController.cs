@@ -9,6 +9,8 @@ using Business.Services.UserServices;
 using Data.Entities;
 using Business.Services.PostServices;
 using Business.Services.VerifyServices;
+using Microsoft.AspNetCore.Authorization;
+using Data.Models.OTPVerifyModel;
 
 namespace API.Controllers
 {
@@ -23,19 +25,26 @@ namespace API.Controllers
             _email = email;
         }
 
-        [HttpPost("send")]
-        public async Task<IActionResult> SendEmail()
+        [HttpPost("send-verify-email")]
+        [Authorize]
+        public async Task<IActionResult> SendVerifyEmailOTP()
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _email.SendMail(token);
+            Data.Models.ResultModel.ResultModel result = await _email.SendVerifyEmailOTP(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("send-verify-reset-password")]
+        public async Task<IActionResult> SendVerifyResetPassword([FromBody] string email)
+        {
+            Data.Models.ResultModel.ResultModel result = await _email.SendVerifyResetPassword(email);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpPost("{otp}")]
-        public async Task<IActionResult> Verify([FromBody] string OTPCode)
+        public async Task<IActionResult> Verify([FromBody] OTPVerifyReqModel OTPCode)
         {
-            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _email.VerifyOTPCode(OTPCode,token);
+            Data.Models.ResultModel.ResultModel result = await _email.VerifyOTPCode(OTPCode);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

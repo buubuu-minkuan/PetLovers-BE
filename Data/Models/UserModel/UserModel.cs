@@ -39,6 +39,7 @@ namespace Data.Models.UserModel
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
+        public bool IsVerify { get; set; }
         public string? Image { get; set; }
         public RoleModel Role { get; set; }
         public int Following { get; set; }
@@ -52,7 +53,7 @@ namespace Data.Models.UserModel
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string? Image { get; set; }
-        public bool isFollowed { get; set; }
+        public bool IsFollowed { get; set; }
         public RoleModel Role { get; set; }
         public int Following { get; set; }
         public int Follower { get; set; }
@@ -98,6 +99,13 @@ namespace Data.Models.UserModel
         public string token { get; set; }
         public Guid userId { get; set; }
     }
+
+    public class UserResetPasswordModel
+    {
+        public Guid UserId { get; set;} 
+        public string NewPassword { get; set; } = null!;
+    }
+
     public class UserFollowResModel
     {
         public Guid Id { get; set; }
