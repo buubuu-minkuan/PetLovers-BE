@@ -208,16 +208,16 @@ namespace Business.Services.ReactionServices
             return result;
         }
 
-        public async Task<ResultModel> CreateFeeling(FeelingCreateReqModel newFeeling)
+        public async Task<ResultModel> CreateFeeling(Guid postId, string token)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(newFeeling.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             Guid feelingId = Guid.NewGuid();
             TblPostReaction newTblFeeling = new()
             {
                 Id = feelingId,
-                PostId = newFeeling.postId,
+                PostId = postId,
                 Type = ReactionType.FEELING,
                 UserId = userId,
                 TypeReact = FeelingType.LIKE,
@@ -236,7 +236,7 @@ namespace Business.Services.ReactionServices
                         Id = userId,
                         Name = user.Name
                     },
-                    postId = newFeeling.postId,
+                    postId = postId,
                     Type = FeelingType.LIKE,
                     createdAt = now
                 };
@@ -253,14 +253,14 @@ namespace Business.Services.ReactionServices
             return result;
         }
 
-        public async Task<ResultModel> RemoveFeeling(FeelingReqModel Feeling)
+        public async Task<ResultModel> RemoveFeeling(Guid postId, string token)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(Feeling.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-                var isFeeling = await _reactionRepo.isFeeling(Feeling.postId, userId);
+                var isFeeling = await _reactionRepo.isFeeling(postId, userId);
                 if(isFeeling == null)
                 {
                     result.IsSuccess = false;
