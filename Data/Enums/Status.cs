@@ -10,6 +10,7 @@
     {
         public static readonly string ACTIVE = "Active";
         public static readonly string VERIFYING = "Verifying";
+        public static readonly string RESETPASSWORD = "ResetPassword";
         public static readonly string DEACTIVE = "Deactive";
     }
 

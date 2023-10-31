@@ -157,6 +157,11 @@ namespace Business.Services.UserServices
                 var Posts = await _postRepo.GetPostsFromUser(id);
                 if (id.Equals(userId))
                 {
+                    bool isVerify = false;
+                    if(User.Status.Equals(UserStatus.VERIFYING))
+                    {
+                        isVerify = true;
+                    }
                     UserPageModel userPageModel = new()
                     {
                         Id = id,
@@ -164,6 +169,7 @@ namespace Business.Services.UserServices
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
+                        IsVerify = isVerify,
                         posts = Posts,
                         Role = User.Role,
                         Username = User.Username,
@@ -188,7 +194,7 @@ namespace Business.Services.UserServices
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
-                        isFollowed = isFollowed,
+                        IsFollowed = isFollowed,
                         posts = Posts,
                         Role = User.Role,
                         Username = User.Username,
@@ -298,6 +304,35 @@ namespace Business.Services.UserServices
                 result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = role;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> ResetPassword(UserResetPasswordModel resetReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            try
+            {
+                var getUser = await _userRepo.Get(resetReq.UserId);
+                if(getUser == null) { 
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "User is not exist";
+                    return result;
+                }
+                byte[] hashNewPassword = UserAuthentication.CreatePasswordHash(resetReq.NewPassword);
+                getUser.Password = hashNewPassword;
+                _ = await _userRepo.Update(getUser);
+                result.IsSuccess = true;
+                result.Code = 200;
+                return result;
             }
             catch (Exception e)
             {
