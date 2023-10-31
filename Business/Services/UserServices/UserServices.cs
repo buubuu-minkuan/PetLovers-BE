@@ -158,7 +158,7 @@ namespace Business.Services.UserServices
                 if (id.Equals(userId))
                 {
                     bool isVerify = false;
-                    if(User.Status.Equals(UserStatus.VERIFYING))
+                    if(User.Status.Equals(UserStatus.ACTIVE))
                     {
                         isVerify = true;
                     }
