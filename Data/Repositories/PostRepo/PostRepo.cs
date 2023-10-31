@@ -326,7 +326,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<List<PostResModel>> GetAllPendingPost()
         {
-            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).OrderBy(x => x.CreateAt).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
             foreach(var post in listTblPost)
             {
@@ -355,10 +355,10 @@ namespace Data.Repositories.PostRepo
         {
             return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING)).FirstOrDefaultAsync();
         }
-                
+        
         public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
         {
-            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).ToListAsync();
+            List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(userId)).FirstOrDefaultAsync();
             PostAuthorModel author = new()

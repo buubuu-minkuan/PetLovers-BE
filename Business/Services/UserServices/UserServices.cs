@@ -228,7 +228,11 @@ namespace Business.Services.UserServices
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 var User = await _userRepo.Get(userId);
                 User.Phone = model.Phone;
-                User.Email = model.Email;
+                if (!string.IsNullOrEmpty(model.Email) && !User.Email.Equals(model.Email))
+                {
+                    User.Email = model.Email;
+                    User.Status = UserStatus.VERIFYING;
+                }
                 User.Name = model.Name;
                 if(model.Image != null)
                 {
@@ -242,9 +246,30 @@ namespace Business.Services.UserServices
                     result.Message = "User not found";
                     return result;
                 }
+                var newUser = await _userRepo.GetUserById(User.Id);
+                var Followings = await _userFollowingRepo.GetFollowing(User.Id);
+                var Followers = await _userFollowingRepo.GetFollowers(User.Id);
+                var Posts = await _postRepo.GetPostsFromUser(User.Id);
+                bool isVerify = false;
+                if (User.Status.Equals(UserStatus.VERIFYING))
+                {
+                    isVerify = true;
+                }
+                UserPageModel userPageModel = new()
+                {
+                    Id = User.Id,
+                    Name = User.Name,
+                    Image = User.Image,
+                    Follower = Followers.Count,
+                    Following = Followings.Count,
+                    IsVerify = isVerify,
+                    posts = Posts,
+                    Role = newUser.Role,
+                    Username = User.Username,
+                };
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = User;
+                result.Data = userPageModel;
                 return result;
             }
             catch (Exception e)
