@@ -158,7 +158,7 @@ namespace Data.Repositories.PostRepo
                 }
                 foreach (var feeling in Feeling)
                 {
-                    if (!feeling.UserId.Equals(userId))
+                    if (feeling.UserId.Equals(userId))
                     {
                         isFeeling = true; break;
                     }
@@ -203,7 +203,7 @@ namespace Data.Repositories.PostRepo
                 }
                 foreach (var feeling in Feeling)
                 {
-                    if (!feeling.UserId.Equals(userId))
+                    if (feeling.UserId.Equals(userId))
                     {
                         isFeeling = true; break;
                     }
