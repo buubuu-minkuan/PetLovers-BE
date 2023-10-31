@@ -13,7 +13,7 @@ using Data.Models.PostModel;
 
 namespace API.Controllers
 {
-    [Route("react/")]
+    [Route("post/")]
     [Authorize]
     [ApiController]
     public class PostController : Controller
