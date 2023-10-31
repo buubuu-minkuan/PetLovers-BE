@@ -35,6 +35,7 @@ namespace Data.Repositories.PostRepo
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
             var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
@@ -99,6 +100,7 @@ namespace Data.Repositories.PostRepo
                     {
                         Id = postAuthor.Id,
                         Name = postAuthor.Name,
+                        ImageUrl = postAuthor.Image
                     };
                     if (postFollowing == null) continue;
                     if ((now - postFollowing.CreateAt).TotalMilliseconds > 900000) continue;
@@ -141,6 +143,7 @@ namespace Data.Repositories.PostRepo
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             List<PostResModel> listPostRes = new();
             foreach (var p in post)
@@ -188,6 +191,7 @@ namespace Data.Repositories.PostRepo
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    ImageUrl = user.Image
                 };
                 var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
@@ -253,6 +257,7 @@ namespace Data.Repositories.PostRepo
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             PetPostTradeModel petpost = new()
             {
@@ -300,6 +305,7 @@ namespace Data.Repositories.PostRepo
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    ImageUrl = user.Image
                 };
 
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
@@ -330,6 +336,7 @@ namespace Data.Repositories.PostRepo
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    ImageUrl = user.Image
                 };
                 listResPost.Add(new PostResModel()
                 {
@@ -358,6 +365,7 @@ namespace Data.Repositories.PostRepo
             {
                 Id = user.Id,
                 Name = user.Name,
+                ImageUrl = user.Image
             };
             foreach (var post in listTblPost)
             {
@@ -391,6 +399,7 @@ namespace Data.Repositories.PostRepo
                 {
                     Id = user.Id,
                     Name = user.Name,
+                    ImageUrl = user.Image
                 };
 
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(p.Id);
