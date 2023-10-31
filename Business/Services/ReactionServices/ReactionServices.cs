@@ -236,6 +236,7 @@ namespace Business.Services.ReactionServices
                         Id = userId,
                         Name = user.Name
                     },
+                    postId = newFeeling.postId,
                     Type = FeelingType.LIKE,
                     createdAt = now
                 };

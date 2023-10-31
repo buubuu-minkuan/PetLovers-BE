@@ -27,20 +27,18 @@ namespace API.Controllers
         }
 
         [HttpPost("create-feeling")]
-        public async Task<IActionResult> CreateFeeling([FromBody] FeelingCreateReqModel newFeeling)
+        public async Task<IActionResult> CreateFeeling([FromBody] Guid postId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            newFeeling.token = token;
-            Data.Models.ResultModel.ResultModel result = await _feeling.CreateFeeling(newFeeling);
+            Data.Models.ResultModel.ResultModel result = await _feeling.CreateFeeling(postId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
         [HttpDelete("delete-feeling")]
-        public async Task<IActionResult> DeleteFeeling([FromBody] FeelingReqModel Feeling)
+        public async Task<IActionResult> DeleteFeeling([FromBody] Guid postId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Feeling.token = token;
-            Data.Models.ResultModel.ResultModel result = await _feeling.RemoveFeeling(Feeling);
+            Data.Models.ResultModel.ResultModel result = await _feeling.RemoveFeeling(postId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
