@@ -16,8 +16,8 @@ namespace Business.Services.ReactionServices
         public Task<ResultModel> CreateComment(CommentCreateReqModel newComment);
         public Task<ResultModel> UpdateComment(CommentReqModel Comment);
         public Task<ResultModel> DeleteComment(CommentDeleteReqModel Comment);
-        public Task<ResultModel> CreateFeeling(FeelingCreateReqModel newFeeling);
-        public Task<ResultModel> RemoveFeeling(FeelingReqModel Feeling);
+        public Task<ResultModel> CreateFeeling(Guid postId, string token);
+        public Task<ResultModel> RemoveFeeling(Guid postId, string token);
 
     }
 }
