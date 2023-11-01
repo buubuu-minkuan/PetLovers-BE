@@ -1170,5 +1170,24 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+        public async Task<ResultModel> GetAllTradePostsTitle()
+        {
+            ResultModel result = new();
+            try
+            {
+                //Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
+                List<PostTradeTitleModel> poststradetitle = await _postRepo.GetAllTradePostsTitle();
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = poststradetitle;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

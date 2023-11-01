@@ -96,7 +96,9 @@ namespace Data.Models.PostModel
         public string Title { get; set; }
         public string Type { get; set; }
         public decimal? Amount { get; set; }
-
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
+        public bool? isFree { get; set; }
     }
 
     public class ReportResModel
