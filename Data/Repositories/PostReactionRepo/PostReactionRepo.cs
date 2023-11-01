@@ -25,27 +25,47 @@ namespace Data.Repositories.PostReactRepo
         public async Task<List<CommentResModel>> GetCommentsByPostId(Guid postId)
         {
             var comments = await _context.TblPostReactions.Where(c => c.PostId.Equals(postId) && c.Type.Equals(ReactionType.COMMENT)).OrderBy(c => c.CreateAt).ToListAsync();
-            return comments.Select(c => new CommentResModel
+            List<CommentResModel> listComment = new();
+            foreach(var comment in comments)
             {
-                Id = c.Id,
-                UserId = c.UserId,
-                PostId = c.PostId,
-                Type = c.Type,
-                content = c.Content,
-                attachment = c.Attachment,
-                createdAt = c.CreateAt,
-                updatedAt = c.UpdateAt
-            }).ToList();
+                var user = await _context.TblUsers.Where(x => x.Id.Equals(comment.UserId)).FirstOrDefaultAsync();
+                CommentAuthor author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
+                CommentResModel commentModel = new()
+                {
+                    Id = comment.Id,
+                    Author = author,
+                    PostId = comment.PostId,
+                    Type = comment.Type,
+                    content = comment.Content,
+                    attachment = comment.Attachment,
+                    createdAt = comment.CreateAt,
+                    updatedAt = comment.UpdateAt
+                };
+                listComment.Add(commentModel);
+            }
+            return listComment;
         }
 
         public async Task<CommentResModel> GetCommentById(Guid id)
         {
 
             var comment = await _context.TblPostReactions.Where(x => x.Id.Equals(id) && x.Type.Equals(ReactionType.COMMENT)).FirstOrDefaultAsync();
+            var user = await _context.TblUsers.Where(x => x.Id.Equals(comment.UserId)).FirstOrDefaultAsync();
+            CommentAuthor author = new()
+            {
+                Id = user.Id,
+                Name = user.Name,
+                ImageUrl = user.Image
+            };
             CommentResModel res = new()
             {
                 Id = comment.Id,
-                UserId = comment.UserId,
+                Author = author,
                 PostId = comment.PostId,
                 Type = comment.Type,
                 content = comment.Content,
