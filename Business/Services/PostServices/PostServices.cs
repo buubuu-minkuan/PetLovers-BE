@@ -15,7 +15,7 @@ using Data.Repositories.PostRepo;
 using Data.Repositories.PostStoredRepo;
 using Data.Repositories.PostTradeRequestRepo;
 using Data.Repositories.ReportRepo;
-using Data.Repositories.RewardRepo;
+using Data.Repositories.UserRewardRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -590,9 +590,16 @@ namespace Business.Services.PostServices
                 } else if(!post.Author.Id.Equals(userId))
                 {
                     var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
-                    var u = await _userRepo.Get(req.UserId);
-                    req.Name = u.Name;
-                    post.UserRequest = req;
+                    PostTradeUserRequestModel userReq = new();
+                    if (req != null)
+                    {
+                        userReq.Id = req.Id;
+                        userReq.UserId = req.UserId;
+                        userReq.Status = req.Status;
+                        userReq.createdAt = req.CreateAt;
+                        userReq.Name = user.Name;
+                        post.UserRequest = userReq;
+                    }
                     result.IsSuccess = true;
                     result.Data = post;
                     result.Code = 200;
@@ -1161,6 +1168,25 @@ namespace Business.Services.PostServices
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetAllTradePostsTitle()
+        {
+            ResultModel result = new();
+            try
+            {
+                //Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
+                List<PostTradeTitleModel> poststradetitle = await _postRepo.GetAllTradePostsTitle();
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = poststradetitle;
             }
             catch (Exception e)
             {

@@ -92,5 +92,11 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.CancelTrading(reqPost, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("post-trade-title")]
+        public async Task<IActionResult> GetAllTradePostsTitle()
+        {
+            Data.Models.ResultModel.ResultModel result = await _post.GetAllTradePostsTitle();
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
