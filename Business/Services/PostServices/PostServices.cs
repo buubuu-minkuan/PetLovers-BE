@@ -633,7 +633,7 @@ namespace Business.Services.PostServices
                 Type = PostingType.TRADING,
                 Title = newPost.Title,
                 UserId = userId,
-                Status = TradingStatus.INPROGRESS,
+                Status = TradingStatus.ACTIVE,
                 IsProcessed = true,
                 Content = newPost.Content,
                 CreateAt = now
