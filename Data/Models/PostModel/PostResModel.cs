@@ -91,10 +91,11 @@ namespace Data.Models.PostModel
     public class PostTradeTitleModel
     {
         public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
         public List<PostAttachmentResModel> Attachment { get; set; }
         public string Title { get; set; }
         public string Type { get; set; }
-
+        public decimal? Amount { get; set; }
 
     }
 
