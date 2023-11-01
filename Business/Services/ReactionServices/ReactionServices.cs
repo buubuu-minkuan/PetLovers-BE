@@ -99,11 +99,18 @@ namespace Business.Services.ReactionServices
             };
             try
             {
+                 var user = await _userRepo.Get(userId);
+                CommentAuthor author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
                 _ = await _reactionRepo.Insert(commentReq);
                 CommentResModel commentResModel = new()
                 {
                     Id = commentId,
-                    UserId = userId,
+                    Author = author,
                     PostId = newComment.postId,
                     content = newComment.content,
                     attachment = newComment.attachment,
@@ -138,7 +145,7 @@ namespace Business.Services.ReactionServices
                     result.Message = "Comment not found";
                     return result;
                 }
-                else if (!userId.Equals(resComment.UserId))
+                else if (!userId.Equals(resComment.Author.Id))
                 {
                     result.IsSuccess = false;
                     result.Code = 200;
@@ -183,7 +190,7 @@ namespace Business.Services.ReactionServices
                     result.Message = "Comment not found";
                     return result;
                 }
-                else if (!userId.Equals(resComment.UserId))
+                else if (!userId.Equals(resComment.Author.Id))
                 {
                     result.IsSuccess = false;
                     result.Code = 200;
