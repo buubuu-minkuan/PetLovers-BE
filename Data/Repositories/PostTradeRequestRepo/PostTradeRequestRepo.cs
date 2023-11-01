@@ -38,17 +38,10 @@ namespace Data.Repositories.PostTradeRequestRepo
             return res;
         }
 
-        public async Task<PostTradeUserRequestModel> GetRequestPostTrade(Guid postId, Guid userId)
+        public async Task<TblTradeRequest> GetRequestPostTrade(Guid postId, Guid userId)
         {
-            var req = await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.UserId.Equals(userId)).FirstOrDefaultAsync();
-            PostTradeUserRequestModel userReq = new()
-            {
-                Id = req.Id,
-                UserId = req.UserId,
-                Status = req.Status,
-                createdAt = req.CreateAt
-            };
-            return userReq;
+            return await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.UserId.Equals(userId)).FirstOrDefaultAsync();
+            
         }
         public async Task<List<TblTradeRequest>> GetListRequestCancelByAuthor(Guid postId)
         {

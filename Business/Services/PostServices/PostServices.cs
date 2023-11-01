@@ -590,9 +590,16 @@ namespace Business.Services.PostServices
                 } else if(!post.Author.Id.Equals(userId))
                 {
                     var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
-                    var u = await _userRepo.Get(req.UserId);
-                    req.Name = u.Name;
-                    post.UserRequest = req;
+                    PostTradeUserRequestModel userReq = new();
+                    if (req != null)
+                    {
+                        userReq.Id = req.Id;
+                        userReq.UserId = req.UserId;
+                        userReq.Status = req.Status;
+                        userReq.createdAt = req.CreateAt;
+                        userReq.Name = user.Name;
+                        post.UserRequest = userReq;
+                    }
                     result.IsSuccess = true;
                     result.Data = post;
                     result.Code = 200;
