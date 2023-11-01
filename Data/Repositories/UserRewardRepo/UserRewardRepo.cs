@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Data.Repositories.RewardRepo
+namespace Data.Repositories.UserRewardRepo
 {
     public class UserRewardRepo : Repository<TblUserReward>, IUserRewardRepo
     {
