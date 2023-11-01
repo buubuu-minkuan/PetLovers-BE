@@ -22,7 +22,7 @@ using Data.Repositories.PostStoredRepo;
 using Business.Services.ReactionServices;
 using Data.Repositories.ReportRepo;
 using Data.Repositories.PostTradeRequestRepo;
-using Data.Repositories.RewardRepo;
+using Data.Repositories.UserRewardRepo;
 using Data.Repositories.HashtagRepo;
 
 var builder = WebApplication.CreateBuilder(args);
