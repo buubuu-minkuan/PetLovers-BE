@@ -2,11 +2,14 @@
 using Data.Entities;
 using Data.Enums;
 using Data.Models.CommentModel;
+using Data.Models.FeelingModel;
+using Data.Models.PostModel;
 using Data.Models.ResultModel;
 using Data.Repositories.PostReactRepo;
 using Data.Repositories.UserRepo;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,11 +19,13 @@ namespace Business.Services.ReactionServices
     public class ReactionServices : IReactionServices //ko biết sao lỗi
     {
         private readonly IPostReactionRepo _reactionRepo;
+        private readonly IUserRepo _userRepo;
         private readonly UserAuthentication _userAuthentication;
-        public ReactionServices(IPostReactionRepo CommentRepo)
+        public ReactionServices(IPostReactionRepo reactionRepo, IUserRepo userRepo)
         {
             _userAuthentication = new UserAuthentication();
-            _reactionRepo = CommentRepo;
+            _reactionRepo = reactionRepo;
+            _userRepo = userRepo;
         }
         public async Task<ResultModel> GetCommentById(Guid id)
         {
@@ -89,6 +94,7 @@ namespace Business.Services.ReactionServices
                 UserId = userId,
                 Content = newComment.content,
                 Attachment = newComment.attachment,
+                Status = Status.ACTIVE,
                 CreateAt = now
             };
             try
@@ -201,5 +207,82 @@ namespace Business.Services.ReactionServices
             }
             return result;
         }
+
+        public async Task<ResultModel> CreateFeeling(Guid postId, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid feelingId = Guid.NewGuid();
+            TblPostReaction newTblFeeling = new()
+            {
+                Id = feelingId,
+                PostId = postId,
+                Type = ReactionType.FEELING,
+                UserId = userId,
+                TypeReact = FeelingType.LIKE,
+                Status = Status.ACTIVE,
+                CreateAt = now
+            };
+            try
+            {
+                _ = await _reactionRepo.Insert(newTblFeeling);
+                var user = await _userRepo.GetUserById(userId);
+                FeelingResModel Feeling = new()
+                {
+                    Id = feelingId,
+                    Author = new FeelingAuthorModel()
+                    {
+                        Id = userId,
+                        Name = user.Name
+                    },
+                    postId = postId,
+                    Type = FeelingType.LIKE,
+                    createdAt = now
+                };
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = Feeling;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> RemoveFeeling(Guid postId, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var isFeeling = await _reactionRepo.isFeeling(postId, userId);
+                if(isFeeling == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You have not liked this post yet";
+                    return result;
+                }
+                isFeeling.Status = Status.DEACTIVE;
+                isFeeling.UpdateAt = now;
+                _ = await _reactionRepo.Update(isFeeling);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }
+
+    

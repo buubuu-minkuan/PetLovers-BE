@@ -66,7 +66,7 @@ namespace Business.Services.UserServices
                     Username = User.Username,
                     Name = User.Name,
                     Phone = User.Phone,
-                    Status = UserStatus.ACTIVE,
+                    Status = UserStatus.VERIFYING,
                     RoleId = getUserRoleId,
                     CreateAt = Date,
                 };
@@ -91,8 +91,8 @@ namespace Business.Services.UserServices
             ResultModel result = new();
             try
             {
-                TblUser getUser = await _userRepo.getUserByUsername(User.Username);
-                if (User == null)
+                var getUser = await _userRepo.getUserByUsername(User.Username);
+                if (getUser == null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
@@ -108,10 +108,31 @@ namespace Business.Services.UserServices
                     result.Message = "Mat khau sai";
                     return result;
                 }
-                string token = UserAuthentication.GenerateJWT(getUser);
+                var roleName = await _userRepo.GetRoleName(getUser.RoleId);
+                var role = new RoleModel()
+                {
+                    Id = getUser.RoleId,
+                    Name = roleName
+                };
+                UserModel userModel = new UserModel()
+                {
+                    Id = getUser.Id,
+                    Name = getUser.Name,
+                    Email = getUser.Email,
+                    Phone = getUser.Phone,
+                    CreateAt = getUser.CreateAt,
+                    Image = getUser.Image,
+                    Role = role,
+                    Status = getUser.Status,
+                    Username = getUser.Username
+                };
+                string token = UserAuthentication.GenerateJWT(userModel);
+                UserLoginResModel userLoginResModel = new UserLoginResModel();
+                userLoginResModel.UserModel = userModel;
+                userLoginResModel.token = token;
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = token;
+                result.Data = userLoginResModel;
                 return result;
 
             }
@@ -136,6 +157,11 @@ namespace Business.Services.UserServices
                 var Posts = await _postRepo.GetPostsFromUser(id);
                 if (id.Equals(userId))
                 {
+                    bool isVerify = false;
+                    if(User.Status.Equals(UserStatus.ACTIVE))
+                    {
+                        isVerify = true;
+                    }
                     UserPageModel userPageModel = new()
                     {
                         Id = id,
@@ -143,8 +169,9 @@ namespace Business.Services.UserServices
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
+                        IsVerify = isVerify,
                         posts = Posts,
-                        RoleId = User.RoleId,
+                        Role = User.Role,
                         Username = User.Username,
                     };
                     if (User == null)
@@ -167,9 +194,9 @@ namespace Business.Services.UserServices
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
-                        isFollowed = isFollowed,
+                        IsFollowed = isFollowed,
                         posts = Posts,
-                        RoleId = User.RoleId,
+                        Role = User.Role,
                         Username = User.Username,
                     };
                     if (User == null)
@@ -200,8 +227,17 @@ namespace Business.Services.UserServices
             {
                 Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
                 var User = await _userRepo.Get(userId);
-                User.Username = model.Username;
+                User.Phone = model.Phone;
+                if (!string.IsNullOrEmpty(model.Email) && !User.Email.Equals(model.Email))
+                {
+                    User.Email = model.Email;
+                    User.Status = UserStatus.VERIFYING;
+                }
                 User.Name = model.Name;
+                if(model.Image != null)
+                {
+                    User.Image = model.Image;
+                }
                 var check = await _userRepo.Update(User);
                 if (!check)
                 {
@@ -210,9 +246,30 @@ namespace Business.Services.UserServices
                     result.Message = "User not found";
                     return result;
                 }
+                var newUser = await _userRepo.GetUserById(User.Id);
+                var Followings = await _userFollowingRepo.GetFollowing(User.Id);
+                var Followers = await _userFollowingRepo.GetFollowers(User.Id);
+                var Posts = await _postRepo.GetPostsFromUser(User.Id);
+                bool isVerify = false;
+                if (User.Status.Equals(UserStatus.VERIFYING))
+                {
+                    isVerify = true;
+                }
+                UserPageModel userPageModel = new()
+                {
+                    Id = User.Id,
+                    Name = User.Name,
+                    Image = User.Image,
+                    Follower = Followers.Count,
+                    Following = Followings.Count,
+                    IsVerify = isVerify,
+                    posts = Posts,
+                    Role = newUser.Role,
+                    Username = User.Username,
+                };
                 result.IsSuccess = true;
                 result.Code = 200;
-                result.Data = User;
+                result.Data = userPageModel;
                 return result;
             }
             catch (Exception e)
@@ -250,6 +307,54 @@ namespace Business.Services.UserServices
                 byte[] hashNewPassword = UserAuthentication.CreatePasswordHash(model.newPassword);
                 User.Password = hashNewPassword;
                 _ = await _userRepo.Update(User);
+                result.IsSuccess = true;
+                result.Code = 200;
+                return result;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> GetRoleName(Guid roleId)
+        {
+            ResultModel result = new();
+            try
+            {
+                var role = await _userRepo.GetRoleName(roleId);
+                result.IsSuccess = true;
+                result.Code = 200;
+                result.Data = role;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+
+        public async Task<ResultModel> ResetPassword(UserResetPasswordModel resetReq)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            try
+            {
+                var getUser = await _userRepo.Get(resetReq.UserId);
+                if(getUser == null) { 
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "User is not exist";
+                    return result;
+                }
+                byte[] hashNewPassword = UserAuthentication.CreatePasswordHash(resetReq.NewPassword);
+                getUser.Password = hashNewPassword;
+                _ = await _userRepo.Update(getUser);
                 result.IsSuccess = true;
                 result.Code = 200;
                 return result;

@@ -14,5 +14,8 @@ namespace Business.Services.UserServices
         public Task<ResultModel> UpdateUser(UserUpdateReqModel model, string token);
 
         public Task<ResultModel> ChangePassword(UserChangePasswordModel model, string token);
+        
+        public Task<ResultModel> GetRoleName(Guid roleId);
+        public Task<ResultModel> ResetPassword(UserResetPasswordModel resetReq);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Data.Entities;
 using Data.Enums;
 using Data.Models.CommentModel;
+using Data.Models.FeelingModel;
+using Data.Models.PostModel;
 using Data.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -62,6 +64,11 @@ namespace Data.Repositories.PostReactRepo
         public async Task<List<TblPostReaction>> GetListReactionById(Guid Id)
         {
             return await _context.TblPostReactions.Where(x => x.PostId.Equals(Id)).ToListAsync();
+        }
+
+        public async Task<TblPostReaction> isFeeling(Guid postId, Guid userId)
+        {
+            return await _context.TblPostReactions.Where(x => x.UserId.Equals(userId) && x.PostId.Equals(postId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
         }
     }
 }

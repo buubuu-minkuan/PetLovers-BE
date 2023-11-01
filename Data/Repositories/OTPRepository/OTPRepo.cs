@@ -1,6 +1,7 @@
 ﻿using Data.Entities;
 using Data.Repositories.GenericRepository;
 using Data.Repositories.PostRepo;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace Data.Repositories.OTPRepository
         {
             //_mapper = mapper;
             _context = context;
+        }
+
+        public async Task<TblOtpverify> GetOTP(string OTPCode, Guid userId)
+        {
+            return await _context.TblOtpverifies.Where(x => x.OtpCode.Equals(OTPCode) && x.UserId.Equals(userId) && !x.IsUsed).FirstOrDefaultAsync();
         }
     }
 }
