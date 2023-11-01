@@ -22,7 +22,7 @@ namespace API.Controllers
 
         public UserFollowingController(IUserFollowingServices userFollowingService)
         {
-            _userFollowingService = userFollowingService;regfewswfesw
+            _userFollowingService = userFollowingService;
         }
         [HttpPost("follow-user")]
         public async Task<IActionResult> FollowUser([FromBody] UserFollowingModel userFollowing)
