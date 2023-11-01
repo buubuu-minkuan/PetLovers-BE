@@ -85,4 +85,5 @@ namespace Data.Models.PostModel
         public Guid IdRequest { get; set; }
         public Guid PostId { get; set; }
     }
+  
 }

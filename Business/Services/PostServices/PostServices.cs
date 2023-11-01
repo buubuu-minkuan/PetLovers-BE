@@ -1170,5 +1170,9 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+        public async Task<ResultModel> GetAllPostTradeTitle(GetAllPostTradeTitleResModel post)
+        {
+
+        }
     }
 }

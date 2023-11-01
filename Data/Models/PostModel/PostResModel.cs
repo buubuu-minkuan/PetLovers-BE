@@ -108,4 +108,13 @@ namespace Data.Models.PostModel
         public string reason { get; set; }
         public DateTime createdAt { get; set; }
     }
+    public class GetAllPostTradeTitleResModel
+    {
+        public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
+        public string Title { get; set; }
+        public List<PostAttachmentResModel> Attachment { get; set; }
+        public string Type { get; set; }
+        public decimal? Amount { get; set; }
+    }
 }

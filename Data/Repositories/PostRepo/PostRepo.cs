@@ -15,6 +15,7 @@ using Data.Models.PostAttachmentModel;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
+using System.Security.Cryptography;
 
 namespace Data.Repositories.PostRepo
 {
@@ -294,9 +295,9 @@ namespace Data.Repositories.PostRepo
             return res;
         }
         
-        public async Task<List<PostTradeResModel>> GetAllTradePostsTitle()
+        public async Task<List<GetAllPostTradeTitleResModel>> GetAllTradePostsTitle(Guid id)
         {
-            List<PostTradeResModel> posts = new();
+            List<GetAllPostTradeTitleResModel> posts = new();
             var newPost = await _context.TblPosts.Where(x => x.Status.Equals(TradingStatus.INPROGRESS) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var post in newPost)
             {
@@ -308,8 +309,8 @@ namespace Data.Repositories.PostRepo
                     ImageUrl = user.Image
                 };
 
-                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
-                posts.Add(new PostTradeResModel()
+                List<GetAllPostTradeTitleResModel> arrAttachment = await GetPostAttachment(post.Id);
+                posts.Add(new GetAllPostTradeTitleResModel()
                 {
                     Id = post.Id,
                     Author = author,
