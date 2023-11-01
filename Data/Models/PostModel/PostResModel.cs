@@ -44,7 +44,7 @@ namespace Data.Models.PostModel
         public bool isTrading { get; set; }
         public string Type { get; set; }
         public decimal? Amount { get; set; }
-        public PostTradeUserRequestModel UserRequest { get; set; }
+        public PostTradeUserRequestModel? UserRequest { get; set; }
     }
 
     public class PostTradeAuthorResModel
@@ -59,7 +59,7 @@ namespace Data.Models.PostModel
         public DateTime? updatedAt { get; set; }
         public string Type { get; set; }
         public decimal? Amount { get; set; }
-        public List<PostTradeUserRequestModel> UserRequest { get; set; }
+        public List<PostTradeUserRequestModel>? UserRequest { get; set; }
     }
 
     public class PostTradeUserRequestModel
