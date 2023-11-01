@@ -15,7 +15,7 @@ using Data.Repositories.PostRepo;
 using Data.Repositories.PostStoredRepo;
 using Data.Repositories.PostTradeRequestRepo;
 using Data.Repositories.ReportRepo;
-using Data.Repositories.RewardRepo;
+using Data.Repositories.UserRewardRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
