@@ -283,6 +283,7 @@ namespace Data.Repositories.PostRepo
                 Attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
+                isFree = post.IsFree
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
