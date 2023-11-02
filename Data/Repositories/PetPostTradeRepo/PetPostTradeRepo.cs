@@ -31,6 +31,7 @@ namespace Data.Repositories.PetPostTradeRepo
             newPet.Type = pet.Type;
             newPet.Breed = pet.Breed;
             newPet.Age = pet.Age;
+            newPet.Color = pet.Color;
             newPet.Weight = pet.Weight;
             newPet.Gender = pet.Gender;
             return newPet;
