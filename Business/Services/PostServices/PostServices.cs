@@ -582,7 +582,8 @@ namespace Business.Services.PostServices
                         Pet = post.Pet,
                         Type = post.Type,
                         createdAt = post.createdAt,
-                        UserRequest = req
+                        UserRequest = req,
+                        isFree = post.isFree,
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -643,7 +644,9 @@ namespace Business.Services.PostServices
                 Status = TradingStatus.ACTIVE,
                 IsProcessed = true,
                 Content = newPost.Content,
-                CreateAt = now
+                CreateAt = now,
+                Amount = newPost.Amount,
+                IsFree = newPost.isFree
             };
             try
             {
@@ -689,6 +692,7 @@ namespace Business.Services.PostServices
                     Age = newPost.Age,
                     Gender = newPost.Gender,
                     Weight = newPost.Weight,
+                    Color = newPost.Color
                 };
                 PostTradeResModel postResModel = new()
                 {
@@ -701,7 +705,8 @@ namespace Business.Services.PostServices
                     updatedAt = null,
                     Type = newPost.Type,
                     Amount = newPost.Amount,
-                    Pet = newPet
+                    Pet = newPet,
+                    isFree = newPost.isFree,
 
                 };
                 result.IsSuccess = true;
@@ -787,6 +792,11 @@ namespace Business.Services.PostServices
                         pet.Gender = postReq.Gender;
                         tblPet.Gender = postReq.Gender;
                     }
+                    if (!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
+                    {
+                        pet.Color = postReq.Color;
+                        tblPet.Color = postReq.Color; 
+                    }
                     if (postReq.Weight != null && !pet.Type.Equals(postReq.Weight))
                     {
                         pet.Weight = postReq.Weight;
@@ -796,10 +806,6 @@ namespace Business.Services.PostServices
                     {
                         post.Amount = postReq.Amount;
                         tblPost.Amount = postReq.Amount;
-                    }if(!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
-                    {
-                        pet.Color = postReq.Color;
-                        tblPet.Color = postReq.Color;
                     }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;

@@ -283,6 +283,7 @@ namespace Data.Repositories.PostRepo
                 Attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
+                isFree = post.IsFree
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
@@ -391,7 +392,7 @@ namespace Data.Repositories.PostRepo
 
         public async Task<List<PostTradeResModel>> GetPostTradingInProgressByUserId(Guid userId)
         {
-            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DONE)).ToListAsync();
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DONE) && !x.Status.Equals(TradingStatus.DEACTIVE)).ToListAsync();
             List<PostTradeResModel> posts = new();
             foreach (var p in post)
             {
