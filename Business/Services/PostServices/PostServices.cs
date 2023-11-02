@@ -645,6 +645,7 @@ namespace Business.Services.PostServices
                 IsProcessed = true,
                 Content = newPost.Content,
                 CreateAt = now,
+                Amount = newPost.Amount,
                 IsFree = newPost.isFree
             };
             try
