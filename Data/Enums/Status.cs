@@ -26,6 +26,7 @@
         public static readonly string ACTIVE = "Active";
         public static readonly string INPROGRESS = "In Progress";
         public static readonly string DONE = "Done";
+        public static readonly string DEACTIVE = "Deactive";
     }
 
     public class ReportingStatus
