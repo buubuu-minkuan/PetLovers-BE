@@ -68,7 +68,7 @@ namespace Business.Ultilities.UserAuthentication
                 issuer: Issuser,
                 audience: Issuser,
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMonths(1),
                 signingCredentials: credential
                 );
             var encodetoken = new JwtSecurityTokenHandler().WriteToken(token);
