@@ -582,7 +582,8 @@ namespace Business.Services.PostServices
                         Pet = post.Pet,
                         Type = post.Type,
                         createdAt = post.createdAt,
-                        UserRequest = req
+                        UserRequest = req,
+                        isFree = post.isFree,
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -643,7 +644,8 @@ namespace Business.Services.PostServices
                 Status = TradingStatus.ACTIVE,
                 IsProcessed = true,
                 Content = newPost.Content,
-                CreateAt = now
+                CreateAt = now,
+                IsFree = newPost.isFree
             };
             try
             {
@@ -702,7 +704,8 @@ namespace Business.Services.PostServices
                     updatedAt = null,
                     Type = newPost.Type,
                     Amount = newPost.Amount,
-                    Pet = newPet
+                    Pet = newPet,
+                    isFree = newPost.isFree,
 
                 };
                 result.IsSuccess = true;

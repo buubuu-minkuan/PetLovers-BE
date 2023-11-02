@@ -35,6 +35,7 @@ namespace Data.Models.PostModel
     {
         public Guid Id { get; set; }
         public PostAuthorModel Author { get; set; }
+        public bool? isFree { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public List<PostAttachmentResModel> Attachment { get; set; }
@@ -60,6 +61,7 @@ namespace Data.Models.PostModel
         public string Type { get; set; }
         public decimal? Amount { get; set; }
         public List<PostTradeUserRequestModel>? UserRequest { get; set; }
+        public bool? isFree { get; set; }
     }
 
     public class PostTradeUserRequestModel
