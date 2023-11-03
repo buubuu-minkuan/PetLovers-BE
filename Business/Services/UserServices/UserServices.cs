@@ -166,6 +166,7 @@ namespace Business.Services.UserServices
                     {
                         Id = id,
                         Name = User.Name,
+                        Email = User.Email,
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
@@ -191,6 +192,7 @@ namespace Business.Services.UserServices
                     {
                         Id = id,
                         Name = User.Name,
+                        Email = User.Email,
                         Image = User.Image,
                         Follower = Followers.Count,
                         Following = Followings.Count,
