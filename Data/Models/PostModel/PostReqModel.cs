@@ -26,6 +26,7 @@ namespace Data.Models.PostModel
         public Guid postId { get; set; }
         public string? content { get; set; }
         public string[]? attachment { get; set; }
+        public string[]? hashtag { get; set; }
     }
 
     public class PostDeleteReqModel
