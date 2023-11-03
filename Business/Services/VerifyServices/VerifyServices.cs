@@ -51,6 +51,7 @@ namespace Business.Services.VerifyServices
             {
                 TblOtpverify newOTP = new()
                 {
+                    Id = Guid.NewGuid(),
                     UserId = userId,
                     OtpCode = OTPCode,
                     IsUsed = false,
@@ -111,6 +112,7 @@ namespace Business.Services.VerifyServices
                 }
                 TblOtpverify newOTP = new()
                 {
+                    Id = Guid.NewGuid(),
                     UserId = user.Id,
                     OtpCode = OTPCode,
                     IsUsed = false,
