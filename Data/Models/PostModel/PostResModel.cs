@@ -42,7 +42,8 @@ namespace Data.Models.PostModel
         public PetPostTradeModel Pet { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
-        public bool isTrading { get; set; }
+        public bool isTrading { get; set; } = false;
+        public bool isRequest { get; set; } = false;
         public string Type { get; set; }
         public decimal? Amount { get; set; }
         public PostTradeUserRequestModel? UserRequest { get; set; }
@@ -62,6 +63,7 @@ namespace Data.Models.PostModel
         public decimal? Amount { get; set; }
         public List<PostTradeUserRequestModel>? UserRequest { get; set; }
         public bool? isFree { get; set; }
+        public bool isTrading { get; set; } = false;
     }
 
     public class PostTradeUserRequestModel

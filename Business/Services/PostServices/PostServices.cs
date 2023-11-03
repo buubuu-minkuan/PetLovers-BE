@@ -453,6 +453,7 @@ namespace Business.Services.PostServices
                         createdAt = post.createdAt,
                         UserRequest = req,
                         isFree = post.isFree,
+                        isTrading = post.isTrading
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -469,6 +470,7 @@ namespace Business.Services.PostServices
                         userReq.createdAt = req.CreateAt;
                         userReq.Name = user.Name;
                         post.UserRequest = userReq;
+                        post.isRequest = true;
                     }
                     result.IsSuccess = true;
                     result.Data = post;
