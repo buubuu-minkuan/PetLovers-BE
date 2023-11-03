@@ -866,17 +866,18 @@ namespace Business.Services.PostServices
                 var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
                 if (req != null)
                 {
+                    if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "You already cancelled this request!";
+                        return result;
+                    }
                     result.IsSuccess = false;
                     result.Code = 400;
                     result.Message = "You have already request!";
                     return result;
-                } else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
-                {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "You already cancelled this request!";
-                    return result;
-                }
+                } 
                 TblTradeRequest tradeRequest = new()
                 {
                     PostId = postId,
