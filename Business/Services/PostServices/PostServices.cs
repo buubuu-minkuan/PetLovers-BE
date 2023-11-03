@@ -1083,10 +1083,9 @@ namespace Business.Services.PostServices
             {
                 var post = await _postRepo.GetListPostTradeResModelByUserId(id);
                 var user = await _userRepo.Get(userId);
-                if (post == null)
+                if (post == null || post.Count <= 0)
                 {
-                    result.IsSuccess = false;
-                    result.Message = "Not found";
+                    result.IsSuccess = true;
                     result.Code = 200;
                     return result;
                 }
