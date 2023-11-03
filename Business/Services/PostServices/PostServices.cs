@@ -453,6 +453,7 @@ namespace Business.Services.PostServices
                         createdAt = post.createdAt,
                         UserRequest = req,
                         isFree = post.isFree,
+                        isTrading = post.isTrading
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -469,6 +470,7 @@ namespace Business.Services.PostServices
                         userReq.createdAt = req.CreateAt;
                         userReq.Name = user.Name;
                         post.UserRequest = userReq;
+                        post.isRequest = true;
                     }
                     result.IsSuccess = true;
                     result.Data = post;
@@ -864,17 +866,18 @@ namespace Business.Services.PostServices
                 var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
                 if (req != null)
                 {
+                    if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "You already cancelled this request!";
+                        return result;
+                    }
                     result.IsSuccess = false;
                     result.Code = 400;
                     result.Message = "You have already request!";
                     return result;
-                } else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
-                {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "You already cancelled this request!";
-                    return result;
-                }
+                } 
                 TblTradeRequest tradeRequest = new()
                 {
                     PostId = postId,
@@ -1062,6 +1065,83 @@ namespace Business.Services.PostServices
                 result.Code = 200;
                 result.IsSuccess = true;
                 result.Data = poststradetitle;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetListPostTradeByUserId(Guid id, string token)
+        {
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.GetListPostTradeResModelByUserId(id);
+                var user = await _userRepo.Get(userId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Message = "Not found";
+                    result.Code = 200;
+                    return result;
+                }
+                if (id.Equals(userId))
+                {
+                    foreach (var p in post)
+                    {
+                        var req = await _postTradeRequestRepo.GetListRequestPostTradeByPostId(p.Id);
+                        foreach (var r in req)
+                        {
+                            var u = await _userRepo.Get(r.UserId);
+                            r.Name = u.Name;
+                        }
+                        PostTradeAuthorResModel postRes = new()
+                        {
+                            Id = p.Id,
+                            Author = p.Author,
+                            Title = p.Title,
+                            Content = p.Content,
+                            Attachment = p.Attachment,
+                            Amount = p.Amount,
+                            Pet = p.Pet,
+                            Type = p.Type,
+                            createdAt = p.createdAt,
+                            UserRequest = req,
+                            isFree = p.isFree,
+                            isTrading = p.isTrading
+                        };
+                        result.IsSuccess = true;
+                        result.Data = postRes;
+                        result.Code = 200;
+                    }
+                    
+                }
+                else if (!id.Equals(userId))
+                {
+                    foreach (var p in post)
+                    {
+                        var req = await _postTradeRequestRepo.GetRequestPostTrade(p.Id, userId);
+                        PostTradeUserRequestModel userReq = new();
+                        if (req != null)
+                        {
+                            userReq.Id = req.Id;
+                            userReq.UserId = req.UserId;
+                            userReq.Status = req.Status;
+                            userReq.createdAt = req.CreateAt;
+                            userReq.Name = user.Name;
+                            p.UserRequest = userReq;
+                            p.isRequest = true;
+                        }
+                        result.IsSuccess = true;
+                        result.Data = post;
+                        result.Code = 200;
+                    } 
+                }
             }
             catch (Exception e)
             {

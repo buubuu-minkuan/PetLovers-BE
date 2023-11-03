@@ -76,9 +76,9 @@ namespace Data.Repositories.PostReactRepo
             return res;
         }
 
-        public async Task<TblPostReaction> GetTblPostReactionByPostId(Guid id)
+        public async Task<TblPostReaction> GetTblPostReactionByReactionId(Guid id)
         {
-            return await _context.TblPostReactions.Where(x => x.PostId.Equals(id) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
+            return await _context.TblPostReactions.Where(x => x.Id.Equals(id) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
         }
 
         public async Task<List<TblPostReaction>> GetListReactionById(Guid Id)
