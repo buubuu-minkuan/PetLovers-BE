@@ -25,10 +25,10 @@ namespace Business.Services.PostServices
         public Task<ResultModel> AcceptTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> DenyTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> CancelTrading(PostTradeProcessModel req, string token);
-        public Task<ResultModel> GetAllPendingPost(string token);
+        public Task<ResultModel> GetAllPendingPost(string token);//
         public Task<ResultModel> GetUserPendingPost(string token);
-        public Task<ResultModel> ApprovePosting(PostReqModel post);
-        public Task<ResultModel> RefusePosting(PostReqModel post);
+        public Task<ResultModel> ApprovePosting(PostReqModel post);//
+        public Task<ResultModel> RefusePosting(PostReqModel post);//
         public Task<ResultModel> ReportPost(PostReportModel post);
         public Task<ResultModel> GetAllTradePostsTitle();
     }
