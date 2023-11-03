@@ -28,5 +28,6 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetUserPendingPost(string token);
         public Task<ResultModel> ReportPost(PostReportModel post);
         public Task<ResultModel> GetAllTradePostsTitle();
+        public Task<ResultModel> GetListPostTradeByUserId(Guid id, string token);
     }
 }
