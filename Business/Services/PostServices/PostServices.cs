@@ -216,6 +216,41 @@ namespace Business.Services.PostServices
                         post.content = postReq.content;
                         tblPost.Content = postReq.content;
                     }
+                    var currentHashtags = await _hashtagRepo.GetListHashTagByPostId(postReq.postId);
+                    var newHashtags = postReq.hashtag;
+                    var hashtagstoAdd = new List<TblPostHashtag>();
+                    foreach (var newHashtag in newHashtags)
+                    {
+                        var isHashtagExist = currentHashtags.Any(x => x.Hashtag.Equals(newHashtag));
+                        if (!isHashtagExist)
+                        {
+                            hashtagstoAdd.Add(new TblPostHashtag()
+                            {
+                                PostId = postReq.postId,
+                                Hashtag = newHashtag,
+                                Status = Status.ACTIVE,
+                                CreateAt = now
+                            });
+                        }
+                    }
+                    foreach (var hashtag in hashtagstoAdd)
+                    {
+                        _ = await _hashtagRepo.Insert(hashtag);
+                    }
+                    foreach (var currentHashtag in currentHashtags)
+                    {
+                        if(currentHashtag.Status != Status.DEACTIVE)
+                        {
+                            var isHashtagExist = newHashtags.Any(x => x.Equals(currentHashtag.Hashtag));
+                            if (!isHashtagExist)
+                            {
+                                var getHashtag = await _hashtagRepo.Get(currentHashtag.Id);
+                                getHashtag.Status = Status.DEACTIVE;
+                                _ = await _hashtagRepo.Update(getHashtag);
+                            }
+                        }
+                        
+                    }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
                     var attachmentsToAdd = new List<TblPostAttachment>();
