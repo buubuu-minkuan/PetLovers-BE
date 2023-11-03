@@ -10,7 +10,7 @@ namespace Data.Repositories.PostReactRepo
         public Task<List<TblPostReaction>> GetListReactionById(Guid id);
         public Task<CommentResModel> GetCommentById(Guid id);
         public Task<List<CommentResModel>> GetCommentsByPostId(Guid postId);
-        public Task<TblPostReaction> GetTblPostReactionByPostId(Guid id);
+        public Task<TblPostReaction> GetTblPostReactionByReactionId(Guid id);
         public Task<TblPostReaction> isFeeling(Guid postId, Guid userId);
     }
 
