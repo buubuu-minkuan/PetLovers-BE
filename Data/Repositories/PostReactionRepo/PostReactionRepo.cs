@@ -24,7 +24,7 @@ namespace Data.Repositories.PostReactRepo
 
         public async Task<List<CommentResModel>> GetCommentsByPostId(Guid postId)
         {
-            var comments = await _context.TblPostReactions.Where(c => c.PostId.Equals(postId) && c.Type.Equals(ReactionType.COMMENT) && c.Status.Equals(Status.DEACTIVE)).OrderBy(c => c.CreateAt).ToListAsync();
+            var comments = await _context.TblPostReactions.Where(c => c.PostId.Equals(postId) && c.Type.Equals(ReactionType.COMMENT) && c.Status.Equals(Status.ACTIVE)).OrderBy(c => c.CreateAt).ToListAsync();
             List<CommentResModel> listComment = new();
             foreach(var comment in comments)
             {
