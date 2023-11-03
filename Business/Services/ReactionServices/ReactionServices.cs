@@ -137,7 +137,7 @@ namespace Business.Services.ReactionServices
             try
             {
                 CommentResModel resComment = await _reactionRepo.GetCommentById(Comment.Id);
-                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(Comment.Id);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByReactionId(Comment.Id);
                 if (resComment == null)
                 {
                     result.IsSuccess = false;
@@ -162,7 +162,7 @@ namespace Business.Services.ReactionServices
                 tblPostReaction.Attachment = Comment.attachment;
                 tblPostReaction.UpdateAt = now;
                 _ = _reactionRepo.Update(tblPostReaction);
-                result.IsSuccess = false;
+                result.IsSuccess = true;
                 result.Code = 200;
                 result.Data = resComment;
             }
@@ -182,7 +182,7 @@ namespace Business.Services.ReactionServices
             try
             {
                 CommentResModel resComment = await _reactionRepo.GetCommentById(Comment.Id);
-                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByPostId(Comment.Id);
+                TblPostReaction tblPostReaction = await _reactionRepo.GetTblPostReactionByReactionId(Comment.Id);
                 if (resComment == null)
                 {
                     result.IsSuccess = false;
