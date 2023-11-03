@@ -1,4 +1,6 @@
-﻿using Data.Models.ResultModel;
+﻿using Data.Entities;
+using Data.Models.ResultModel;
+using Data.Models.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,6 @@ namespace Business.Services.ManageServices
 {
     public interface IManageServices
     {
-        //public Task<ResultModel> 
+        public Task<ResultModel> BanUser(List<Guid> userId, string token);
     }
 }
