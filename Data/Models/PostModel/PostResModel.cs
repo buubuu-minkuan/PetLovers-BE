@@ -74,6 +74,7 @@ namespace Data.Models.PostModel
         public Guid UserId { get; set; }
         public string? Name { get; set; }
         public string Status { get; set; }
+        public int SocialCredit { get; set; }
         public DateTime createdAt { get; set; }
     }
 
