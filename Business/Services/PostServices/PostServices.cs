@@ -1126,6 +1126,7 @@ namespace Business.Services.PostServices
                 }
                 if (id.Equals(userId))
                 {
+                    List<PostTradeAuthorResModel> listPostRes = new();
                     foreach (var p in post)
                     {
                         var req = await _postTradeRequestRepo.GetListRequestPostTradeByPostId(p.Id);
@@ -1149,11 +1150,11 @@ namespace Business.Services.PostServices
                             isFree = p.isFree,
                             isTrading = p.isTrading
                         };
-                        result.IsSuccess = true;
-                        result.Data = postRes;
-                        result.Code = 200;
+                        listPostRes.Add(postRes);
                     }
-                    
+                    result.IsSuccess = true;
+                    result.Data = listPostRes;
+                    result.Code = 200;
                 }
                 else if (!id.Equals(userId))
                 {
@@ -1171,10 +1172,10 @@ namespace Business.Services.PostServices
                             p.UserRequest = userReq;
                             p.isRequest = true;
                         }
-                        result.IsSuccess = true;
-                        result.Data = post;
-                        result.Code = 200;
-                    } 
+                    }
+                    result.IsSuccess = true;
+                    result.Data = post;
+                    result.Code = 200;
                 }
             }
             catch (Exception e)
