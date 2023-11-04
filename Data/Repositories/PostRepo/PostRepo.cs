@@ -309,7 +309,7 @@ namespace Data.Repositories.PostRepo
                     ImageUrl = user.Image
                 };
 
-                List<GetAllPostTradeTitleResModel> arrAttachment = await GetPostAttachment(post.Id);
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 posts.Add(new GetAllPostTradeTitleResModel()
                 {
                     Id = post.Id,
@@ -318,8 +318,6 @@ namespace Data.Repositories.PostRepo
                     Type = post.Type,
                     Amount = post.Amount,
                     Attachment = arrAttachment,
-                    createdAt = post.CreateAt,
-                    updatedAt = post.UpdateAt,
                 });
             }
             return posts;
