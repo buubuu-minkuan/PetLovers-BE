@@ -15,6 +15,7 @@ using Data.Models.PostAttachmentModel;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Xml.Linq;
+using System.Security.Cryptography;
 
 namespace Data.Repositories.PostRepo
 {
@@ -283,7 +284,8 @@ namespace Data.Repositories.PostRepo
                 Attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
-                isFree = post.IsFree
+                isFree = post.IsFree,
+                Address = post.Address
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
