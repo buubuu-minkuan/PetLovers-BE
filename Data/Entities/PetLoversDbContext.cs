@@ -94,7 +94,7 @@ namespace Data.Entities
                     .WithMany(p => p.TblOtpverifies)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblOTPVer__userI__3F115E1A");
+                    .HasConstraintName("FK__tblOTPVer__userI__69FBBC1F");
             });
 
             modelBuilder.Entity<TblPetTradingPost>(entity =>
@@ -111,12 +111,10 @@ namespace Data.Entities
 
                 entity.Property(e => e.Breed)
                     .HasMaxLength(100)
-                    .IsUnicode(false)
                     .HasColumnName("breed");
 
                 entity.Property(e => e.Color)
                     .HasMaxLength(100)
-                    .IsUnicode(false)
                     .HasColumnName("color");
 
                 entity.Property(e => e.Gender)
@@ -191,7 +189,6 @@ namespace Data.Entities
 
                 entity.Property(e => e.Title)
                     .HasMaxLength(200)
-                    .IsUnicode(false)
                     .HasColumnName("title");
 
                 entity.Property(e => e.Type)
