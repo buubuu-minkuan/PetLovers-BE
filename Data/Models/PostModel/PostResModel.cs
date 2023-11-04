@@ -47,6 +47,7 @@ namespace Data.Models.PostModel
         public string Type { get; set; }
         public decimal? Amount { get; set; }
         public PostTradeUserRequestModel? UserRequest { get; set; }
+        public string Address { get; set; }
     }
 
     public class PostTradeAuthorResModel
@@ -64,6 +65,7 @@ namespace Data.Models.PostModel
         public List<PostTradeUserRequestModel>? UserRequest { get; set; }
         public bool? isFree { get; set; }
         public bool isTrading { get; set; } = false;
+        public string Address { get; set; }
     }
 
     public class PostTradeUserRequestModel
@@ -114,5 +116,14 @@ namespace Data.Models.PostModel
         public string type { get; set; }
         public string reason { get; set; }
         public DateTime createdAt { get; set; }
+    }
+    public class GetAllPostTradeTitleResModel
+    {
+        public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
+        public string Title { get; set; }
+        public List<PostAttachmentResModel> Attachment { get; set; }
+        public string Type { get; set; }
+        public decimal? Amount { get; set; }
     }
 }

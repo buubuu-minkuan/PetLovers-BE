@@ -488,7 +488,8 @@ namespace Business.Services.PostServices
                         createdAt = post.createdAt,
                         UserRequest = req,
                         isFree = post.isFree,
-                        isTrading = post.isTrading
+                        isTrading = post.isTrading,
+                        Address = post.Address
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -552,7 +553,8 @@ namespace Business.Services.PostServices
                 Content = newPost.Content,
                 CreateAt = now,
                 Amount = newPost.Amount,
-                IsFree = newPost.isFree
+                IsFree = newPost.isFree,
+                Address = newPost.Address
             };
             try
             {
@@ -613,7 +615,7 @@ namespace Business.Services.PostServices
                     Amount = newPost.Amount,
                     Pet = newPet,
                     isFree = newPost.isFree,
-
+                    Address = newPost.Address,
                 };
                 result.IsSuccess = true;
                 result.Code = 200;
