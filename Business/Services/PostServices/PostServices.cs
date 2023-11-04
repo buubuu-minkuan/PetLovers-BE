@@ -474,6 +474,7 @@ namespace Business.Services.PostServices
                     {
                         var u = await _userRepo.Get(r.UserId);
                         r.Name = u.Name;
+                        r.SocialCredit = u.SocialCredit;
                     }
                     PostTradeAuthorResModel postRes = new()
                     {
@@ -505,6 +506,7 @@ namespace Business.Services.PostServices
                         userReq.Status = req.Status;
                         userReq.createdAt = req.CreateAt;
                         userReq.Name = user.Name;
+                        userReq.SocialCredit = user.SocialCredit;
                         post.UserRequest = userReq;
                         post.isRequest = true;
                     }
@@ -1097,7 +1099,6 @@ namespace Business.Services.PostServices
             ResultModel result = new();
             try
             {
-                //Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
                 List<PostTradeTitleModel> poststradetitle = await _postRepo.GetAllTradePostsTitle();
                 result.Code = 200;
                 result.IsSuccess = true;
@@ -1136,6 +1137,7 @@ namespace Business.Services.PostServices
                         {
                             var u = await _userRepo.Get(r.UserId);
                             r.Name = u.Name;
+                            r.SocialCredit = u.SocialCredit;
                         }
                         PostTradeAuthorResModel postRes = new()
                         {
@@ -1171,6 +1173,7 @@ namespace Business.Services.PostServices
                             userReq.Status = req.Status;
                             userReq.createdAt = req.CreateAt;
                             userReq.Name = user.Name;
+                            userReq.SocialCredit = user.SocialCredit;
                             p.UserRequest = userReq;
                             p.isRequest = true;
                         }
