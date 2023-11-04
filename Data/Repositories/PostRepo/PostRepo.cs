@@ -284,7 +284,8 @@ namespace Data.Repositories.PostRepo
                 Attachment = arrAttachment,
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
-                isFree = post.IsFree
+                isFree = post.IsFree,
+                Address = post.Address
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
