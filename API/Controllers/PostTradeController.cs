@@ -10,6 +10,7 @@ using Data.Entities;
 using Business.Services.PostServices;
 using Microsoft.AspNetCore.Authorization;
 using Data.Models.PostModel;
+using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
@@ -90,6 +91,19 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _post.CancelTrading(reqPost, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("post-trade-title")]
+        public async Task<IActionResult> GetAllTradePostsTitle()
+        {
+            Data.Models.ResultModel.ResultModel result = await _post.GetAllTradePostsTitle();
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("get-list-post-trade-by-userid")]
+        public async Task<IActionResult> GetListPostTradeByUserId(Guid id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetListPostTradeByUserId(id, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

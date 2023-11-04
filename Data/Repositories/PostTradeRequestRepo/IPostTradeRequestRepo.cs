@@ -12,7 +12,7 @@ namespace Data.Repositories.PostTradeRequestRepo
     public interface IPostTradeRequestRepo : IRepository<TblTradeRequest>
     {
         public Task<List<PostTradeUserRequestModel>> GetListRequestPostTradeByPostId(Guid postId);
-        public Task<PostTradeUserRequestModel> GetRequestPostTrade(Guid postId, Guid userId);
+        public Task<TblTradeRequest> GetRequestPostTrade(Guid postId, Guid userId);
         public Task<List<TblTradeRequest>> GetListRequestCancelByAuthor(Guid postId);
     }
 }

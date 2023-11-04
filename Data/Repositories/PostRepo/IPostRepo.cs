@@ -20,10 +20,11 @@ namespace Data.Repositories.PostRepo
         public Task<TblPost> GetTblPostById(Guid id);
         public Task<TblPost> GetTblPostTradeById(Guid id);
         public Task<PostTradeResModel> GetPostTradeById(Guid id);
-        public Task<List<GetAllPostTradeTitleResModel>> GetAllTradePostsTitle(Guid id);
+        public Task<List<PostTradeTitleModel>> GetAllTradePostsTitle();
         public Task<List<PostResModel>> GetAllPendingPost();
         public Task<List<PostResModel>> GetUserPendingPost(Guid userId);
         public Task<List<PostTradeResModel>> GetPostTradingInProgressByUserId(Guid userId);
         public Task<List<TblPost>> GetListPostTradingByUserId(Guid userId);
+        public Task<List<PostTradeResModel>> GetListPostTradeResModelByUserId(Guid userId);
     }
 }

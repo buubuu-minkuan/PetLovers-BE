@@ -10,44 +10,52 @@ using Data.Entities;
 using Business.Services.PostServices;
 using Microsoft.AspNetCore.Authorization;
 using Data.Models.PostModel;
+using Business.Services.ManageServices;
 
 namespace API.Controllers
 {
-    [Route("manage/post/")]
+    [Route("manage/")]
     [Authorize]
     [ApiController]
-    public class PostManageController : Controller
+    public class ManageController : Controller
     {
-        private readonly IPostServices _post;
+        private readonly IManageServices _manage;
 
-        public PostManageController(IPostServices post)
+        public ManageController(IManageServices manage)
         {
-            _post = post;
+            _manage = manage;
         }
 
-        [HttpGet("pending-post")]
+        [HttpGet("post/pending-post")]
         public async Task<IActionResult> GetAllPendingPost()
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _post.GetAllPendingPost(token);
+            Data.Models.ResultModel.ResultModel result = await _manage.GetAllPendingPost(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPost("approve-post")]
+        [HttpPost("post/approve-post")]
         public async Task<IActionResult> ApprovePost([FromBody] PostReqModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.ApprovePosting(Post);
+            Data.Models.ResultModel.ResultModel result = await _manage.ApprovePosting(Post);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
-        [HttpPost("refuse-post")]
+        [HttpPost("post/refuse-post")]
         public async Task<IActionResult> RefusePost([FromBody] PostReqModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.RefusePosting(Post);
+            Data.Models.ResultModel.ResultModel result = await _manage.RefusePosting(Post);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("post/ban-user")]
+        public async Task<IActionResult> BanUser(List<Guid> userId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.BanUser(userId,token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

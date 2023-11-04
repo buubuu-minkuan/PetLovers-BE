@@ -35,16 +35,18 @@ namespace Data.Models.PostModel
     {
         public Guid Id { get; set; }
         public PostAuthorModel Author { get; set; }
+        public bool? isFree { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public List<PostAttachmentResModel> Attachment { get; set; }
         public PetPostTradeModel Pet { get; set; }
         public DateTime createdAt { get; set; }
         public DateTime? updatedAt { get; set; }
-        public bool isTrading { get; set; }
+        public bool isTrading { get; set; } = false;
+        public bool isRequest { get; set; } = false;
         public string Type { get; set; }
         public decimal? Amount { get; set; }
-        public PostTradeUserRequestModel UserRequest { get; set; }
+        public PostTradeUserRequestModel? UserRequest { get; set; }
     }
 
     public class PostTradeAuthorResModel
@@ -59,7 +61,9 @@ namespace Data.Models.PostModel
         public DateTime? updatedAt { get; set; }
         public string Type { get; set; }
         public decimal? Amount { get; set; }
-        public List<PostTradeUserRequestModel> UserRequest { get; set; }
+        public List<PostTradeUserRequestModel>? UserRequest { get; set; }
+        public bool? isFree { get; set; }
+        public bool isTrading { get; set; } = false;
     }
 
     public class PostTradeUserRequestModel
@@ -91,11 +95,14 @@ namespace Data.Models.PostModel
     public class PostTradeTitleModel
     {
         public Guid Id { get; set; }
+        public PostAuthorModel Author { get; set; }
         public List<PostAttachmentResModel> Attachment { get; set; }
         public string Title { get; set; }
         public string Type { get; set; }
-
-
+        public decimal? Amount { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
+        public bool? isFree { get; set; }
     }
 
     public class ReportResModel

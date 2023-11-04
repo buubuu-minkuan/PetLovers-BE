@@ -15,7 +15,7 @@ using Data.Repositories.PostRepo;
 using Data.Repositories.PostStoredRepo;
 using Data.Repositories.PostTradeRequestRepo;
 using Data.Repositories.ReportRepo;
-using Data.Repositories.RewardRepo;
+using Data.Repositories.UserRewardRepo;
 using Data.Repositories.UserRepo;
 using MailKit;
 using Microsoft.EntityFrameworkCore;
@@ -216,6 +216,41 @@ namespace Business.Services.PostServices
                         post.content = postReq.content;
                         tblPost.Content = postReq.content;
                     }
+                    var currentHashtags = await _hashtagRepo.GetListHashTagByPostId(postReq.postId);
+                    var newHashtags = postReq.hashtag;
+                    var hashtagstoAdd = new List<TblPostHashtag>();
+                    foreach (var newHashtag in newHashtags)
+                    {
+                        var isHashtagExist = currentHashtags.Any(x => x.Hashtag.Equals(newHashtag));
+                        if (!isHashtagExist)
+                        {
+                            hashtagstoAdd.Add(new TblPostHashtag()
+                            {
+                                PostId = postReq.postId,
+                                Hashtag = newHashtag,
+                                Status = Status.ACTIVE,
+                                CreateAt = now
+                            });
+                        }
+                    }
+                    foreach (var hashtag in hashtagstoAdd)
+                    {
+                        _ = await _hashtagRepo.Insert(hashtag);
+                    }
+                    foreach (var currentHashtag in currentHashtags)
+                    {
+                        if(currentHashtag.Status != Status.DEACTIVE)
+                        {
+                            var isHashtagExist = newHashtags.Any(x => x.Equals(currentHashtag.Hashtag));
+                            if (!isHashtagExist)
+                            {
+                                var getHashtag = await _hashtagRepo.Get(currentHashtag.Id);
+                                getHashtag.Status = Status.DEACTIVE;
+                                _ = await _hashtagRepo.Update(getHashtag);
+                            }
+                        }
+                        
+                    }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
                     var attachmentsToAdd = new List<TblPostAttachment>();
@@ -395,33 +430,6 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        public async Task<ResultModel> GetAllPendingPost(string token)
-        {
-            ResultModel result = new();
-            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
-            string roleName = await _userRepo.GetRoleName(roleId);
-            try
-            {
-                if (!roleName.Equals(Commons.STAFF))
-                {
-                    result.Code = 403;
-                    result.IsSuccess = false;
-                    result.Message = "User role invalid";
-                    return result;
-                }
-                List<PostResModel> listPost = await _postRepo.GetAllPendingPost();
-                result.Code = 200;
-                result.IsSuccess = true;
-                result.Data = listPost;
-            }
-            catch (Exception e)
-            {
-                result.IsSuccess = false;
-                result.Code = 400;
-                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
-            }
-            return result;
-        }
 
         public async Task<ResultModel> GetUserPendingPost(string token)
         {
@@ -443,110 +451,6 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> ApprovePosting(PostReqModel post)
-        {
-            ResultModel result = new();
-            DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
-            Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
-            string roleName = await _userRepo.GetRoleName(roleId);
-            try
-            {
-                if (!roleName.Equals(Commons.STAFF))
-                {
-                    result.Code = 403;
-                    result.IsSuccess = false;
-                    result.Message = "User role invalid";
-                    return result;
-                }
-                foreach (var pReq in post.postId)
-                {
-                    TblPost getPost = await _postRepo.GetTblPostById(pReq);
-                    if (getPost.ModeratorId != null && getPost.IsProcessed)
-                    {
-                        result.Code = 400;
-                        result.IsSuccess = false;
-                        result.Message = "The post is processed by other moderator!";
-                        return result;
-                    }
-                    var totalPost = await _postRepo.GetPostsApproveByUserId(userId);
-                    var listReward = await _rewardRepo.GetListPostReward();
-                    foreach (var reward in listReward)
-                    {
-                        if(totalPost.Count >= reward.TotalPost)
-                        {
-                            TblUserReward userReward = new()
-                            {
-                                UserId = getPost.UserId,
-                                RewardId = reward.Id,
-                                Status = Status.ACTIVE,
-                                CreateAt = now
-                            };
-                            _ = await _rewardRepo.Insert(userReward);
-                        }
-                    }
-                    getPost.Status = PostingStatus.APPROVED;
-                    getPost.ModeratorId = userId;
-                    getPost.IsProcessed = true;
-                    _ = await _postRepo.Update(getPost);
-                    result.Code = 200;
-                    result.IsSuccess = true;
-                }
-            }
-            catch (Exception e)
-            {
-                result.IsSuccess = false;
-                result.Code = 400;
-                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
-            }
-            return result;
-        }
-
-        public async Task<ResultModel> RefusePosting(PostReqModel post)
-        {
-            ResultModel result = new();
-            Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
-            string roleName = await _userRepo.GetRoleName(roleId);
-            try
-            {
-                if (!roleName.Equals(Commons.STAFF))
-                {
-                    result.Code = 403;
-                    result.IsSuccess = false;
-                    result.Message = "User role invalid";
-                    return result;
-                }
-                foreach (var pReq in post.postId)
-                {
-                    TblPost getPost = await _postRepo.GetTblPostById(pReq);
-                    if (getPost.ModeratorId != null && getPost.IsProcessed)
-                    {
-                        result.Code = 400;
-                        result.IsSuccess = false;
-                        result.Message = "The post is processed by other moderator!";
-                        return result;
-                    }
-                    List<TblPostAttachment> attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
-                    foreach (var attachment in attachments)
-                    {
-                        attachment.Status = Status.DEACTIVE;
-                        _ = await _postAttachmentRepo.Update(attachment);
-                    }
-                    getPost.Status = PostingStatus.REFUSED;
-                    getPost.IsProcessed = true;
-                    _ = await _postRepo.Update(getPost);
-                    result.Code = 200;
-                    result.IsSuccess = true;
-                }
-            }
-            catch (Exception e)
-            {
-                result.IsSuccess = false;
-                result.Code = 400;
-                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
-            }
-            return result;
-        }
         public async Task<ResultModel> GetPostTradeById(Guid id, string token)
         {
             ResultModel result = new();
@@ -582,7 +486,9 @@ namespace Business.Services.PostServices
                         Pet = post.Pet,
                         Type = post.Type,
                         createdAt = post.createdAt,
-                        UserRequest = req
+                        UserRequest = req,
+                        isFree = post.isFree,
+                        isTrading = post.isTrading
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;
@@ -590,9 +496,17 @@ namespace Business.Services.PostServices
                 } else if(!post.Author.Id.Equals(userId))
                 {
                     var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
-                    var u = await _userRepo.Get(req.UserId);
-                    req.Name = u.Name;
-                    post.UserRequest = req;
+                    PostTradeUserRequestModel userReq = new();
+                    if (req != null)
+                    {
+                        userReq.Id = req.Id;
+                        userReq.UserId = req.UserId;
+                        userReq.Status = req.Status;
+                        userReq.createdAt = req.CreateAt;
+                        userReq.Name = user.Name;
+                        post.UserRequest = userReq;
+                        post.isRequest = true;
+                    }
                     result.IsSuccess = true;
                     result.Data = post;
                     result.Code = 200;
@@ -633,10 +547,12 @@ namespace Business.Services.PostServices
                 Type = PostingType.TRADING,
                 Title = newPost.Title,
                 UserId = userId,
-                Status = TradingStatus.INPROGRESS,
+                Status = TradingStatus.ACTIVE,
                 IsProcessed = true,
                 Content = newPost.Content,
-                CreateAt = now
+                CreateAt = now,
+                Amount = newPost.Amount,
+                IsFree = newPost.isFree
             };
             try
             {
@@ -682,6 +598,7 @@ namespace Business.Services.PostServices
                     Age = newPost.Age,
                     Gender = newPost.Gender,
                     Weight = newPost.Weight,
+                    Color = newPost.Color
                 };
                 PostTradeResModel postResModel = new()
                 {
@@ -694,7 +611,8 @@ namespace Business.Services.PostServices
                     updatedAt = null,
                     Type = newPost.Type,
                     Amount = newPost.Amount,
-                    Pet = newPet
+                    Pet = newPet,
+                    isFree = newPost.isFree,
 
                 };
                 result.IsSuccess = true;
@@ -780,6 +698,11 @@ namespace Business.Services.PostServices
                         pet.Gender = postReq.Gender;
                         tblPet.Gender = postReq.Gender;
                     }
+                    if (!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
+                    {
+                        pet.Color = postReq.Color;
+                        tblPet.Color = postReq.Color; 
+                    }
                     if (postReq.Weight != null && !pet.Type.Equals(postReq.Weight))
                     {
                         pet.Weight = postReq.Weight;
@@ -789,10 +712,6 @@ namespace Business.Services.PostServices
                     {
                         post.Amount = postReq.Amount;
                         tblPost.Amount = postReq.Amount;
-                    }if(!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
-                    {
-                        pet.Color = postReq.Color;
-                        tblPet.Color = postReq.Color;
                     }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
@@ -982,17 +901,18 @@ namespace Business.Services.PostServices
                 var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
                 if (req != null)
                 {
+                    if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "You already cancelled this request!";
+                        return result;
+                    }
                     result.IsSuccess = false;
                     result.Code = 400;
                     result.Message = "You have already request!";
                     return result;
-                } else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
-                {
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "You already cancelled this request!";
-                    return result;
-                }
+                } 
                 TblTradeRequest tradeRequest = new()
                 {
                     PostId = postId,
@@ -1170,9 +1090,100 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        public async Task<ResultModel> GetAllPostTradeTitle(GetAllPostTradeTitleResModel post)
+        public async Task<ResultModel> GetAllTradePostsTitle()
         {
-
+            ResultModel result = new();
+            try
+            {
+                //Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
+                List<PostTradeTitleModel> poststradetitle = await _postRepo.GetAllTradePostsTitle();
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = poststradetitle;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetListPostTradeByUserId(Guid id, string token)
+        {
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.GetListPostTradeResModelByUserId(id);
+                var user = await _userRepo.Get(userId);
+                if (post == null || post.Count <= 0)
+                {
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                    return result;
+                }
+                if (id.Equals(userId))
+                {
+                    foreach (var p in post)
+                    {
+                        var req = await _postTradeRequestRepo.GetListRequestPostTradeByPostId(p.Id);
+                        foreach (var r in req)
+                        {
+                            var u = await _userRepo.Get(r.UserId);
+                            r.Name = u.Name;
+                        }
+                        PostTradeAuthorResModel postRes = new()
+                        {
+                            Id = p.Id,
+                            Author = p.Author,
+                            Title = p.Title,
+                            Content = p.Content,
+                            Attachment = p.Attachment,
+                            Amount = p.Amount,
+                            Pet = p.Pet,
+                            Type = p.Type,
+                            createdAt = p.createdAt,
+                            UserRequest = req,
+                            isFree = p.isFree,
+                            isTrading = p.isTrading
+                        };
+                        result.IsSuccess = true;
+                        result.Data = postRes;
+                        result.Code = 200;
+                    }
+                    
+                }
+                else if (!id.Equals(userId))
+                {
+                    foreach (var p in post)
+                    {
+                        var req = await _postTradeRequestRepo.GetRequestPostTrade(p.Id, userId);
+                        PostTradeUserRequestModel userReq = new();
+                        if (req != null)
+                        {
+                            userReq.Id = req.Id;
+                            userReq.UserId = req.UserId;
+                            userReq.Status = req.Status;
+                            userReq.createdAt = req.CreateAt;
+                            userReq.Name = user.Name;
+                            p.UserRequest = userReq;
+                            p.isRequest = true;
+                        }
+                        result.IsSuccess = true;
+                        result.Data = post;
+                        result.Code = 200;
+                    } 
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
         }
     }
 }
