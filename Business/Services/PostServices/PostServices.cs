@@ -834,7 +834,7 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
             try
             {
-                var post = _postRepo.Get(postReq.postId);
+                var post = await _postRepo.Get(postReq.postId);
                 if(post == null)
                 {
                     result.IsSuccess = false;
@@ -924,7 +924,7 @@ namespace Business.Services.PostServices
                     Status = TradeRequestStatus.PENDING,
                     CreateAt = now
                 };
-                _ = _postTradeRequestRepo.Insert(tradeRequest);
+                _ = await _postTradeRequestRepo.Insert(tradeRequest);
                 result.IsSuccess = true;
                 result.Code = 200;
             }
@@ -968,11 +968,13 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 post.Status = TradingStatus.INPROGRESS;
-                _ = _postRepo.Update(post);
+                _ = await _postRepo.Update(post);
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
                 getReq.Status = TradeRequestStatus.ACCEPT;
                 getReq.UpdateAt = now;
-                _ = _postTradeRequestRepo.Update(getReq);
+                _ = await _postTradeRequestRepo.Update(getReq);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {
@@ -1016,7 +1018,9 @@ namespace Business.Services.PostServices
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
                 getReq.Status = TradeRequestStatus.DENY;
                 getReq.UpdateAt = now;
-                _ = _postTradeRequestRepo.Update(getReq);
+                _ = await _postTradeRequestRepo.Update(getReq);
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {
