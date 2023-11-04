@@ -56,6 +56,7 @@ namespace Data.Models.PostModel
         public decimal Weight { get; set; }
         public string Color { get; set; } = null!;
         public decimal? Amount { get; set; }
+        public string Address { get; set; }
     }
     public class PostTradeUpdateReqModel
     {
@@ -87,4 +88,5 @@ namespace Data.Models.PostModel
         public Guid IdRequest { get; set; }
         public Guid PostId { get; set; }
     }
+  
 }
