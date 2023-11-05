@@ -538,11 +538,12 @@ namespace Business.Services.PostServices
                 result.Message = "You need verify your email before do this!";
                 return result;
             }
-            PostAuthorModel author = new()
+            PostTradeAuthorModel author = new()
             {
                 Id = user.Id,
                 Name = user.Name,
-                ImageUrl = user.Image
+                ImageUrl = user.Image,
+                Phone = user.Phone
             };
             TblPost postTradeReq = new()
             {
