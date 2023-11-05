@@ -542,7 +542,8 @@ namespace Business.Services.PostServices
             {
                 Id = user.Id,
                 Name = user.Name,
-                ImageUrl = user.Image
+                ImageUrl = user.Image,
+                Phone = user.Phone
             };
             TblPost postTradeReq = new()
             {

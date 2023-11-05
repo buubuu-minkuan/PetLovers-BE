@@ -220,5 +220,35 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
+        public async Task<ResultModel> GetPostTradeForAdmin(string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.ADMIN))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var totalPostTrade = await _postRepo.GetAllTradePostsTitle();
+                int count = totalPostTrade.Count;
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = count;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

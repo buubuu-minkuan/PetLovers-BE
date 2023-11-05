@@ -66,5 +66,12 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.GetPostApproveForAdmin(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("post/count-post-trade")]
+        public async Task<IActionResult> GetPostTradeForAdmin()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.GetPostTradeForAdmin(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
