@@ -11,6 +11,7 @@ using Business.Services.PostServices;
 using Microsoft.AspNetCore.Authorization;
 using Data.Models.PostModel;
 using Business.Services.ManageServices;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace API.Controllers
 {
@@ -56,6 +57,20 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _manage.BanUser(userId,token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("post/count-post-approve")]
+        public async Task<IActionResult> GetPostApproveForAdmin()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.GetPostApproveForAdmin(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpGet("post/count-post-trade")]
+        public async Task<IActionResult> GetPostTradeForAdmin()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.GetPostTradeForAdmin(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

@@ -538,11 +538,12 @@ namespace Business.Services.PostServices
                 result.Message = "You need verify your email before do this!";
                 return result;
             }
-            PostAuthorModel author = new()
+            PostTradeAuthorModel author = new()
             {
                 Id = user.Id,
                 Name = user.Name,
-                ImageUrl = user.Image
+                ImageUrl = user.Image,
+                Phone = user.Phone
             };
             TblPost postTradeReq = new()
             {
@@ -1017,6 +1018,53 @@ namespace Business.Services.PostServices
                 }
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
                 getReq.Status = TradeRequestStatus.DENY;
+                getReq.UpdateAt = now;
+                _ = await _postTradeRequestRepo.Update(getReq);
+                result.IsSuccess = true;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> DoneTrading(PostTradeProcessModel req, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            var user = await _userRepo.Get(userId);
+            try
+            {
+                if (user.Status.Equals(UserStatus.VERIFYING))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "You need verify your email before do this!";
+                    return result;
+                }
+                var post = await _postRepo.Get(req.PostId);
+                if (post == null)
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Post not found";
+                    return result;
+                }
+                if (!post.UserId.Equals(userId))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 403;
+                    result.Message = "You do not have permission to do this!";
+                    return result;
+                }
+                post.Status = TradingStatus.DONE;
+                _ = await _postRepo.Update(post);
+                var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                getReq.Status = TradeRequestStatus.SUCCESS;
                 getReq.UpdateAt = now;
                 _ = await _postTradeRequestRepo.Update(getReq);
                 result.IsSuccess = true;
