@@ -34,7 +34,7 @@ namespace Data.Models.PostModel
     public class PostTradeResModel
     {
         public Guid Id { get; set; }
-        public PostAuthorModel Author { get; set; }
+        public PostTradeAuthorModel Author { get; set; }
         public bool? isFree { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
@@ -53,7 +53,7 @@ namespace Data.Models.PostModel
     public class PostTradeAuthorResModel
     {
         public Guid Id { get; set; }
-        public PostAuthorModel Author { get; set; }
+        public PostTradeAuthorModel Author { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
         public List<PostAttachmentResModel> Attachment { get; set; }
@@ -90,6 +90,12 @@ namespace Data.Models.PostModel
     }
 
     public class PostAuthorModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string ImageUrl { get; set; }
+    }
+    public class PostTradeAuthorModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
