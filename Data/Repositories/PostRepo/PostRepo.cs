@@ -487,5 +487,35 @@ namespace Data.Repositories.PostRepo
             
             return res;
         }
+        public async Task<List<PostTradeTitleModel>> GetAllTradePostsDone()
+        {
+            List<PostTradeTitleModel> posts = new();
+            var newPost = await _context.TblPosts.Where(x => x.Status.Equals(TradingStatus.DONE) && x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
+            foreach (var post in newPost)
+            {
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                posts.Add(new PostTradeTitleModel()
+                {
+                    Id = post.Id,
+                    Author = author,
+                    Title = post.Title,
+                    Type = post.Type,
+                    Amount = post.Amount,
+                    Attachment = arrAttachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt,
+                    isFree = post.IsFree
+                });
+            }
+            return posts;
+        }
     }
 }

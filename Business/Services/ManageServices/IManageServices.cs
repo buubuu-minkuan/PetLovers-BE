@@ -18,5 +18,6 @@ namespace Business.Services.ManageServices
         public Task<ResultModel> RefusePosting(PostReqModel post);
         public Task<ResultModel> GetPostApproveForAdmin(string token);
         public Task<ResultModel> GetPostTradeForAdmin(string token);
+        public Task<ResultModel> GetPostTradeDoneForAdmin(string token);
     }
 }

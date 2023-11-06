@@ -27,6 +27,8 @@
         public static readonly string INPROGRESS = "In Progress";
         public static readonly string DONE = "Done";
         public static readonly string DEACTIVE = "Deactive";
+        public static readonly string WAITINGDONEBYUSER = "WaitingDoneByUer";
+        public static readonly string WAITINGDONEBYAUTHOR = "WaitingDoneByAuthor";
     }
 
     public class ReportingStatus

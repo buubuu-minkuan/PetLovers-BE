@@ -85,11 +85,18 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.DenyTrading(reqPost, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("done-trading")]
-        public async Task<IActionResult> DoneTrading([FromBody] PostTradeProcessModel reqPost)
+        [HttpPost("done-trading-for-author")]
+        public async Task<IActionResult> DoneTradingForAuthor([FromBody] PostTradeProcessModel reqPost)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _post.DoneTrading(reqPost, token);
+            Data.Models.ResultModel.ResultModel result = await _post.DoneTradingForAuthor(reqPost, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("done-trading-for-user")]
+        public async Task<IActionResult> DoneTradingForUser([FromBody] PostTradeProcessModel reqPost)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.DoneTradingForUser(reqPost, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
