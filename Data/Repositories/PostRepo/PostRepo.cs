@@ -435,7 +435,7 @@ namespace Data.Repositories.PostRepo
         }
         public async Task<List<PostTradeResModel>> GetListPostTradeResModelByUserId(Guid id)
         {
-            var post = await _context.TblPosts.Where(x => x.UserId.Equals(id) && x.Type.Equals(PostingType.TRADING) && x.Status.Equals(TradingStatus.ACTIVE)).ToListAsync();
+            var post = await _context.TblPosts.Where(x => x.UserId.Equals(id) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DONE) && !x.Status.Equals(TradingStatus.DEACTIVE)).ToListAsync();
             List<PostTradeResModel> res = new();
             foreach (var p in post)
             {
