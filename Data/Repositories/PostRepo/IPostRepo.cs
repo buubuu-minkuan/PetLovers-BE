@@ -26,5 +26,6 @@ namespace Data.Repositories.PostRepo
         public Task<List<PostTradeResModel>> GetPostTradingInProgressByUserId(Guid userId);
         public Task<List<TblPost>> GetListPostTradingByUserId(Guid userId);
         public Task<List<PostTradeResModel>> GetListPostTradeResModelByUserId(Guid userId);
+        public Task<List<PostTradeTitleModel>> GetAllTradePostsDone();
     }
 }
