@@ -927,10 +927,13 @@ namespace Business.Services.PostServices
                         result.Message = "You already cancelled this request!";
                         return result;
                     }
-                    result.IsSuccess = false;
-                    result.Code = 400;
-                    result.Message = "You have already request!";
-                    return result;
+                    if (req.Status.Equals(TradeRequestStatus.ACCEPT) || req.Status.Equals(TradeRequestStatus.PENDING))
+                    {
+                        result.IsSuccess = false;
+                        result.Code = 400;
+                        result.Message = "You have already request!";
+                        return result;
+                    }
                 } 
                 TblTradeRequest tradeRequest = new()
                 {
