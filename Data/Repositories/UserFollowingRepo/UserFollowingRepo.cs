@@ -24,7 +24,7 @@ namespace Data.Repositories.UserFollowingRepo
 
         public async Task<bool> IsFollowing(Guid userId, Guid followerId)
         {
-            var check = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId)).FirstOrDefaultAsync();
+            var check = await _context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(followerId) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
             if (check != null)
             {
                 return true;
