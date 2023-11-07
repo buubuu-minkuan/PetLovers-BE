@@ -22,7 +22,7 @@ namespace Data.Repositories.PostTradeRequestRepo
 
         public async Task<List<PostTradeUserRequestModel>> GetListRequestPostTradeByPostId(Guid postId)
         {
-            var listReq = await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.Status.Equals(TradeRequestStatus.PENDING) && x.Status.Equals(TradeRequestStatus.ACCEPT)).ToListAsync();
+            var listReq = await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && (x.Status.Equals(TradeRequestStatus.PENDING) || x.Status.Equals(TradeRequestStatus.ACCEPT))).ToListAsync();
             List<PostTradeUserRequestModel> res = new();
             foreach (var req in listReq)
             {
