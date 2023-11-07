@@ -113,11 +113,20 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.GetAllTradePostsTitle();
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
         [HttpGet("get-list-post-trade-by-userid")]
         public async Task<IActionResult> GetListPostTradeByUserId(Guid id)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _post.GetListPostTradeByUserId(id, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("get-list-post-trade-requested")]
+        public async Task<IActionResult> GetListPostTradeRequested()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetListPostTradeRequested(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
