@@ -251,7 +251,7 @@ namespace Data.Repositories.PostRepo
         
         public async Task<PostTradeResModel> GetPostTradeById(Guid id)
         {
-            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING) && x.Status.Equals(TradingStatus.ACTIVE)).FirstOrDefaultAsync();
+            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && !x.Status.Equals(TradingStatus.DONE)).FirstOrDefaultAsync();
             TblPetTradingPost pet = await _context.TblPetTradingPosts.Where(x => x.PostId.Equals(id)).FirstOrDefaultAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
             PostTradeAuthorModel author = new()
@@ -286,7 +286,8 @@ namespace Data.Repositories.PostRepo
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
                 isFree = post.IsFree,
-                Address = post.Address
+                Address = post.Address,
+                Status = post.Status
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
@@ -416,6 +417,7 @@ namespace Data.Repositories.PostRepo
                     Title = p.Title,
                     Type = p.Type,
                     Amount = p.Amount,
+                    Status = p.Status,
                     Attachment = arrAttachment,
                     createdAt = p.CreateAt,
                     updatedAt = p.UpdateAt,
@@ -472,7 +474,8 @@ namespace Data.Repositories.PostRepo
                     Attachment = arrAttachment,
                     createdAt = p.CreateAt,
                     updatedAt = p.UpdateAt,
-                    isFree = p.IsFree
+                    isFree = p.IsFree,
+                    Status = p.Status
                 };
                 if (p.Status.Equals(TradingStatus.INPROGRESS))
                 {

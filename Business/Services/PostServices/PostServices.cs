@@ -495,11 +495,11 @@ namespace Business.Services.PostServices
                     result.IsSuccess = true;
                     result.Data = postRes;
                     result.Code = 200;
-                } else if(!post.Author.Id.Equals(userId))
+                } else if (!post.Author.Id.Equals(userId))
                 {
                     var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
                     PostTradeUserRequestModel userReq = new();
-                    if (req != null)
+                    if (req != null && !post.Status.Equals(TradingStatus.ACTIVE))
                     {
                         userReq.Id = req.Id;
                         userReq.UserId = req.UserId;
@@ -509,10 +509,23 @@ namespace Business.Services.PostServices
                         userReq.SocialCredit = user.SocialCredit;
                         post.UserRequest = userReq;
                         post.isRequest = true;
+                        if (userReq.Status.Equals(TradeRequestStatus.ACCEPT))
+                        {
+                            result.IsSuccess = true;
+                            result.Data = post;
+                            result.Code = 200;
+                        } else
+                        {
+                            result.IsSuccess = false;
+                            result.Code = 403;
+                            result.Message = "You don't have permission to view this.";
+                        }
+                    } else
+                    {
+                        result.IsSuccess = true;
+                        result.Data = post;
+                        result.Code = 200;
                     }
-                    result.IsSuccess = true;
-                    result.Data = post;
-                    result.Code = 200;
                 }
             }
             catch (Exception e)
