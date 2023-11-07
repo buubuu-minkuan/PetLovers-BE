@@ -30,5 +30,8 @@ namespace Data.Repositories.PostRepo
         public Task<int> CountDailyPost(DateTime now);
         public Task<int> CountDailyPostTrade(DateTime now);
         public Task<int> CountWeeklyPost(DateTime now);
+        public Task<int> CountWeeklyPostTrade(DateTime now);
+        public Task<int> CountMonthlyPost(DateTime now);
+        public Task<int> CountMonthlyPostTrade(DateTime now);
     }
 }

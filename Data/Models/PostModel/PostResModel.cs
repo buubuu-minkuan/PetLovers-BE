@@ -136,4 +136,13 @@ namespace Data.Models.PostModel
         public string Type { get; set; }
         public decimal? Amount { get; set; }
     }
+    public class CountPostAndPostTradeForAdmin
+    {
+        public string CountDailyPost { get; set; }
+        public string CountDailyPostTrade { get; set; }
+        public string CountWeeklyPost { get; set; }
+        public string CountWeeklyPostTrade { get; set; }
+        public string CountMonthlyPost { get; set; }
+        public string CountMonthlyPostTrade { get; set; }
+    }
 }

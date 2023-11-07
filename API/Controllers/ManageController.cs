@@ -80,5 +80,12 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.GetPostTradeDoneForAdmin(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("post/count-post-post-trade-day-week-month")]
+        public async Task<IActionResult> CountPostAndPostTradeDayWeekMonthForAdmin()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.CountPostAndPostTradeDayWeekMonthForAdmin(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
