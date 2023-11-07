@@ -520,5 +520,83 @@ namespace Data.Repositories.PostRepo
             }
             return posts;
         }
+        public async Task<int> CountDailyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 1)
+                {
+                    CountPosts.Add(p);
+                } 
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountDailyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 1)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountWeeklyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 7)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountWeeklyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 7)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountMonthlyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 30)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountMonthlyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 30)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
     }
 }

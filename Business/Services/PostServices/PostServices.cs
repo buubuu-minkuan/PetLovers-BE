@@ -490,7 +490,8 @@ namespace Business.Services.PostServices
                         UserRequest = req,
                         isFree = post.isFree,
                         isTrading = post.isTrading,
-                        Address = post.Address
+                        Address = post.Address,
+                        Status = post.Status
                     };
                     result.IsSuccess = true;
                     result.Data = postRes;

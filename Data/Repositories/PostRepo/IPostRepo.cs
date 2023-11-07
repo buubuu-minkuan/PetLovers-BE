@@ -27,5 +27,11 @@ namespace Data.Repositories.PostRepo
         public Task<List<TblPost>> GetListPostTradingByUserId(Guid userId);
         public Task<List<PostTradeResModel>> GetListPostTradeResModelByUserId(Guid userId);
         public Task<List<PostTradeTitleModel>> GetAllTradePostsDone();
+        public Task<int> CountDailyPost(DateTime now);
+        public Task<int> CountDailyPostTrade(DateTime now);
+        public Task<int> CountWeeklyPost(DateTime now);
+        public Task<int> CountWeeklyPostTrade(DateTime now);
+        public Task<int> CountMonthlyPost(DateTime now);
+        public Task<int> CountMonthlyPostTrade(DateTime now);
     }
 }
