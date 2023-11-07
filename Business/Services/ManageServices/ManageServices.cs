@@ -280,5 +280,49 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
+        public async Task<ResultModel> CountPostAndPostTradeDayWeekMonthForAdmin(string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.ADMIN))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                int countDailyPost = await _postRepo.CountDailyPost(now);
+                int countDailyPostTrade = await _postRepo.CountDailyPostTrade(now);
+                int countWeeklyPost = await _postRepo.CountWeeklyPost(now);
+                int countWeeklyPostTrade = await _postRepo.CountWeeklyPostTrade(now);
+                int countMonthlyPost = await _postRepo.CountMonthlyPost(now);
+                int countMonthlyPostTrade = await _postRepo.CountMonthlyPostTrade(now);
+
+                var countModel = new CountPostAndPostTradeForAdmin
+                {
+                    CountDailyPost = countDailyPost.ToString(),
+                    CountDailyPostTrade = countDailyPostTrade.ToString(),
+                    CountWeeklyPost = countWeeklyPost.ToString(),
+                    CountWeeklyPostTrade = countWeeklyPostTrade.ToString(),
+                    CountMonthlyPost = countMonthlyPost.ToString(),
+                    CountMonthlyPostTrade = countMonthlyPostTrade.ToString()
+                };
+                result.Code = 200;
+                result.IsSuccess = true;
+                result.Data = countModel;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

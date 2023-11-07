@@ -251,7 +251,7 @@ namespace Data.Repositories.PostRepo
         
         public async Task<PostTradeResModel> GetPostTradeById(Guid id)
         {
-            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING) && x.Status.Equals(TradingStatus.ACTIVE)).FirstOrDefaultAsync();
+            TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && !x.Status.Equals(TradingStatus.DONE)).FirstOrDefaultAsync();
             TblPetTradingPost pet = await _context.TblPetTradingPosts.Where(x => x.PostId.Equals(id)).FirstOrDefaultAsync();
             TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
             PostTradeAuthorModel author = new()
@@ -286,7 +286,8 @@ namespace Data.Repositories.PostRepo
                 createdAt = post.CreateAt,
                 updatedAt = post.UpdateAt,
                 isFree = post.IsFree,
-                Address = post.Address
+                Address = post.Address,
+                Status = post.Status
             };
             if(post.Status.Equals(TradingStatus.INPROGRESS))
             {
@@ -416,6 +417,7 @@ namespace Data.Repositories.PostRepo
                     Title = p.Title,
                     Type = p.Type,
                     Amount = p.Amount,
+                    Status = p.Status,
                     Attachment = arrAttachment,
                     createdAt = p.CreateAt,
                     updatedAt = p.UpdateAt,
@@ -472,7 +474,8 @@ namespace Data.Repositories.PostRepo
                     Attachment = arrAttachment,
                     createdAt = p.CreateAt,
                     updatedAt = p.UpdateAt,
-                    isFree = p.IsFree
+                    isFree = p.IsFree,
+                    Status = p.Status
                 };
                 if (p.Status.Equals(TradingStatus.INPROGRESS))
                 {
@@ -516,6 +519,84 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return posts;
+        }
+        public async Task<int> CountDailyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 1)
+                {
+                    CountPosts.Add(p);
+                } 
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountDailyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 1)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountWeeklyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 7)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountWeeklyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 7)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountMonthlyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 30)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
+        }
+        public async Task<int> CountMonthlyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            List<TblPost> CountPosts = new List<TblPost>();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays <= 30)
+                {
+                    CountPosts.Add(p);
+                }
+            }
+            return CountPosts.Count;
         }
     }
 }
