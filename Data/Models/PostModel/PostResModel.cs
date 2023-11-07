@@ -48,6 +48,7 @@ namespace Data.Models.PostModel
         public decimal? Amount { get; set; }
         public PostTradeUserRequestModel? UserRequest { get; set; }
         public string Address { get; set; }
+        public string Status { get; set; }
     }
 
     public class PostTradeAuthorResModel
