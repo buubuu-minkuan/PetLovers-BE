@@ -520,5 +520,41 @@ namespace Data.Repositories.PostRepo
             }
             return posts;
         }
+        public async Task<int> CountDailyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays > 1)
+                {
+                    post.Remove(p);
+                } 
+            }
+            return post.Count;
+        }
+        public async Task<int> CountDailyPostTrade(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && x.IsProcessed).ToListAsync();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays > 1)
+                {
+                    post.Remove(p);
+                }
+            }
+            return post.Count;
+        }
+        public async Task<int> CountWeeklyPost(DateTime now)
+        {
+            List<TblPost> post = await _context.TblPosts.Where(x => x.Type.Equals(PostingType.POSTING) && x.Status.Equals(PostingStatus.APPROVED) && x.IsProcessed).ToListAsync();
+            foreach (var p in post)
+            {
+                if ((now - p.CreateAt).TotalDays > 7)
+                {
+                    post.Remove(p);
+                }
+            }
+            return post.Count;
+        }
     }
 }

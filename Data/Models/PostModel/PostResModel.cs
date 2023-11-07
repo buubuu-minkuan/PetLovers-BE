@@ -67,6 +67,7 @@ namespace Data.Models.PostModel
         public bool? isFree { get; set; }
         public bool isTrading { get; set; } = false;
         public string Address { get; set; }
+        public string Status { get; set; }
     }
 
     public class PostTradeUserRequestModel
