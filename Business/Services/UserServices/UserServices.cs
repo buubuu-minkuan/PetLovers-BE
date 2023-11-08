@@ -44,13 +44,7 @@ namespace Business.Services.UserServices
                     result.Code = 200;
                     result.Message = "Trung Email";
                     return result;
-                } else if(checkUserUsername != null)
-                {
-                    result.IsSuccess = false;
-                    result.Code = 200;
-                    result.Message = "Trung username";
-                }
-                if (checkUserUsername != null)
+                } else if (checkUserUsername != null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
