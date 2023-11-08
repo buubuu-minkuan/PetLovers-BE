@@ -1337,14 +1337,41 @@ namespace Business.Services.PostServices
                         PostTradeUserRequestModel userReq = new();
                         if (req != null)
                         {
-                            userReq.Id = req.Id;
-                            userReq.UserId = req.UserId;
-                            userReq.Status = req.Status;
-                            userReq.createdAt = req.CreateAt;
-                            userReq.Name = user.Name;
-                            userReq.SocialCredit = user.SocialCredit;
-                            p.UserRequest = userReq;
-                            p.isRequest = true;
+                            if (req.Status.Equals(TradeRequestStatus.PENDING) || req.Status.Equals(TradeRequestStatus.ACCEPT))
+                            {
+                                userReq.Id = req.Id;
+                                userReq.UserId = req.UserId;
+                                userReq.Status = req.Status;
+                                userReq.createdAt = req.CreateAt;
+                                userReq.Name = user.Name;
+                                userReq.SocialCredit = user.SocialCredit;
+                                p.UserRequest = userReq;
+                                p.isRequest = true;
+                                p.CanRequest = false;
+                            }
+                            else if (req.Status.Equals(TradeRequestStatus.DENY) || req.Status.Equals(TradeRequestStatus.CANCELBYAUTHOR))
+                            {
+
+                                userReq.Id = req.Id;
+                                userReq.UserId = req.UserId;
+                                userReq.Status = req.Status;
+                                userReq.createdAt = req.CreateAt;
+                                userReq.Name = user.Name;
+                                userReq.SocialCredit = user.SocialCredit;
+                                p.UserRequest = userReq;
+                                p.isRequest = false;
+                                p.CanRequest = true;
+                            }
+                            else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                            {
+                                p.isRequest = false;
+                                p.CanRequest = false;
+                            }
+                        }
+                        else
+                        {
+                            p.isRequest = false;
+                            p.CanRequest = true;
                         }
                     }
                     result.IsSuccess = true;
