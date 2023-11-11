@@ -129,5 +129,12 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.GetListPostTradeRequested(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("get-list-post-trade-history")]
+        public async Task<IActionResult> GetListPostTradeHistory()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetListPostTradeHistory(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
