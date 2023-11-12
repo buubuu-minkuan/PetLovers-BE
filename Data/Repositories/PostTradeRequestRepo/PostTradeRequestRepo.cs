@@ -97,5 +97,36 @@ namespace Data.Repositories.PostTradeRequestRepo
             }
             return listResAttachement;
         }
+        public async Task<List<PostTradeTitleModel>> GetListPostTradeHistory(Guid userId)
+        {
+            var requests = await _context.TblTradeRequests.Where(x => x.UserId.Equals(userId) && (x.Status.Equals(TradeRequestStatus.SUCCESS) || x.Status.Equals(TradeRequestStatus.SUCCESS))).ToListAsync();
+            List<PostTradeTitleModel> listPost = new();
+            foreach (var req in requests)
+            {
+                var post = await _context.TblPosts.Where(x => x.Id.Equals(req.PostId)).FirstOrDefaultAsync();
+                var user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                listPost.Add(new PostTradeTitleModel()
+                {
+                    Id = post.Id,
+                    Author = author,
+                    Title = post.Title,
+                    Type = post.Type,
+                    Amount = post.Amount,
+                    Attachment = arrAttachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt,
+                    isFree = post.IsFree
+                });
+            }
+            return listPost;
+        }
     }
 }
