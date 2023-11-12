@@ -41,7 +41,7 @@ namespace Data.Repositories.PostTradeRequestRepo
 
         public async Task<TblTradeRequest> GetRequestPostTrade(Guid postId, Guid userId)
         {
-            return await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.UserId.Equals(userId)).FirstOrDefaultAsync();
+            return await _context.TblTradeRequests.Where(x => x.PostId.Equals(postId) && x.UserId.Equals(userId)).OrderByDescending(x => x.CreateAt).FirstOrDefaultAsync();
             
         }
         public async Task<List<TblTradeRequest>> GetListRequestCancelByAuthor(Guid postId)
