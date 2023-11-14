@@ -63,10 +63,21 @@ namespace API.Controllers
         }
 
         [HttpPost("request-trading")]
-        public async Task<IActionResult> RequestTrading([FromBody] PostTradeRequestReqModel reqRequest)
+        public async Task<IActionResult> RequestTrading([FromBody] Guid postId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _post.RequestTrading(reqRequest, token);
+            PostTradeRequestReqModel modelReq = new();
+            modelReq.PostId = postId;
+            modelReq.Attachments = null;
+            Data.Models.ResultModel.ResultModel result = await _post.RequestTrading(modelReq, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("request-trading-1-1")]
+        public async Task<IActionResult> RequestTrading11([FromBody] PostTradeRequestReqModel modelReq)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.RequestTrading(modelReq, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 
