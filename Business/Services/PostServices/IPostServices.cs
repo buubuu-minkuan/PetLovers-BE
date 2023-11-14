@@ -21,7 +21,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> DeletePost(PostReqModel post);
         public Task<ResultModel> StorePost(Guid postId, string token);
         public Task<ResultModel> RemoveStorePost(Guid postId, string token);
-        public Task<ResultModel> RequestTrading(Guid postId, string token);
+        public Task<ResultModel> RequestTrading(PostTradeRequestReqModel reqRequest, string token);
         public Task<ResultModel> AcceptTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> DenyTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> DoneTradingForAuthor(PostTradeProcessModel req, string token);

@@ -49,6 +49,7 @@ namespace Data.Models.PostModel
         public PostTradeUserRequestModel? UserRequest { get; set; }
         public string Address { get; set; }
         public string Status { get; set; }
+        public bool CanRequest { get; set; }
     }
 
     public class PostTradeAuthorResModel
