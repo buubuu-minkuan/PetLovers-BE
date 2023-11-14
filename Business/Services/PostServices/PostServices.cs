@@ -912,7 +912,7 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> RequestTrading(Guid postId, string token)
+        public async Task<ResultModel> RequestTrading(PostTradeRequestReqModel reqRequest, string token)
         {
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
@@ -927,7 +927,7 @@ namespace Business.Services.PostServices
                     result.Message = "You need verify your email before do this!";
                     return result;
                 }
-                var post = await _postRepo.Get(postId);
+                var post = await _postRepo.Get(reqRequest.PostId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -949,7 +949,7 @@ namespace Business.Services.PostServices
                     result.Message = "Author not available to request trading!";
                     return result;
                 }
-                var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
+                var req = await _postTradeRequestRepo.GetRequestPostTrade(reqRequest.PostId, userId);
                 if (req != null)
                 {
                     if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
@@ -966,14 +966,18 @@ namespace Business.Services.PostServices
                         result.Message = "You have already request!";
                         return result;
                     }
-                } 
+                }
                 TblTradeRequest tradeRequest = new()
                 {
-                    PostId = postId,
+                    PostId = reqRequest.PostId,
                     UserId = userId,
                     Status = TradeRequestStatus.PENDING,
                     CreateAt = now
                 };
+                if (post.Amount.Equals(-1))
+                {
+                    tradeRequest.Attachment = reqRequest.Attachments;
+                }
                 _ = await _postTradeRequestRepo.Insert(tradeRequest);
                 result.IsSuccess = true;
                 result.Code = 200;
