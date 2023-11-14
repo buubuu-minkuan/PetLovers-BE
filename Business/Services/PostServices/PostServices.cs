@@ -528,6 +528,7 @@ namespace Business.Services.PostServices
                             userReq.UserId = req.UserId;
                             userReq.Status = req.Status;
                             userReq.createdAt = req.CreateAt;
+                            userReq.Attachment = req.Attachment;
                             userReq.Name = user.Name;
                             userReq.SocialCredit = user.SocialCredit;
                             post.UserRequest = userReq;
@@ -541,6 +542,7 @@ namespace Business.Services.PostServices
                             userReq.UserId = req.UserId;
                             userReq.Status = req.Status;
                             userReq.createdAt = req.CreateAt;
+                            userReq.Attachment = req.Attachment;
                             userReq.Name = user.Name;
                             userReq.SocialCredit = user.SocialCredit;
                             post.UserRequest = userReq;
