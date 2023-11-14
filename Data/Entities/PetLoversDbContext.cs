@@ -460,6 +460,10 @@ namespace Data.Entities
                     .HasColumnName("id")
                     .HasDefaultValueSql("(newid())");
 
+                entity.Property(e => e.Attachment)
+                    .IsUnicode(false)
+                    .HasColumnName("attachment");
+
                 entity.Property(e => e.CreateAt)
                     .HasColumnType("datetime")
                     .HasColumnName("createAt");

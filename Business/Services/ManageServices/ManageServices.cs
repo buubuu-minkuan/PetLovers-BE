@@ -324,5 +324,34 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
+        public async Task<ResultModel> GetListReportPostForStaff(string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var post = await _postRepo.GetListReportPostForStaff();
+                result.IsSuccess = true;
+                result.Data = post;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }
