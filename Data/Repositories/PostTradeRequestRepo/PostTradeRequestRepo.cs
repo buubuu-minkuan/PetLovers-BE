@@ -31,6 +31,7 @@ namespace Data.Repositories.PostTradeRequestRepo
                 {
                     Id = req.Id,
                     UserId = req.UserId,
+                    Attachment = req.Attachment,
                     Status = req.Status,
                     createdAt = req.CreateAt
                 };
