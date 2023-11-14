@@ -500,16 +500,9 @@ namespace Business.Services.PostServices
                 {
                     var req = await _postTradeRequestRepo.GetRequestPostTrade(id, userId);
                     PostTradeUserRequestModel userReq = new();
-                    if (req != null && !post.Status.Equals(TradingStatus.ACTIVE))
+                    /*if (req != null && post.Status.Equals(TradingStatus.ACTIVE))
                     {
-                        userReq.Id = req.Id;
-                        userReq.UserId = req.UserId;
-                        userReq.Status = req.Status;
-                        userReq.createdAt = req.CreateAt;
-                        userReq.Name = user.Name;
-                        userReq.SocialCredit = user.SocialCredit;
-                        post.UserRequest = userReq;
-                        post.isRequest = true;
+                        
                         if (userReq.Status.Equals(TradeRequestStatus.ACCEPT))
                         {
                             result.IsSuccess = true;
@@ -526,7 +519,46 @@ namespace Business.Services.PostServices
                         result.IsSuccess = true;
                         result.Data = post;
                         result.Code = 200;
+                    }*/
+                    if (req != null)
+                    {
+                        if (req.Status.Equals(TradeRequestStatus.PENDING) || req.Status.Equals(TradeRequestStatus.ACCEPT))
+                        {
+                            userReq.Id = req.Id;
+                            userReq.UserId = req.UserId;
+                            userReq.Status = req.Status;
+                            userReq.createdAt = req.CreateAt;
+                            userReq.Name = user.Name;
+                            userReq.SocialCredit = user.SocialCredit;
+                            post.UserRequest = userReq;
+                            post.isRequest = true;
+                            post.CanRequest = false;
+                        }
+                        else if (req.Status.Equals(TradeRequestStatus.DENY) || req.Status.Equals(TradeRequestStatus.CANCELBYAUTHOR))
+                        {
+
+                            userReq.Id = req.Id;
+                            userReq.UserId = req.UserId;
+                            userReq.Status = req.Status;
+                            userReq.createdAt = req.CreateAt;
+                            userReq.Name = user.Name;
+                            userReq.SocialCredit = user.SocialCredit;
+                            post.UserRequest = userReq;
+                            post.isRequest = false;
+                            post.CanRequest = true;
+                        } else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                        {
+                            post.isRequest = false;
+                            post.CanRequest = false;
+                        }
+                    } else
+                    {
+                        post.isRequest = false;
+                        post.CanRequest = true;
                     }
+                    result.IsSuccess = true;
+                    result.Data = post;
+                    result.Code = 200;
                 }
             }
             catch (Exception e)
@@ -880,7 +912,7 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> RequestTrading(Guid postId, string token)
+        public async Task<ResultModel> RequestTrading(PostTradeRequestReqModel reqRequest, string token)
         {
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
@@ -895,7 +927,7 @@ namespace Business.Services.PostServices
                     result.Message = "You need verify your email before do this!";
                     return result;
                 }
-                var post = await _postRepo.Get(postId);
+                var post = await _postRepo.Get(reqRequest.PostId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -917,7 +949,7 @@ namespace Business.Services.PostServices
                     result.Message = "Author not available to request trading!";
                     return result;
                 }
-                var req = await _postTradeRequestRepo.GetRequestPostTrade(postId, userId);
+                var req = await _postTradeRequestRepo.GetRequestPostTrade(reqRequest.PostId, userId);
                 if (req != null)
                 {
                     if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
@@ -934,14 +966,18 @@ namespace Business.Services.PostServices
                         result.Message = "You have already request!";
                         return result;
                     }
-                } 
+                }
                 TblTradeRequest tradeRequest = new()
                 {
-                    PostId = postId,
+                    PostId = reqRequest.PostId,
                     UserId = userId,
                     Status = TradeRequestStatus.PENDING,
                     CreateAt = now
                 };
+                if (post.Amount.Equals(-1))
+                {
+                    tradeRequest.Attachment = reqRequest.Attachments;
+                }
                 _ = await _postTradeRequestRepo.Insert(tradeRequest);
                 result.IsSuccess = true;
                 result.Code = 200;
@@ -1305,14 +1341,41 @@ namespace Business.Services.PostServices
                         PostTradeUserRequestModel userReq = new();
                         if (req != null)
                         {
-                            userReq.Id = req.Id;
-                            userReq.UserId = req.UserId;
-                            userReq.Status = req.Status;
-                            userReq.createdAt = req.CreateAt;
-                            userReq.Name = user.Name;
-                            userReq.SocialCredit = user.SocialCredit;
-                            p.UserRequest = userReq;
-                            p.isRequest = true;
+                            if (req.Status.Equals(TradeRequestStatus.PENDING) || req.Status.Equals(TradeRequestStatus.ACCEPT))
+                            {
+                                userReq.Id = req.Id;
+                                userReq.UserId = req.UserId;
+                                userReq.Status = req.Status;
+                                userReq.createdAt = req.CreateAt;
+                                userReq.Name = user.Name;
+                                userReq.SocialCredit = user.SocialCredit;
+                                p.UserRequest = userReq;
+                                p.isRequest = true;
+                                p.CanRequest = false;
+                            }
+                            else if (req.Status.Equals(TradeRequestStatus.DENY) || req.Status.Equals(TradeRequestStatus.CANCELBYAUTHOR))
+                            {
+
+                                userReq.Id = req.Id;
+                                userReq.UserId = req.UserId;
+                                userReq.Status = req.Status;
+                                userReq.createdAt = req.CreateAt;
+                                userReq.Name = user.Name;
+                                userReq.SocialCredit = user.SocialCredit;
+                                p.UserRequest = userReq;
+                                p.isRequest = false;
+                                p.CanRequest = true;
+                            }
+                            else if (req.Status.Equals(TradeRequestStatus.CANCELBYUSER))
+                            {
+                                p.isRequest = false;
+                                p.CanRequest = false;
+                            }
+                        }
+                        else
+                        {
+                            p.isRequest = false;
+                            p.CanRequest = true;
                         }
                     }
                     result.IsSuccess = true;

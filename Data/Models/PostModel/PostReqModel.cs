@@ -88,5 +88,10 @@ namespace Data.Models.PostModel
         public Guid IdRequest { get; set; }
         public Guid PostId { get; set; }
     }
-  
+    
+    public class PostTradeRequestReqModel
+    {
+        public Guid PostId { get; set; }
+        public string? Attachments { get; set; }
+    }
 }
