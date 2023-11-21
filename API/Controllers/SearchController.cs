@@ -11,40 +11,27 @@ using Business.Services.PostServices;
 using Business.Services.VerifyServices;
 using Microsoft.AspNetCore.Authorization;
 using Data.Models.OTPVerifyModel;
+using Business.Services.SearchServices;
 
 namespace API.Controllers
 {
-    [Route("verify/")]
+    [Route("search/")]
     [ApiController]
-    public class EmailController : Controller
+    public class SearchController : Controller
     {
-        private readonly IVerifyServices _email;
+        private readonly ISearchServices _search;
 
-        public EmailController(IVerifyServices email)
+        public SearchController(ISearchServices search)
         {
-            _email = email;
+            _search = search;
         }
 
-        [HttpPost("send-verify-email")]
+        [HttpGet("search-main")]
         [Authorize]
-        public async Task<IActionResult> SendVerifyEmailOTP()
+        public async Task<IActionResult> Search(string keyword)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Data.Models.ResultModel.ResultModel result = await _email.SendVerifyEmailOTP(token);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpPost("send-verify-reset-password")]
-        public async Task<IActionResult> SendVerifyResetPassword([FromBody] string email)
-        {
-            Data.Models.ResultModel.ResultModel result = await _email.SendVerifyResetPassword(email);
-            return result.IsSuccess ? Ok(result) : BadRequest(result);
-        }
-
-        [HttpPost("otp")]
-        public async Task<IActionResult> Verify([FromBody] OTPVerifyReqModel OTPCode)
-        {
-            Data.Models.ResultModel.ResultModel result = await _email.VerifyOTPCode(OTPCode);
+            Data.Models.ResultModel.ResultModel result = await _search.Search(keyword, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }
