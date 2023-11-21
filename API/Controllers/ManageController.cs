@@ -94,5 +94,27 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.GetListReportPostForStaff(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("post/get-list-user-for-admin")]
+        public async Task<IActionResult> GetListUserForAdmin()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.GetListUser(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("post/set-staff")]
+        public async Task<IActionResult> SetStaff(Guid userId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.SetStaff(userId, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("post/remove-staff")]
+        public async Task<IActionResult> RemoveStaff(Guid userId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.RemoveStaff(userId, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+
     }
 }
