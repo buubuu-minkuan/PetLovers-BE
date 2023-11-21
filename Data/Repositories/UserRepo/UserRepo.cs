@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Data.Entities;
+using Data.Enums;
+using Data.Models.SearchModel;
 using Data.Models.UserModel;
 using Data.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
@@ -85,6 +87,30 @@ namespace Data.Repositories.UserRepo
         {
             var role = await _context.TblRoles.Where(x => x.Id == id).FirstOrDefaultAsync();
             return role.Name;
+        }
+
+        public async Task<List<UserSearchModel>> SearchUser(string keyword, Guid userId)
+        {
+            var users = await context.TblUsers.Where(x => x.Username.Contains(keyword) || x.Name.Contains(keyword)).ToListAsync();
+            List<UserSearchModel> listUser = new();
+            foreach (var user in users)
+            {
+                var follow = await context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(user.Id) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
+                bool isFollow = false;
+                if(follow != null)
+                {
+                    isFollow = true;
+                }
+                listUser.Add(new UserSearchModel()
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Avatar = user.Image,
+                    Fullname = user.Name,
+                    IsFollow = isFollow
+                });
+            }
+            return listUser;
         }
     }
 }

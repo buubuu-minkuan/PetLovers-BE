@@ -14,5 +14,6 @@ namespace Data.Repositories.HashtagRepo
         public Task<List<TblPostHashtag>> GetListHashTagByPostId(Guid postId);
         public Task<List<Guid>> GetListPostIdByHashtag(string hashtag);
         public Task<List<HashtagTrendingModel>> GetListHashtagTrending();
+        public Task<List<HashtagTrendingModel>> SearchHashtag(string keyword);
     }
 }

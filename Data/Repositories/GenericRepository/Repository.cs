@@ -24,9 +24,9 @@ namespace Data.Repositories.GenericRepository
         {
             _ = await _entities.AddAsync(entity);
             _ = await context.SaveChangesAsync();
-    #pragma warning disable CS8605 // Unboxing a possibly null value.
+#pragma warning disable CS8605 // Unboxing a possibly null value.
             return (Guid)entity.GetType().GetProperty("Id").GetValue(entity);
-    #pragma warning restore CS8605 // Unboxing a possibly null value.
+#pragma warning restore CS8605 // Unboxing a possibly null value.
         }
 
         public async Task<bool> Remove(T entity)
