@@ -47,7 +47,7 @@ namespace Data.Repositories.PostRepo
             {
                 isAuthor = true;
             }
-            foreach(var feeling in Feeling)
+            foreach (var feeling in Feeling)
             {
                 if (!feeling.UserId.Equals(userId))
                 {
@@ -222,7 +222,7 @@ namespace Data.Repositories.PostRepo
                     updatedAt = post.UpdateAt,
                     amountFeeling = Feeling.Count,
                     amountComment = Comment.Count
-                }) ;
+                });
             }
             return posts;
         }
@@ -248,7 +248,7 @@ namespace Data.Repositories.PostRepo
             }
             return listResAttachement;
         }
-        
+
         public async Task<PostTradeResModel> GetPostTradeById(Guid id)
         {
             TblPost post = await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING) && !x.Status.Equals(TradingStatus.DEACTIVE) && !x.Status.Equals(TradingStatus.DONE)).FirstOrDefaultAsync();
@@ -289,7 +289,7 @@ namespace Data.Repositories.PostRepo
                 Address = post.Address,
                 Status = post.Status
             };
-            if(post.Status.Equals(TradingStatus.INPROGRESS))
+            if (post.Status.Equals(TradingStatus.INPROGRESS))
             {
                 res.isTrading = true;
             } else
@@ -298,7 +298,7 @@ namespace Data.Repositories.PostRepo
             }
             return res;
         }
-        
+
         public async Task<List<PostTradeTitleModel>> GetAllTradePostsTitle()
         {
             List<PostTradeTitleModel> posts = new();
@@ -334,7 +334,7 @@ namespace Data.Repositories.PostRepo
         {
             List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).OrderBy(x => x.CreateAt).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
-            foreach(var post in listTblPost)
+            foreach (var post in listTblPost)
             {
                 var attachment = await GetPostAttachment(post.Id);
                 TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
@@ -356,12 +356,12 @@ namespace Data.Repositories.PostRepo
             }
             return listResPost;
         }
-                
+
         public async Task<TblPost> GetTblPostTradeById(Guid id)
         {
             return await _context.TblPosts.Where(x => x.Id.Equals(id) && x.Type.Equals(PostingType.TRADING)).FirstOrDefaultAsync();
         }
-        
+
         public async Task<List<PostResModel>> GetUserPendingPost(Guid userId)
         {
             List<TblPost> listTblPost = await _context.TblPosts.Where(x => x.UserId.Equals(userId) && x.Status.Equals(PostingStatus.PENDING) && x.Type.Equals(PostingType.POSTING) && !x.IsProcessed).OrderByDescending(x => x.CreateAt).ToListAsync();
@@ -487,7 +487,7 @@ namespace Data.Repositories.PostRepo
                 }
                 res.Add(posttraderes);
             }
-            
+
             return res;
         }
         public async Task<List<PostTradeTitleModel>> GetAllTradePostsDone()
@@ -529,7 +529,7 @@ namespace Data.Repositories.PostRepo
                 if ((now - p.CreateAt).TotalDays <= 1)
                 {
                     CountPosts.Add(p);
-                } 
+                }
             }
             return CountPosts.Count;
         }
@@ -598,6 +598,7 @@ namespace Data.Repositories.PostRepo
             }
             return CountPosts.Count;
         }
+<<<<<<< HEAD
 
         public async Task<List<PostResModel>> SearchPost(string keyword, Guid userId)
         {
@@ -606,12 +607,22 @@ namespace Data.Repositories.PostRepo
             foreach (var post in posts)
             {
                 var user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+=======
+        public async Task<List<PostReportModel>> GetListReportPostForStaff()
+        {
+            List<PostReportModel> reportPosts = new();
+            var newPost = await _context.TblReports.Where(x => x.Type.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
+            foreach (var post in newPost)
+            {
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+>>>>>>> 94ee159a27c6883dd8816bad1ec05705dddd19b5
                 PostAuthorModel author = new()
                 {
                     Id = user.Id,
                     Name = user.Name,
                     ImageUrl = user.Image
                 };
+<<<<<<< HEAD
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
@@ -642,6 +653,18 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return listResPost;
+=======
+
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                reportPosts.Add(new PostReportModel()
+                {
+                    postId = post.Id,
+                    Type = post.Type,
+                    Reason = post.Reason,
+                });
+            }
+            return reportPosts;
+>>>>>>> 94ee159a27c6883dd8816bad1ec05705dddd19b5
         }
     }
 }

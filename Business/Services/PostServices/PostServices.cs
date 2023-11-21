@@ -59,7 +59,7 @@ namespace Business.Services.PostServices
             _userAuthentication = new UserAuthentication();
             _postRepo = postRepo;
         }
-        
+
         public async Task<ResultModel> GetPostById(Guid id, string token)
         {
             ResultModel result = new();
@@ -95,7 +95,7 @@ namespace Business.Services.PostServices
                 List<PostResModel> postsFollow = await _postRepo.GetPostsFromFollow(userId);
                 postsFollow.Sort((x, y) => x.createdAt.CompareTo(y.createdAt));
                 List<PostResModel> allPosts = await _postRepo.GetAllPosts(userId);
-                foreach(var post in postsFollow)
+                foreach (var post in postsFollow)
                 {
                     if (allPosts.Contains(post))
                     {
@@ -185,7 +185,7 @@ namespace Business.Services.PostServices
             }
             return result;
         }
-        
+
         public async Task<ResultModel> UpdatePost(PostUpdateReqModel postReq)
         {
             DateTime now = DateTime.Now;
@@ -201,7 +201,7 @@ namespace Business.Services.PostServices
                     result.Code = 200;
                     result.Message = "Post not found";
                     return result;
-                } 
+                }
                 else if (!userId.Equals(post.author.Id))
                 {
                     result.IsSuccess = false;
@@ -239,7 +239,7 @@ namespace Business.Services.PostServices
                     }
                     foreach (var currentHashtag in currentHashtags)
                     {
-                        if(currentHashtag.Status != Status.DEACTIVE)
+                        if (currentHashtag.Status != Status.DEACTIVE)
                         {
                             var isHashtagExist = newHashtags.Any(x => x.Equals(currentHashtag.Hashtag));
                             if (!isHashtagExist)
@@ -249,7 +249,7 @@ namespace Business.Services.PostServices
                                 _ = await _hashtagRepo.Update(getHashtag);
                             }
                         }
-                        
+
                     }
                     var currentAttachments = await _postAttachmentRepo.GetListAttachmentByPostId(postReq.postId);
                     var newAttachments = postReq.attachment;
@@ -348,7 +348,7 @@ namespace Business.Services.PostServices
                             _ = await _postReactionRepo.Update(reaction);
                         }
 
-                        foreach(var hashtag in Hashtags)
+                        foreach (var hashtag in Hashtags)
                         {
                             hashtag.Status = Status.DEACTIVE;
                             _ = await _hashtagRepo.Update(hashtag);
@@ -375,7 +375,7 @@ namespace Business.Services.PostServices
             try
             {
                 var checkExist = await _postStoredRepo.GetStoredPost(userId, postId);
-                if(checkExist != null)
+                if (checkExist != null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
@@ -610,7 +610,7 @@ namespace Business.Services.PostServices
             try
             {
                 var check = await _postRepo.GetPostTradingInProgressByUserId(userId);
-                if(check.Count >= 3)
+                if (check.Count >= 3)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
@@ -721,7 +721,7 @@ namespace Business.Services.PostServices
                         post.Content = postReq.content;
                         tblPost.Content = postReq.content;
                     }
-                    if(!string.IsNullOrEmpty(postReq.Title) && !post.Title.Equals(postReq.Title))
+                    if (!string.IsNullOrEmpty(postReq.Title) && !post.Title.Equals(postReq.Title))
                     {
                         post.Title = postReq.Title;
                         tblPost.Title = postReq.Title;
@@ -754,14 +754,14 @@ namespace Business.Services.PostServices
                     if (!string.IsNullOrEmpty(postReq.Color) && !pet.Color.Equals(postReq.Color))
                     {
                         pet.Color = postReq.Color;
-                        tblPet.Color = postReq.Color; 
+                        tblPet.Color = postReq.Color;
                     }
                     if (postReq.Weight != null && !pet.Type.Equals(postReq.Weight))
                     {
                         pet.Weight = postReq.Weight;
                         tblPet.Weight = postReq.Weight;
                     }
-                    if(postReq.Amount != null && !post.Amount.Equals(postReq.Amount))
+                    if (postReq.Amount != null && !post.Amount.Equals(postReq.Amount))
                     {
                         post.Amount = postReq.Amount;
                         tblPost.Amount = postReq.Amount;
@@ -886,7 +886,7 @@ namespace Business.Services.PostServices
             try
             {
                 var post = await _postRepo.Get(postReq.postId);
-                if(post == null)
+                if (post == null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
@@ -1011,7 +1011,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
-                if(post == null)
+                if (post == null)
                 {
                     result.IsSuccess = false;
                     result.Code = 400;
@@ -1118,7 +1118,7 @@ namespace Business.Services.PostServices
                     result.Message = "You do not have permission to do this!";
                     return result;
                 }
-                if(post.Status.Equals(TradingStatus.INPROGRESS))
+                if (post.Status.Equals(TradingStatus.INPROGRESS))
                 {
                     post.Status = TradingStatus.WAITINGDONEBYAUTHOR;
                     _ = await _postRepo.Update(post);
@@ -1187,7 +1187,7 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.DONE;
                     _ = await _postRepo.Update(post);
-                    
+
                     getReq.Status = TradeRequestStatus.SUCCESS;
                     getReq.UpdateAt = now;
                     _ = await _postTradeRequestRepo.Update(getReq);
@@ -1249,7 +1249,7 @@ namespace Business.Services.PostServices
                             checkReq.Add(r);
                         }
                     }
-                    if((checkReq.Count + 1) % 5 == 0)
+                    if ((checkReq.Count + 1) % 5 == 0)
                     {
                         user.SocialCredit -= 15;
                         _ = await _userRepo.Update(user);
