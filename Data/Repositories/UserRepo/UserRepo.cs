@@ -61,7 +61,7 @@ namespace Data.Repositories.UserRepo
 
         public async Task<List<UserModel>> GetFollowingUser(Guid authorId)
         {
-            var result = new List<UserModel>() ;
+            var result = new List<UserModel>();
             var listFollowers = await _context.TblUserFollowings.Where(x => x.UserId.Equals(authorId)).ToListAsync();
 
             foreach (var folower in listFollowers)
@@ -97,7 +97,7 @@ namespace Data.Repositories.UserRepo
             {
                 var follow = await context.TblUserFollowings.Where(x => x.UserId.Equals(userId) && x.FollowerId.Equals(user.Id) && x.Status.Equals(Status.ACTIVE)).FirstOrDefaultAsync();
                 bool isFollow = false;
-                if(follow != null)
+                if (follow != null)
                 {
                     isFollow = true;
                 }
@@ -108,6 +108,24 @@ namespace Data.Repositories.UserRepo
                     Avatar = user.Image,
                     Fullname = user.Name,
                     IsFollow = isFollow
+                });
+            }
+            return listUser;
+        }
+        public async Task<List<GetListUserModel>> GetListUserForAdmin()
+        {
+            var users = await context.TblUsers.Where(x => !x.Status.Equals(UserStatus.DEACTIVE)).ToListAsync();
+            List<GetListUserModel> listUser = new();
+            foreach (var user in users)
+            {
+                listUser.Add(new GetListUserModel()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Image = user.Image,
+                    Email = user.Email,
+                    RoleName = await GetRoleName(user.RoleId),
+                    CreateAt = user.CreateAt,
                 });
             }
             return listUser;

@@ -3,6 +3,7 @@ using Data.Entities;
 using Data.Enums;
 using Data.Models.PostModel;
 using Data.Models.ResultModel;
+using Data.Models.UserModel;
 using Data.Repositories.PostAttachmentRepo;
 using Data.Repositories.PostRepo;
 using Data.Repositories.UserRepo;
@@ -37,7 +38,7 @@ namespace Business.Services.ManageServices
             string roleName = await _userRepo.GetRoleName(roleId);
             try
             {
-                if (!roleName.Equals(Commons.STAFF))
+                if (!roleName.Equals(Commons.USER))
                 {
                     result.Code = 403;
                     result.IsSuccess = false;
@@ -50,6 +51,8 @@ namespace Business.Services.ManageServices
                     user.Status = UserStatus.DEACTIVE;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
+                    result.Code = 200;
+                    result.IsSuccess = true;
                 }
             }
             catch (Exception e)
@@ -344,6 +347,119 @@ namespace Business.Services.ManageServices
                 result.IsSuccess = true;
                 result.Data = post;
                 result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> SetStaff(Guid userId, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.ADMIN))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var getRoleStaffId = await _userRepo.GetRoleId(Commons.STAFF);
+                var user = await _userRepo.Get(userId);
+                if (!user.RoleId.Equals(getRoleStaffId))
+                {
+                    user.RoleId = getRoleStaffId;
+                    user.UpdateAt = now;
+                    _ = await _userRepo.Update(user);
+                    result.Code = 200;
+                    result.IsSuccess = true;
+                }
+                else
+                {
+                    result.Code = 400;
+                    result.IsSuccess = false;
+                    result.Message = "This User Is Already A Staff";
+                }
+                    
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> RemoveStaff(Guid userId, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.ADMIN))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var getRoleUserId = await _userRepo.GetRoleId(Commons.USER);
+                var user = await _userRepo.Get(userId);
+                if (!user.RoleId.Equals(getRoleUserId))
+                {
+                    user.RoleId = getRoleUserId;
+                    user.UpdateAt = now;
+                    _ = await _userRepo.Update(user);
+                    result.Code = 200;
+                    result.IsSuccess = true;
+                }
+                else
+                {
+                    result.Code = 400;
+                    result.IsSuccess = false;
+                    result.Message = "This User Is Already A User";
+                }
+                    
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> GetListUser(string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.ADMIN))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var getListUser = _userRepo.GetListUserForAdmin();
+                result.Code = 200;
+                result.Data = getListUser;
+                result.IsSuccess = true;
             }
             catch (Exception e)
             {
