@@ -33,10 +33,7 @@ namespace Data.Repositories.PostRepo
         public Task<int> CountWeeklyPostTrade(DateTime now);
         public Task<int> CountMonthlyPost(DateTime now);
         public Task<int> CountMonthlyPostTrade(DateTime now);
-<<<<<<< HEAD
         public Task<List<PostResModel>> SearchPost(string keyword, Guid userId);
-=======
         public Task<List<PostReportModel>> GetListReportPostForStaff();
->>>>>>> 94ee159a27c6883dd8816bad1ec05705dddd19b5
     }
 }
