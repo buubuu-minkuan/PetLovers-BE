@@ -22,6 +22,7 @@ namespace Business.Services.SearchServices
         public SearchServices(IPostRepo postRepository, IUserRepo userRepository, IHashtagRepo hashtagRepository)
         {
             _postRepository = postRepository;
+            _userAuthentication = new UserAuthentication();
             _userRepository = userRepository;
             _hashtagRepository = hashtagRepository;
         }
