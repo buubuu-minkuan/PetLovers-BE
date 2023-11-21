@@ -19,5 +19,6 @@ namespace Data.Repositories.UserRepo
         public Task<UserModel> GetUserById(Guid id);
         public Task<List<UserModel>> GetFollowingUser(Guid authorId);
         public Task<List<UserSearchModel>> SearchUser(string keyword, Guid userId);
+        public Task<List<GetListUserModel>> GetListUserForAdmin();
     }
 }
