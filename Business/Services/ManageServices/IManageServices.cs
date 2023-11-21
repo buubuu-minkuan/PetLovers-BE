@@ -20,5 +20,6 @@ namespace Business.Services.ManageServices
         public Task<ResultModel> GetPostTradeForAdmin(string token);
         public Task<ResultModel> GetPostTradeDoneForAdmin(string token);
         public Task<ResultModel> CountPostAndPostTradeDayWeekMonthForAdmin(string token);
+        public Task<ResultModel> GetListReportPostForStaff(string token);
     }
 }
