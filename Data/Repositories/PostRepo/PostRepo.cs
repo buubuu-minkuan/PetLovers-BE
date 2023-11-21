@@ -598,7 +598,6 @@ namespace Data.Repositories.PostRepo
             }
             return CountPosts.Count;
         }
-<<<<<<< HEAD
 
         public async Task<List<PostResModel>> SearchPost(string keyword, Guid userId)
         {
@@ -606,23 +605,13 @@ namespace Data.Repositories.PostRepo
             List<PostResModel> listResPost = new List<PostResModel>();
             foreach (var post in posts)
             {
-                var user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
-=======
-        public async Task<List<PostReportModel>> GetListReportPostForStaff()
-        {
-            List<PostReportModel> reportPosts = new();
-            var newPost = await _context.TblReports.Where(x => x.Type.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
-            foreach (var post in newPost)
-            {
-                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
->>>>>>> 94ee159a27c6883dd8816bad1ec05705dddd19b5
+                var user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync(); 
                 PostAuthorModel author = new()
                 {
                     Id = user.Id,
                     Name = user.Name,
                     ImageUrl = user.Image
                 };
-<<<<<<< HEAD
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
@@ -653,8 +642,20 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return listResPost;
-=======
-
+        }
+        public async Task<List<PostReportModel>> GetListReportPostForStaff()
+        {
+            List<PostReportModel> reportPosts = new();
+            var newPost = await _context.TblReports.Where(x => x.Type.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
+            foreach (var post in newPost)
+            {
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
                 reportPosts.Add(new PostReportModel()
                 {
@@ -664,7 +665,6 @@ namespace Data.Repositories.PostRepo
                 });
             }
             return reportPosts;
->>>>>>> 94ee159a27c6883dd8816bad1ec05705dddd19b5
         }
     }
 }
