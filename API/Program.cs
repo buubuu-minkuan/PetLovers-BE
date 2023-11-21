@@ -5,6 +5,7 @@ using Data.Repositories.PostRepo;
 using Business.Services.PostServices;
 using Business.Services.UserServices;
 using Business.Services.VerifyServices;
+using Business.Services.SearchServices;
 using Newtonsoft.Json.Linq;
 using Microsoft.EntityFrameworkCore;
 using Business.Services.SecretServices;
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IVerifyServices, VerifyServices>();
 builder.Services.AddScoped<IReactionServices, ReactionServices>();
 builder.Services.AddScoped<IUserFollowingServices, UserFollowingServices>();
 builder.Services.AddScoped<IManageServices, ManageServices>();
+builder.Services.AddScoped<ISearchServices, SearchServices>();
 
 
 //Subcribe repository

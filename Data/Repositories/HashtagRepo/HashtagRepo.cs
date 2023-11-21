@@ -1,4 +1,5 @@
 ﻿using Data.Entities;
+using Data.Enums;
 using Data.Models.HashtagModel;
 using Data.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
@@ -41,8 +42,23 @@ namespace Data.Repositories.HashtagRepo
 
         public async Task<List<HashtagTrendingModel>> GetListHashtagTrending()
         {
-            var postHashtag = await _context.TblPostHashtags.ToListAsync();
+            var postHashtag = await _context.TblPostHashtags.Where(x => x.Status.Equals(Status.ACTIVE)).ToListAsync();
             var groups = postHashtag.GroupBy(p => p.Hashtag).Select(g => new { Hashtag = g.Key, Count = g.Count() }).OrderByDescending(g => g.Count).Take(3);
+            List<HashtagTrendingModel> listRes = new();
+            foreach (var group in groups)
+            {
+                listRes.Add(new HashtagTrendingModel()
+                {
+                    Hashtag = group.Hashtag,
+                    Count = group.Count
+                });
+            }
+            return listRes;
+        }
+        public async Task<List<HashtagTrendingModel>> SearchHashtag(string keyword)
+        {
+            var postHashtag = await _context.TblPostHashtags.Where(x => x.Status.Equals(Status.ACTIVE) || x.Hashtag.Contains(keyword)).ToListAsync();
+            var groups = postHashtag.GroupBy(p => p.Hashtag).Select(g => new { Hashtag = g.Key, Count = g.Count() }).OrderByDescending(g => g.Count);
             List<HashtagTrendingModel> listRes = new();
             foreach (var group in groups)
             {

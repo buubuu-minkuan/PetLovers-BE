@@ -87,5 +87,12 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.CountPostAndPostTradeDayWeekMonthForAdmin(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+        [HttpGet("post/get-list-report-post-for-staff")]
+        public async Task<IActionResult> GetListReportPostForStaff()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.GetListReportPostForStaff(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }
