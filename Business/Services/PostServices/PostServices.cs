@@ -876,6 +876,8 @@ namespace Business.Services.PostServices
             return result;
         }
 
+        //the function ReportPost is not add the report to database, help me check
+
         public async Task<ResultModel> ReportPost(PostReportModel postReq)
         {
             ResultModel result = new();
