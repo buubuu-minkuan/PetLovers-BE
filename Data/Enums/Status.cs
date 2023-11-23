@@ -46,4 +46,10 @@
         public static readonly string CANCELBYUSER = "CancelByUser";
         public static readonly string CANCELBYAUTHOR = "CancelByAuthor";
     }
+    public class TypeTrading
+    {
+        public static readonly string GIFT = "Gift";
+        public static readonly string TRADE = "Trade";
+        public static readonly string SELL = "Sell";
+    }
 }
