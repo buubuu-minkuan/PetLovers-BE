@@ -493,6 +493,17 @@ namespace Business.Services.PostServices
                         Address = post.Address,
                         Status = post.Status
                     };
+                    if (post.isFree == true && post.Amount == 0)
+                    {
+                        postRes.TypeTrading = TypeTrading.GIFT;
+                    }
+                    else if (post.isFree == true && post.Amount == -1)
+                    {
+                        postRes.TypeTrading = TypeTrading.TRADE;
+                    }
+                    else if (post.isFree == false){
+                        postRes.TypeTrading = TypeTrading.SELL;
+                    };
                     result.IsSuccess = true;
                     result.Data = postRes;
                     result.Code = 200;
