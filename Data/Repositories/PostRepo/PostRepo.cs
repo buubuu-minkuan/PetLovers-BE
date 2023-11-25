@@ -646,7 +646,7 @@ namespace Data.Repositories.PostRepo
         public async Task<List<PostReportResModel>> GetListReportPostForStaff()
         {
             List<PostReportResModel> listReport = new();
-            var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
+            var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var report in Reports)
             {
                 var getReporter = await _context.TblUsers.Where(x => x.Id.Equals(report.UserId)).FirstOrDefaultAsync();
