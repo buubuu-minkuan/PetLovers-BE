@@ -887,11 +887,11 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> ReportPost(PostReportModel postReq)
+        public async Task<ResultModel> ReportPost(PostReportModel postReq, string token)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
-            Guid userId = new Guid(_userAuthentication.decodeToken(postReq.token, "userid"));
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
                 var post = await _postRepo.Get(postReq.postId);
