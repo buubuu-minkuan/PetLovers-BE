@@ -86,6 +86,13 @@ namespace Business.Services.UserServices
             try
             {
                 var getUser = await _userRepo.getUserByUsername(User.Username);
+                if(getUser.Status.Equals(UserStatus.DEACTIVE))
+                {
+                    result.IsSuccess = false;
+                    result.Code = 400;
+                    result.Message = "Tai khoan da bi vo hieu hoa!";
+                    return result;
+                };
                 if (getUser == null)
                 {
                     result.IsSuccess = false;
