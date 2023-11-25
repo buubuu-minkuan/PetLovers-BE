@@ -75,7 +75,7 @@ namespace Data.Models.PostModel
     public class PostReportResModel
     { 
         public Guid PostId { get; set; }
-        public ReporterModel Reporter { get; set; }
+        public List<ReporterModel> Reporter { get; set; }
         public PostAuthorModel Author { get; set; }
         public string content { get; set; }
         public List<PostAttachmentResModel> attachment { get; set; }
