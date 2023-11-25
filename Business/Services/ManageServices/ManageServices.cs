@@ -1,4 +1,5 @@
-﻿using Business.Ultilities.UserAuthentication;
+﻿using Business.Ultilities.EmailNotification;
+using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
 using Data.Models.PostModel;
@@ -11,6 +12,7 @@ using Data.Repositories.PostRepo;
 using Data.Repositories.ReportRepo;
 using Data.Repositories.UserRepo;
 using Data.Repositories.UserRewardRepo;
+using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 
 namespace Business.Services.ManageServices
@@ -25,11 +27,13 @@ namespace Business.Services.ManageServices
         private readonly IHashtagRepo _hashtagRepo;
         private readonly IPostReactionRepo _postReactionRepo;
         private readonly IReportRepo _reportRepo;
+        private readonly EmailNotification _emailNotification;
 
 
         public ManageServices(IUserRepo userRepo, IPostRepo postRepo, IUserRewardRepo rewardRepo, IPostAttachmentRepo postAttachmentRepo, IHashtagRepo hashtagRepo, IPostReactionRepo postReactionRepo, IReportRepo reportRepo)
         {
             _userAuthentication = new UserAuthentication();
+            _emailNotification = new EmailNotification();
             _userRepo = userRepo;
             _postRepo = postRepo;
             _rewardRepo = rewardRepo;
@@ -162,6 +166,7 @@ namespace Business.Services.ManageServices
         {
             ResultModel result = new();
             Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
+            Guid modId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             string roleName = await _userRepo.GetRoleName(roleId);
             try
             {
@@ -175,6 +180,15 @@ namespace Business.Services.ManageServices
                 foreach (var pReq in post.postId)
                 {
                     TblPost getPost = await _postRepo.GetTblPostById(pReq);
+                    var getuser = await _userRepo.Get(getPost.UserId);
+                    var getmod = await _userRepo.Get(modId);
+                    if(getuser == null)
+                    {
+                        result.Code = 400;
+                        result.IsSuccess = false;
+                        result.Message = "User is not exist";
+                        return result;
+                    }
                     if (getPost.ModeratorId != null && getPost.IsProcessed)
                     {
                         result.Code = 400;
@@ -188,14 +202,17 @@ namespace Business.Services.ManageServices
                         attachment.Status = Status.DEACTIVE;
                         _ = await _postAttachmentRepo.Update(attachment);
                     }
-                    PostReqModel postReqModel = new()
-                    {
-                        reason = post.reason,
-                        postId = post.postId
-                    };
                     getPost.Status = PostingStatus.REFUSED;
                     getPost.IsProcessed = true;
                     _ = await _postRepo.Update(getPost);
+                    bool check = await _emailNotification.SendRefusePostNotification(getuser.Email, post.reason, "Bài viết đang chờ được duyệt của bạn đã bị từ chối bởi: <B>" + getmod.Name + "</B>");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    } 
                     result.Code = 200;
                     result.IsSuccess = true;
                 }
@@ -500,12 +517,15 @@ namespace Business.Services.ManageServices
                     result.IsSuccess = false;
                     result.Message = "User role invalid";
                     return result;
-                }else foreach (var pReq in postReq.postId)
+                }else foreach (var pReq in postReq.postId) 
                 {
+                        
                     TblPost tblPost = await _postRepo.GetTblPostById(pReq);
                     tblPost.UpdateAt = now;
                     tblPost.Status = Status.DEACTIVE;
                     _ = await _postRepo.Update(tblPost);
+                    var getUser = await _userRepo.Get(tblPost.UserId);
+                    var getmod = await _userRepo.Get(modId);
                     List<TblPostHashtag> Hashtags = await _hashtagRepo.GetListHashTagByPostId(pReq);
                     List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
                     List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(pReq);
@@ -535,6 +555,7 @@ namespace Business.Services.ManageServices
                             report.UpdatedAt = now;
                             _ = await _reportRepo.Update(report);
                     }
+                        _ = await _emailNotification.SendRefusePostNotification(getUser.Email, postReq.reason, "Bài viết của bạn đã bị xóa bởi: <B>" + getmod.Name + "</B>");
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
