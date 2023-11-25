@@ -73,12 +73,9 @@ namespace Data.Models.PostModel
     }
 
     public class PostReportResModel
-    {
-        public Guid Id { get; set; }
-        public PostAuthorModel Reporter { get; set; }
-        public string Type { get; set; }
-        public string Reason { get; set; }
+    { 
         public Guid PostId { get; set; }
+        public ReporterModel Reporter { get; set; }
         public PostAuthorModel Author { get; set; }
         public string content { get; set; }
         public List<PostAttachmentResModel> attachment { get; set; }
@@ -116,6 +113,18 @@ namespace Data.Models.PostModel
         public string Name { get; set; }
         public string ImageUrl { get; set; }
     }
+
+    public class ReporterModel
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public string Name { get; set; }
+        public string ImageUrl { get; set; }
+        public string Type { get; set; }
+        public string Reason { get; set; }
+        public DateTime createdAt { get; set; }
+    }
+
     public class PostTradeAuthorModel
     {
         public Guid Id { get; set; }
