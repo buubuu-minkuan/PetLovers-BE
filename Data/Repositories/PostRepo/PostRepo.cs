@@ -678,7 +678,9 @@ namespace Data.Repositories.PostRepo
                     updatedAt = postReport.UpdateAt,
                     amountComment = Comment.Count,
                     amountFeeling = Feeling.Count,
-                    PostId = postReport.Id
+                    PostId = postReport.Id,
+                    Reason = report.Reason,
+                    Type = report.Type
                 });
             }
             return listReport;
