@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Data.Models.PostModel;
 using Business.Services.ManageServices;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Extensions.Hosting;
 
 namespace API.Controllers
 {
@@ -113,6 +114,13 @@ namespace API.Controllers
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _manage.RemoveStaff(userId, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpDelete("post/delete-post-by-staff")]
+        public async Task<IActionResult> DeletePostByStaff([FromBody] PostReqModel Post)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.DeletePostByStaff(Post, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
 

@@ -10,6 +10,6 @@ namespace Data.Repositories.ReportRepo
 {
     public interface IReportRepo : IRepository<TblReport>
     {
-        
+        public Task<List<TblReport>> GetlistTblReport(Guid postId);
     }
 }
