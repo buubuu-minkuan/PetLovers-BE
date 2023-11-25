@@ -116,7 +116,7 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.RemoveStaff(userId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("post/delete-post-by-staff")]
+        [HttpDelete("post/delete-post-by-staff")]
         public async Task<IActionResult> DeletePostByStaff([FromBody] PostReqModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
