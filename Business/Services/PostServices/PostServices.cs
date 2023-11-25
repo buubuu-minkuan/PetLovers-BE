@@ -123,6 +123,14 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(newPost.token, "userid"));
             Guid postId = Guid.NewGuid();
             var user = await _userRepo.GetUserById(userId);
+            var getUser = await _userRepo.Get(userId);
+            if (getUser.Status.Equals(UserStatus.TIMEOUT))
+            {
+                result.IsSuccess = false;
+                result.Code = 403;
+                result.Message = "Ban Da Bi Cam Dang Bai Do Vi Pham Dieu Khoan";
+                return result;
+            }
             PostAuthorModel author = new()
             {
                 Id = user.Id,
