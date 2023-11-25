@@ -647,7 +647,7 @@ namespace Data.Repositories.PostRepo
         {
             List<PostReportResModel> listReport = new();
             var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).OrderByDescending(x => x.CreateAt).ToListAsync();
-            var groups = Reports.GroupBy(p => p.PostId).Select(g => new { PostId = g.Key });
+            var groups = Reports.GroupBy(p => p.PostId).Select(g => new { PostId = g.Key, Reports = g.ToList()});
             foreach (var postId in groups)
             {
                 var reports = await _context.TblReports.Where(x => x.PostId.Equals(postId.PostId) && x.Status.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
