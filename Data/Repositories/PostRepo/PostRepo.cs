@@ -646,7 +646,7 @@ namespace Data.Repositories.PostRepo
         public async Task<List<PostReportResModel>> GetListReportPostForStaff()
         {
             List<PostReportResModel> listReport = new();
-            var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
+            var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).OrderByDescending(x => x.CreateAt).ToListAsync();
             foreach (var report in Reports)
             {
                 var getReporter = await _context.TblUsers.Where(x => x.Id.Equals(report.UserId)).FirstOrDefaultAsync();
@@ -658,18 +658,21 @@ namespace Data.Repositories.PostRepo
                     Name = authorPost.Name,
                     ImageUrl = authorPost.Image
                 };
-                PostAuthorModel reporter = new()
+                ReporterModel reporter = new()
                 {
                     Id = getReporter.Id,
+                    UserId = report.UserId,
                     Name = getReporter.Name,
-                    ImageUrl = getReporter.Image
+                    ImageUrl = getReporter.Image,
+                    Reason = report.Reason,
+                    Type = report.Type,
+                    createdAt = report.CreateAt
                 };
                 var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(report.PostId) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(report.PostId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postReport.Id);
                 listReport.Add(new PostReportResModel()
                 {
-                    Id = report.Id,
                     Author = author,
                     Reporter = reporter,
                     content = postReport.Content,
@@ -678,9 +681,7 @@ namespace Data.Repositories.PostRepo
                     updatedAt = postReport.UpdateAt,
                     amountComment = Comment.Count,
                     amountFeeling = Feeling.Count,
-                    PostId = postReport.Id,
-                    Reason = report.Reason,
-                    Type = report.Type
+                    PostId = postReport.Id
                 });
             }
             return listReport;
