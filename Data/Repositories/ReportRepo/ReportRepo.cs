@@ -1,5 +1,6 @@
 ﻿using Data.Entities;
 using Data.Repositories.GenericRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,10 @@ namespace Data.Repositories.ReportRepo
         {
             //_mapper = mapper;
             _context = context;
+        }
+        public async Task<List<TblReport>> GetlistTblReport(Guid postId)
+        {
+            return await context.TblReports.Where(x => x.PostId.Equals(postId)).ToListAsync();
         }
     }
 }
