@@ -647,10 +647,27 @@ namespace Data.Repositories.PostRepo
         {
             List<PostReportResModel> listReport = new();
             var Reports = await _context.TblReports.Where(x => x.PostId != null && x.Status.Equals(ReportingStatus.INPROGRESS)).OrderByDescending(x => x.CreateAt).ToListAsync();
-            foreach (var report in Reports)
+            var groups = Reports.GroupBy(p => p.PostId).Select(g => new { PostId = g.Key, Reports = g.ToList()});
+            foreach (var postId in groups)
             {
-                var getReporter = await _context.TblUsers.Where(x => x.Id.Equals(report.UserId)).FirstOrDefaultAsync();
-                var postReport = await _context.TblPosts.Where(x => x.Id.Equals(report.PostId)).FirstOrDefaultAsync();
+                var reports = await _context.TblReports.Where(x => x.PostId.Equals(postId.PostId) && x.Status.Equals(ReportingStatus.INPROGRESS)).ToListAsync();
+                List<ReporterModel> listReporter = new();
+                foreach (var report in reports)
+                {
+                    var getReporter = await _context.TblUsers.Where(x => x.Id.Equals(report.UserId)).FirstOrDefaultAsync();
+                    ReporterModel reporter = new()
+                    {
+                        Id = getReporter.Id,
+                        UserId = report.UserId,
+                        Name = getReporter.Name,
+                        ImageUrl = getReporter.Image,
+                        Reason = report.Reason,
+                        Type = report.Type,
+                        createdAt = report.CreateAt
+                    };
+                    listReporter.Add(reporter);
+                }
+                var postReport = await _context.TblPosts.Where(x => x.Id.Equals(postId.PostId)).FirstOrDefaultAsync();
                 var authorPost = await _context.TblUsers.Where(x => x.Id.Equals(postReport.UserId)).FirstOrDefaultAsync();
                 PostAuthorModel author = new()
                 {
@@ -658,23 +675,13 @@ namespace Data.Repositories.PostRepo
                     Name = authorPost.Name,
                     ImageUrl = authorPost.Image
                 };
-                ReporterModel reporter = new()
-                {
-                    Id = getReporter.Id,
-                    UserId = report.UserId,
-                    Name = getReporter.Name,
-                    ImageUrl = getReporter.Image,
-                    Reason = report.Reason,
-                    Type = report.Type,
-                    createdAt = report.CreateAt
-                };
-                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(report.PostId) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
-                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(report.PostId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(postId.PostId) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(postId.PostId) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
                 List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(postReport.Id);
                 listReport.Add(new PostReportResModel()
                 {
                     Author = author,
-                    Reporter = reporter,
+                    Reporter = listReporter,
                     content = postReport.Content,
                     attachment = arrAttachment,
                     createdAt = postReport.CreateAt,
