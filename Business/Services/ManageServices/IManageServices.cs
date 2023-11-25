@@ -25,6 +25,5 @@ namespace Business.Services.ManageServices
         public Task<ResultModel> RemoveStaff(Guid userId, string token);
         public Task<ResultModel> GetListUser(string token);
         public Task<ResultModel> DeletePostByStaff(PostReqModel postReq, string token);
-
     }
 }
