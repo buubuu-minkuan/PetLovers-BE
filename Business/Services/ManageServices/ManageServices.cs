@@ -58,7 +58,7 @@ namespace Business.Services.ManageServices
                 foreach (var id in userId)
                 {
                     var user = await _userRepo.Get(id);
-                    user.Status = UserStatus.DEACTIVE;
+                    user.Status = UserStatus.TIMEOUT;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
                     result.Code = 200;
