@@ -95,8 +95,7 @@ namespace API.Controllers
         public async Task<IActionResult> ReportPost([FromBody] PostReportModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
-            Post.token = token;
-            Data.Models.ResultModel.ResultModel result = await _post.ReportPost(Post);
+            Data.Models.ResultModel.ResultModel result = await _post.ReportPost(Post, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
     }

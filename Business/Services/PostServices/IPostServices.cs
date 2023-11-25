@@ -28,7 +28,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> DoneTradingForUser(PostTradeProcessModel req, string token);
         public Task<ResultModel> CancelTrading(PostTradeProcessModel req, string token);
         public Task<ResultModel> GetUserPendingPost(string token);
-        public Task<ResultModel> ReportPost(PostReportModel post);
+        public Task<ResultModel> ReportPost(PostReportModel post, string token);
         public Task<ResultModel> GetAllTradePostsTitle();
         public Task<ResultModel> GetListPostTradeByUserId(Guid id, string token);//
         public Task<ResultModel> GetListPostTradeRequested(string token);
