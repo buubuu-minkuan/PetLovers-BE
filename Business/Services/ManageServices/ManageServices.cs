@@ -456,7 +456,7 @@ namespace Business.Services.ManageServices
                     result.Message = "User role invalid";
                     return result;
                 }
-                var getListUser = _userRepo.GetListUserForAdmin();
+                var getListUser = await _userRepo.GetListUserForAdmin();
                 result.Code = 200;
                 result.Data = getListUser;
                 result.IsSuccess = true;
