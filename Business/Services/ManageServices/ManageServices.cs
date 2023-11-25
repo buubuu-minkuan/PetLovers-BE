@@ -4,8 +4,11 @@ using Data.Enums;
 using Data.Models.PostModel;
 using Data.Models.ResultModel;
 using Data.Models.UserModel;
+using Data.Repositories.HashtagRepo;
 using Data.Repositories.PostAttachmentRepo;
+using Data.Repositories.PostReactRepo;
 using Data.Repositories.PostRepo;
+using Data.Repositories.ReportRepo;
 using Data.Repositories.UserRepo;
 using Data.Repositories.UserRewardRepo;
 using System.Security.Claims;
@@ -19,14 +22,21 @@ namespace Business.Services.ManageServices
         private readonly IPostRepo _postRepo;
         private readonly IUserRewardRepo _rewardRepo;
         private readonly IPostAttachmentRepo _postAttachmentRepo;
+        private readonly IHashtagRepo _hashtagRepo;
+        private readonly IPostReactionRepo _postReactionRepo;
+        private readonly IReportRepo _reportRepo;
 
-        public ManageServices(IUserRepo userRepo, IPostRepo postRepo, IUserRewardRepo rewardRepo, IPostAttachmentRepo postAttachmentRepo)
+
+        public ManageServices(IUserRepo userRepo, IPostRepo postRepo, IUserRewardRepo rewardRepo, IPostAttachmentRepo postAttachmentRepo, IHashtagRepo hashtagRepo, IPostReactionRepo postReactionRepo, IReportRepo reportRepo)
         {
             _userAuthentication = new UserAuthentication();
             _userRepo = userRepo;
             _postRepo = postRepo;
             _rewardRepo = rewardRepo;
             _postAttachmentRepo = postAttachmentRepo;
+            _hashtagRepo = hashtagRepo;
+            _postReactionRepo = postReactionRepo;
+            _reportRepo = reportRepo;
         }
 
         public async Task<ResultModel> BanUser(List<Guid> userId, string token)
@@ -460,6 +470,70 @@ namespace Business.Services.ManageServices
                 result.Code = 200;
                 result.Data = getListUser;
                 result.IsSuccess = true;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> DeletePostByStaff(PostReqModel postReq, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+               
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }else foreach (var pReq in postReq.postId)
+                {
+                    TblPost tblPost = await _postRepo.GetTblPostById(pReq);
+                    tblPost.UpdateAt = now;
+                    tblPost.Status = Status.DEACTIVE;
+                    _ = await _postRepo.Update(tblPost);
+                    List<TblPostHashtag> Hashtags = await _hashtagRepo.GetListHashTagByPostId(pReq);
+                    List<TblPostAttachment> Attachments = await _postAttachmentRepo.GetListTblPostAttachmentById(pReq);
+                    List<TblPostReaction> Reactions = await _postReactionRepo.GetListReactionById(pReq);
+                    List<TblReport> Reports = await _reportRepo.GetlistTblReport(pReq);
+                    foreach (var attachment in Attachments)
+                    {
+                        attachment.Status = Status.DEACTIVE;
+                        _ = await _postAttachmentRepo.Update(attachment);
+                    }
+
+                    foreach (var reaction in Reactions)
+                    {
+                        reaction.Status = Status.DEACTIVE;
+                        _ = await _postReactionRepo.Update(reaction);
+                    }
+
+                    foreach (var hashtag in Hashtags)
+                    {
+                        hashtag.Status = Status.DEACTIVE;
+                        _ = await _hashtagRepo.Update(hashtag);
+                    }
+                    foreach (var report in Reports)
+                    {
+                            report.Status = ReportingStatus.COMPLETE;
+                            report.ModeratorId = modId;
+                            report.IsProcessed = true;
+                            report.UpdatedAt = now;
+                            _ = await _reportRepo.Update(report);
+                    }
+                    result.IsSuccess = true;
+                    result.Code = 200;
+                }
+                
             }
             catch (Exception e)
             {
