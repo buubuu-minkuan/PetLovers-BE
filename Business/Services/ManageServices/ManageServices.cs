@@ -48,7 +48,7 @@ namespace Business.Services.ManageServices
             string roleName = await _userRepo.GetRoleName(roleId);
             try
             {
-                if (!roleName.Equals(Commons.USER))
+                if (roleName.Equals(Commons.STAFF) && roleName.Equals(Commons.ADMIN))
                 {
                     result.Code = 403;
                     result.IsSuccess = false;
@@ -58,7 +58,7 @@ namespace Business.Services.ManageServices
                 foreach (var id in userId)
                 {
                     var user = await _userRepo.Get(id);
-                    user.Status = UserStatus.DEACTIVE;
+                    user.Status = UserStatus.TIMEOUT;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
                     result.Code = 200;
@@ -188,6 +188,11 @@ namespace Business.Services.ManageServices
                         attachment.Status = Status.DEACTIVE;
                         _ = await _postAttachmentRepo.Update(attachment);
                     }
+                    PostReqModel postReqModel = new()
+                    {
+                        reason = post.reason,
+                        postId = post.postId
+                    };
                     getPost.Status = PostingStatus.REFUSED;
                     getPost.IsProcessed = true;
                     _ = await _postRepo.Update(getPost);

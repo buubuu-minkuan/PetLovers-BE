@@ -10,6 +10,7 @@ namespace Data.Models.PostModel
     {
         public string token { get; set; }
         public List<Guid> postId { get; set; }
+        public string reason { get; set; }
     }
 
     public class PostCreateReqModel
