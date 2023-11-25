@@ -987,7 +987,7 @@ namespace Business.Services.PostServices
                     Status = TradeRequestStatus.PENDING,
                     CreateAt = now
                 };
-                if (post.Amount.Equals(-1))
+                if (post.Amount == -1)
                 {
                     tradeRequest.Attachment = reqRequest.Attachments;
                 }
