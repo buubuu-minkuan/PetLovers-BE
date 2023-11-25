@@ -34,6 +34,6 @@ namespace Data.Repositories.PostRepo
         public Task<int> CountMonthlyPost(DateTime now);
         public Task<int> CountMonthlyPostTrade(DateTime now);
         public Task<List<PostResModel>> SearchPost(string keyword, Guid userId);
-        public Task<List<PostReportModel>> GetListReportPostForStaff();
+        public Task<List<PostReportResModel>> GetListReportPostForStaff();
     }
 }

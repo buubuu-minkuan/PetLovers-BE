@@ -71,6 +71,20 @@ namespace Data.Models.PostModel
         public string Status { get; set; }
     }
 
+    public class PostReportResModel
+    {
+        public Guid Id { get; set; }
+        public PostAuthorModel Reporter { get; set; }
+        public Guid PostId { get; set; }
+        public PostAuthorModel Author { get; set; }
+        public string content { get; set; }
+        public List<PostAttachmentResModel> attachment { get; set; }
+        public DateTime createdAt { get; set; }
+        public DateTime? updatedAt { get; set; }
+        public int amountComment { get; set; }
+        public int amountFeeling { get; set; }
+    }
+
     public class PostTradeUserRequestModel
     {
         public Guid Id { get; set; }
