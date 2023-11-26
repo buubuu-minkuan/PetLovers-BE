@@ -53,7 +53,7 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.RefusePosting(Post);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("post/ban-user")]
+        [HttpPost("user/ban")]
         public async Task<IActionResult> BanUser(List<Guid> userId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
@@ -102,14 +102,21 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _manage.GetListUser(token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("post/set-staff")]
+        [HttpPost("user/set-staff")]
         public async Task<IActionResult> SetStaff(Guid userId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Data.Models.ResultModel.ResultModel result = await _manage.SetStaff(userId, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
-        [HttpPost("post/remove-staff")]
+        [HttpPost("report/refuse")]
+        public async Task<IActionResult> RefuseReport(Guid postId)
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _manage.RefuseReport(postId, token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
+        [HttpPost("user/remove-staff")]
         public async Task<IActionResult> RemoveStaff(Guid userId)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
