@@ -1458,7 +1458,10 @@ namespace Business.Services.PostServices
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             try
             {
-
+                var post = await _postRepo.GetListStorePostByUserId(userId);
+                result.IsSuccess = true;
+                result.Data = post;
+                result.Code = 200;
             }
             catch (Exception e)
             {
