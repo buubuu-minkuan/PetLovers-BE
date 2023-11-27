@@ -67,7 +67,7 @@ namespace Business.Services.ManageServices
                     user.Status = UserStatus.TIMEOUT;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
-                    bool check = await _emailNotification.SendBanPostNotification(getuser.Email, "Bạn đã bị cấm đăng bài bởi: <B>" + getmod.Name + "</B>");
+                    bool check = await _emailNotification.SendRefusePostNotification(getuser.Email, "Lý Do: Vi phạm Cộng Đồng", "Bài viết đang chờ được duyệt của bạn đã bị từ chối bởi: <B>" + getmod.Name + "</B>");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
@@ -121,6 +121,7 @@ namespace Business.Services.ManageServices
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
+            Guid modId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             string roleName = await _userRepo.GetRoleName(roleId);
             try
             {
@@ -134,6 +135,8 @@ namespace Business.Services.ManageServices
                 foreach (var pReq in post.postId)
                 {
                     TblPost getPost = await _postRepo.GetTblPostById(pReq);
+                    var getuser = await _userRepo.Get(getPost.UserId);
+                    var getmod = await _userRepo.Get(modId);
                     if (getPost.ModeratorId != null && getPost.IsProcessed)
                     {
                         result.Code = 400;
@@ -161,6 +164,15 @@ namespace Business.Services.ManageServices
                     getPost.ModeratorId = userId;
                     getPost.IsProcessed = true;
                     _ = await _postRepo.Update(getPost);
+                    bool check = await _emailNotification.SendRefusePostNotification(getuser.Email, "Bài viết của bạn đã lên hệ thống PetLovers, hãy kiểm tra nó nhé!", "Bài viết của bạn đã được duyệt bởi: <B>" + getmod.Name + "</B>");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.Code = 200;
                     result.IsSuccess = true;
                 }
