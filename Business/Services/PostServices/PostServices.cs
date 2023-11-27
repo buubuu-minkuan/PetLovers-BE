@@ -1179,7 +1179,7 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.WAITINGDONEBYAUTHOR;
                     _ = await _postRepo.Update(post);
-                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + "đã xác nhận hoàn tất giao dịch ");
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + " đã xác nhận hoàn tất giao dịch ");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
@@ -1257,7 +1257,7 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.WAITINGDONEBYUSER;
                     _ = await _postRepo.Update(post);
-                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + "đã xác nhận hoàn tất giao dịch");
+                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + " đã xác nhận hoàn tất giao dịch");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
@@ -1332,7 +1332,7 @@ namespace Business.Services.PostServices
                     getReq.Status = TradeRequestStatus.CANCELBYUSER;
                     var getuser = await _userRepo.Get(getReq.UserId);
                     _ = await _postTradeRequestRepo.Update(getReq);
-                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + "đã hủy giao dịch");
+                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + " đã hủy giao dịch");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
@@ -1366,7 +1366,7 @@ namespace Business.Services.PostServices
                     var getuser = await _userRepo.Get(getReq.UserId);
                     getReq.Status = TradeRequestStatus.CANCELBYAUTHOR;
                     _ = await _postTradeRequestRepo.Update(getReq);
-                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + "đã hủy giao dịch");
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + " đã hủy giao dịch");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
