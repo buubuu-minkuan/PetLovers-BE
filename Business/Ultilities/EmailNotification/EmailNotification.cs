@@ -60,5 +60,39 @@ namespace Business.Ultilities.EmailNotification
                 return false;
             }
         }
+        public async Task<bool> SendNotification(string email, string reason, string content)
+        {
+            try
+            {
+                var toEmail = email;
+                string from = SecretService.GetSMTPEmail();
+                string pass = SecretService.GetSMTPPass();
+                MimeMessage message = new();
+                message.From.Add(MailboxAddress.Parse(SecretService.GetSMTPEmail()));
+                message.Subject = "[PETLOVERS - NOTIFICATION]";
+                message.To.Add(MailboxAddress.Parse(toEmail));
+                message.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                {
+                    Text =
+                    "<html>" +
+                    "<body>" +
+                    "<h1>PetLovers<h1>" +
+                    "<h3>" + content + "</p>" +
+                    "<p><b>" + reason + "</b></p>" +
+                    "</body>" +
+                    "</html>"
+                };
+                using MailKit.Net.Smtp.SmtpClient smtp = new();
+                await smtp.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(from, pass);
+                _ = await smtp.SendAsync(message);
+                await smtp.DisconnectAsync(true);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
     }
 }

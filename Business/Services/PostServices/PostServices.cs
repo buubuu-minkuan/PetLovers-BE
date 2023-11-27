@@ -1,4 +1,4 @@
-using Azure.Core;
+﻿using Azure.Core;
 using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
@@ -28,6 +28,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Business.Ultilities.EmailNotification;
 
 namespace Business.Services.PostServices
 {
@@ -44,6 +45,7 @@ namespace Business.Services.PostServices
         private readonly IReportRepo _reportRepo;
         private readonly IHashtagRepo _hashtagRepo;
         private readonly IUserRewardRepo _rewardRepo;
+        private readonly EmailNotification _emailNotification;
 
         public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo, IPostTradeRequestRepo postTradeRequestRepo, IUserRewardRepo rewardRepo, IHashtagRepo hashtagRepo)
         {
@@ -57,6 +59,7 @@ namespace Business.Services.PostServices
             _postAttachmentRepo = postAttachmentRepo;
             _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
+            _emailNotification = new EmailNotification();
             _postRepo = postRepo;
         }
 
@@ -937,8 +940,11 @@ namespace Business.Services.PostServices
         {
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             ResultModel result = new();
             var user = await _userRepo.Get(userId);
+            var getuser = await _userRepo.Get(userId);
+            var getmod = await _userRepo.Get(modId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -1000,6 +1006,15 @@ namespace Business.Services.PostServices
                     tradeRequest.Attachment = reqRequest.Attachments;
                 }
                 _ = await _postTradeRequestRepo.Insert(tradeRequest);
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Bài trao đổi của bạn có một lời đề nghị mới, hãy kiểm tra nhé!", "Bạn có lời đề nghị trao đổi mới trên PetLovers: <B>" + getmod.Name + "</B>");
+                if (check)
+                {
+                    result.Message = "Send Email Successfully!";
+                }
+                else
+                {
+                    result.Message = "Cann't Send Email!";
+                }
                 result.IsSuccess = true;
                 result.Code = 200;
             }
