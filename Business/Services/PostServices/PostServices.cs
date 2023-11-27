@@ -1451,5 +1451,25 @@ namespace Business.Services.PostServices
             }
             return result;
         }
+
+        public async Task<ResultModel> GetListStoredPost(string token)
+        {
+            ResultModel result = new();
+            Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            try
+            {
+                var post = await _postRepo.GetListStorePostByUserId(userId);
+                result.IsSuccess = true;
+                result.Data = post;
+                result.Code = 200;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
     }
 }

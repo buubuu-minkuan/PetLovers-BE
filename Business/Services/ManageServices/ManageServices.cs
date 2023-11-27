@@ -489,6 +489,14 @@ namespace Business.Services.ManageServices
                     return result;
                 }
                 var getListUser = await _userRepo.GetListUserForAdmin();
+                foreach (var user in getListUser)
+                {
+                    if(user.RoleName.Equals(Commons.STAFF))
+                    {
+                        getListUser.Remove(user);
+                        getListUser.Insert(0, user);
+                    }
+                }
                 result.Code = 200;
                 result.Data = getListUser;
                 result.IsSuccess = true;
@@ -555,11 +563,47 @@ namespace Business.Services.ManageServices
                             report.UpdatedAt = now;
                             _ = await _reportRepo.Update(report);
                     }
-                        _ = await _emailNotification.SendRefusePostNotification(getUser.Email, postReq.reason, "Bài viết của bạn đã bị xóa bởi: <B>" + getmod.Name + "</B>");
+                    _ = await _emailNotification.SendRefusePostNotification(getUser.Email, postReq.reason, "Bài viết của bạn đã bị xóa bởi: <B>" + getmod.Name + "</B>");
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
                 
+            }
+            catch (Exception e)
+            {
+                result.IsSuccess = false;
+                result.Code = 400;
+                result.ResponseFailed = e.InnerException != null ? e.InnerException.Message + "\n" + e.StackTrace : e.Message + "\n" + e.StackTrace;
+            }
+            return result;
+        }
+        public async Task<ResultModel> RefuseReport(Guid postId, string token)
+        {
+            ResultModel result = new();
+            DateTime now = DateTime.Now;
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid roleId = new Guid(_userAuthentication.decodeToken(token, ClaimsIdentity.DefaultRoleClaimType));
+            string roleName = await _userRepo.GetRoleName(roleId);
+            try
+            {
+                if (!roleName.Equals(Commons.STAFF))
+                {
+                    result.Code = 403;
+                    result.IsSuccess = false;
+                    result.Message = "User role invalid";
+                    return result;
+                }
+                var getReports = await _reportRepo.GetlistTblReport(postId);
+                foreach (var report in getReports)
+                {
+                    report.Status = ReportingStatus.COMPLETE;
+                    report.ModeratorId = modId;
+                    report.IsProcessed = true;
+                    report.UpdatedAt = now;
+                    _ = await _reportRepo.Update(report);
+                }
+                result.IsSuccess = true;
+                result.Code = 200;
             }
             catch (Exception e)
             {

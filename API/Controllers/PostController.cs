@@ -98,5 +98,13 @@ namespace API.Controllers
             Data.Models.ResultModel.ResultModel result = await _post.ReportPost(Post, token);
             return result.IsSuccess ? Ok(result) : BadRequest(result);
         }
+
+        [HttpGet("list-stored-post")]
+        public async Task<IActionResult> GetListStoredPost()
+        {
+            string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
+            Data.Models.ResultModel.ResultModel result = await _post.GetListStoredPost(token);
+            return result.IsSuccess ? Ok(result) : BadRequest(result);
+        }
     }
 }

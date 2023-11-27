@@ -33,5 +33,6 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetListPostTradeByUserId(Guid id, string token);
         public Task<ResultModel> GetListPostTradeRequested(string token);
         public Task<ResultModel> GetListPostTradeHistory(string token);
+        public Task<ResultModel> GetListStoredPost(string token);
     }
 }

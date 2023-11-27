@@ -693,5 +693,50 @@ namespace Data.Repositories.PostRepo
             }
             return listReport;
         }
+        public async Task<List<PostResModel>> GetListStorePostByUserId(Guid userId)
+        {
+            var posts = await _context.TblPostStoreds.Where(x => x.UserId.Equals(userId)).ToListAsync();
+            List<PostResModel> listResPost = new List<PostResModel>();
+            foreach (var p in posts)
+            {
+                var post = await _context.TblPosts.Where(x => x.Id.Equals(p.PostId)).FirstOrDefaultAsync();
+                TblUser user = await _context.TblUsers.Where(x => x.Id.Equals(post.UserId)).FirstOrDefaultAsync();
+                PostAuthorModel author = new()
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    ImageUrl = user.Image
+                };
+                List<PostAttachmentResModel> arrAttachment = await GetPostAttachment(post.Id);
+                var Comment = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.COMMENT) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                var Feeling = await _context.TblPostReactions.Where(x => x.PostId.Equals(post.Id) && x.Type.Equals(ReactionType.FEELING) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
+                bool isFeeling = false;
+                bool isAuthor = false;
+                if (post.UserId.Equals(userId))
+                {
+                    isAuthor = true;
+                }
+                foreach (var feeling in Feeling)
+                {
+                    if (!feeling.UserId.Equals(userId))
+                    {
+                        isFeeling = true; break;
+                    }
+                }
+                listResPost.Add(new PostResModel()
+                {
+                    Id = post.Id,
+                    author = author,
+                    amountComment = Comment.Count,
+                    amountFeeling = Feeling.Count,
+                    content = post.Content,
+                    isFeeling = isFeeling,
+                    attachment = arrAttachment,
+                    createdAt = post.CreateAt,
+                    updatedAt = post.UpdateAt,
+                });
+            }
+            return listResPost; 
+        }
     }
 }
