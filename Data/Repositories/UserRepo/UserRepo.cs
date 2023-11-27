@@ -129,6 +129,14 @@ namespace Data.Repositories.UserRepo
                     CreateAt = user.CreateAt,
                 });
             }
+            foreach (var user in listUser)
+            {
+                if (user.RoleName.Equals(Commons.STAFF))
+                {
+                    listUser.Remove(user);
+                    listUser.Insert(0, user);
+                }
+            }
             return listUser;
         }
     }

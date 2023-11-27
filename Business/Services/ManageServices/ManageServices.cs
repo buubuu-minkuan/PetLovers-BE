@@ -489,16 +489,9 @@ namespace Business.Services.ManageServices
                     return result;
                 }
                 var getListUser = await _userRepo.GetListUserForAdmin();
-                foreach (var user in getListUser)
-                {
-                    if(user.RoleName.Equals(Commons.STAFF))
-                    {
-                        getListUser.Remove(user);
-                        getListUser.Insert(0, user);
-                    }
-                }
+                var orderedList = getListUser.OrderBy(user => user.RoleName != Commons.STAFF).ToList();
                 result.Code = 200;
-                result.Data = getListUser;
+                result.Data = orderedList;
                 result.IsSuccess = true;
             }
             catch (Exception e)
