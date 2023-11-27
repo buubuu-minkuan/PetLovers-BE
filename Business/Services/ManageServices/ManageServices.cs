@@ -104,7 +104,7 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
-        public async Task<ResultModel> ApprovePosting(PostReqModel post)
+        public async Task<ResultModel> ApprovePosting(PostApproveReqModel post)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;

@@ -12,6 +12,11 @@ namespace Data.Models.PostModel
         public List<Guid> postId { get; set; }
         public string reason { get; set; }
     }
+    public class PostApproveReqModel
+    {
+        public string token { get; set; }
+        public List<Guid> postId { get; set; }
+    }
     public class DeletePostReqModel
     {
         public string token { get; set; }
