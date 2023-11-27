@@ -60,7 +60,7 @@ namespace Business.Services.UserFollowingServices
                     Status = Status.ACTIVE
                 };
                 _ = await _repo.Insert(follow);
-                bool check = await _emailNotification.SendNotification(getuser.Email, "Trang cá nhân của bạn đã có người theo dõi mới, hãy kiểm tra nhé!", "Bạn có một người theo dõi mới trên PetLovers: <B>" + getmod.Name + "</B>");
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Bạn có một người theo dõi mới trên PetLovers: <B>" + getmod.Name + "</B>");
                 if (check)
                 {
                     result.Message = "Send Email Successfully!";

@@ -60,7 +60,7 @@ namespace Business.Ultilities.EmailNotification
                 return false;
             }
         }
-        public async Task<bool> SendNotification(string email, string reason, string content)
+        public async Task<bool> SendNotification(string email, string content)
         {
             try
             {
@@ -78,7 +78,6 @@ namespace Business.Ultilities.EmailNotification
                     "<body>" +
                     "<h1>PetLovers<h1>" +
                     "<h3>" + content + "</p>" +
-                    "<p><b>" + reason + "</b></p>" +
                     "</body>" +
                     "</html>"
                 };

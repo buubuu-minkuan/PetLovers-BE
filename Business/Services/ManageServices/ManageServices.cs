@@ -164,7 +164,7 @@ namespace Business.Services.ManageServices
                     getPost.ModeratorId = userId;
                     getPost.IsProcessed = true;
                     _ = await _postRepo.Update(getPost);
-                    bool check = await _emailNotification.SendNotification(getuser.Email, "Bài viết của bạn đã lên hệ thống PetLovers, hãy kiểm tra nó nhé!", "Bài viết của bạn đã được duyệt bởi: <B>" + getmod.Name + "</B>");
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "Bài viết của bạn đã được duyệt bởi: <B>" + getmod.Name + "</B>");
                     if (check)
                     {
                         result.Message = "Send Email Successfully!";
