@@ -84,7 +84,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("delete-post")]
-        public async Task<IActionResult> DeletePost([FromBody] PostReqModel post)
+        public async Task<IActionResult> DeletePost([FromBody] DeletePostReqModel post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             post.token = token;

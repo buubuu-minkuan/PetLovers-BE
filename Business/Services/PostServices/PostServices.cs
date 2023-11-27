@@ -311,7 +311,7 @@ namespace Business.Services.PostServices
             return result;
         }
 
-        public async Task<ResultModel> DeletePost(PostReqModel postReq)
+        public async Task<ResultModel> DeletePost(DeletePostReqModel postReq)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
