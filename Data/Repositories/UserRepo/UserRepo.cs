@@ -114,7 +114,8 @@ namespace Data.Repositories.UserRepo
         }
         public async Task<List<GetListUserModel>> GetListUserForAdmin()
         {
-            var users = await context.TblUsers.Where(x => !x.Status.Equals(UserStatus.DEACTIVE)).ToListAsync();
+            var adminId = await GetRoleId(Commons.ADMIN);
+            var users = await context.TblUsers.Where(x => !x.Status.Equals(UserStatus.DEACTIVE) && !x.RoleId.Equals(adminId)).ToListAsync();
             List<GetListUserModel> listUser = new();
             foreach (var user in users)
             {
