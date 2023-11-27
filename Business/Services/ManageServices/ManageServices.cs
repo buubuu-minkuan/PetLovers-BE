@@ -62,9 +62,20 @@ namespace Business.Services.ManageServices
                 foreach (var id in userId)
                 {
                     var user = await _userRepo.Get(id);
+                    var getuser = await _userRepo.Get(id);
+                    var getmod = await _userRepo.Get(modId);
                     user.Status = UserStatus.TIMEOUT;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
+                    bool check = await _emailNotification.SendBanPostNotification(getuser.Email, "Bạn đã bị cấm đăng bài bởi: <B>" + getmod.Name + "</B>");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.Code = 200;
                     result.IsSuccess = true;
                 }
