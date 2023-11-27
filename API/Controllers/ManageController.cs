@@ -37,7 +37,7 @@ namespace API.Controllers
         }
 
         [HttpPost("post/approve-post")]
-        public async Task<IActionResult> ApprovePost([FromBody] PostReqModel Post)
+        public async Task<IActionResult> ApprovePost([FromBody] PostApproveReqModel Post)
         {
             string token = Request.Headers["Authorization"].ToString().Split(" ")[1];
             Post.token = token;
