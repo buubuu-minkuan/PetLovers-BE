@@ -695,7 +695,7 @@ namespace Data.Repositories.PostRepo
         }
         public async Task<List<PostResModel>> GetListStorePostByUserId(Guid userId)
         {
-            var posts = await _context.TblPostStoreds.Where(x => x.UserId.Equals(userId)).ToListAsync();
+            var posts = await _context.TblPostStoreds.Where(x => x.UserId.Equals(userId) && x.Status.Equals(Status.ACTIVE)).ToListAsync();
             List<PostResModel> listResPost = new List<PostResModel>();
             foreach (var p in posts)
             {
