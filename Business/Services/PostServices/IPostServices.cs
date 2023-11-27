@@ -18,7 +18,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> CreatePostTrade(PostTradeCreateReqModel newPost);
         public Task<ResultModel> UpdatePostTrade(PostTradeUpdateReqModel postReq);
         public Task<ResultModel> DeletePostTrade(PostDeleteReqModel post);
-        public Task<ResultModel> DeletePost(PostReqModel post);
+        public Task<ResultModel> DeletePost(DeletePostReqModel post);
         public Task<ResultModel> StorePost(Guid postId, string token);
         public Task<ResultModel> RemoveStorePost(Guid postId, string token);
         public Task<ResultModel> RequestTrading(PostTradeRequestReqModel reqRequest, string token);
@@ -30,7 +30,7 @@ namespace Business.Services.PostServices
         public Task<ResultModel> GetUserPendingPost(string token);
         public Task<ResultModel> ReportPost(PostReportModel post, string token);
         public Task<ResultModel> GetAllTradePostsTitle();
-        public Task<ResultModel> GetListPostTradeByUserId(Guid id, string token);//
+        public Task<ResultModel> GetListPostTradeByUserId(Guid id, string token);
         public Task<ResultModel> GetListPostTradeRequested(string token);
         public Task<ResultModel> GetListPostTradeHistory(string token);
         public Task<ResultModel> GetListStoredPost(string token);
