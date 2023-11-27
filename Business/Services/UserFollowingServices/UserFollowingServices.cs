@@ -1,10 +1,12 @@
-﻿using Business.Ultilities.UserAuthentication;
+﻿using Business.Ultilities.EmailNotification;
+using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
 using Data.Models.ResultModel;
 using Data.Models.UserModel;
 using Data.Repositories.UserFollowingRepo;
 using Data.Repositories.UserRepo;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,17 +20,22 @@ namespace Business.Services.UserFollowingServices
         private readonly IUserFollowingRepo _repo;
         private readonly IUserRepo _userRepo;
         private readonly UserAuthentication _userAuthentication;
+        private readonly EmailNotification _emailNotification;
         public UserFollowingServices(IUserFollowingRepo repo, IUserRepo userRepo)
         {
             _userAuthentication = new UserAuthentication();
             _userRepo = userRepo;
             _repo = repo;
+            _emailNotification = new EmailNotification();
         }
         public async Task<ResultModel> FollowUser(UserFollowingModel userFollowing)
         {
             Guid userId = new Guid(_userAuthentication.decodeToken(userFollowing.token, "userid"));
+            Guid modId = new Guid(_userAuthentication.decodeToken(userFollowing.token, "userid"));
             var userFollowed = await _repo.IsFollowing(userId, userFollowing.userId);
             var userFollow = await _userRepo.GetUserById(userFollowing.userId);
+            var getuser = await _userRepo.Get(userFollowing.userId);
+            var getmod = await _userRepo.Get(modId);
             ResultModel result = new();
             try
             {
@@ -53,6 +60,15 @@ namespace Business.Services.UserFollowingServices
                     Status = Status.ACTIVE
                 };
                 _ = await _repo.Insert(follow);
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Bạn có một người theo dõi mới trên PetLovers: <B>" + getmod.Name + "</B>");
+                if (check)
+                {
+                    result.Message = "Send Email Successfully!";
+                }
+                else
+                {
+                    result.Message = "Cann't Send Email!";
+                }
                 result.IsSuccess = true;
                 result.Code = 200;
             }

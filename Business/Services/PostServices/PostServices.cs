@@ -1,4 +1,4 @@
-using Azure.Core;
+﻿using Azure.Core;
 using Business.Ultilities.UserAuthentication;
 using Data.Entities;
 using Data.Enums;
@@ -28,6 +28,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Business.Ultilities.EmailNotification;
 
 namespace Business.Services.PostServices
 {
@@ -44,6 +45,7 @@ namespace Business.Services.PostServices
         private readonly IReportRepo _reportRepo;
         private readonly IHashtagRepo _hashtagRepo;
         private readonly IUserRewardRepo _rewardRepo;
+        private readonly EmailNotification _emailNotification;
 
         public PostServices(IPostRepo postRepo, IPostAttachmentRepo postAttachmentRepo, IPostReactionRepo postReactionRepo, IUserRepo userRepo, IPetPostTradeRepo petPostTradeRepo, IPostStoredRepo postStoredRepo, IReportRepo reportRepo, IPostTradeRequestRepo postTradeRequestRepo, IUserRewardRepo rewardRepo, IHashtagRepo hashtagRepo)
         {
@@ -57,6 +59,7 @@ namespace Business.Services.PostServices
             _postAttachmentRepo = postAttachmentRepo;
             _userRepo = userRepo;
             _userAuthentication = new UserAuthentication();
+            _emailNotification = new EmailNotification();
             _postRepo = postRepo;
         }
 
@@ -937,8 +940,10 @@ namespace Business.Services.PostServices
         {
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(token, "userid"));
+            Guid modId = new Guid(_userAuthentication.decodeToken(token, "userid"));
             ResultModel result = new();
             var user = await _userRepo.Get(userId);
+            var getmod = await _userRepo.Get(modId);
             try
             {
                 if (user.Status.Equals(UserStatus.VERIFYING))
@@ -949,6 +954,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(reqRequest.PostId);
+                var getuser = await _userRepo.Get(post.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1000,6 +1006,15 @@ namespace Business.Services.PostServices
                     tradeRequest.Attachment = reqRequest.Attachments;
                 }
                 _ = await _postTradeRequestRepo.Insert(tradeRequest);
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Bạn có yêu cầu trao đổi mới trên PetLovers: <B>" + getmod.Name + "</B>");
+                if (check)
+                {
+                    result.Message = "Send Email Successfully!";
+                }
+                else
+                {
+                    result.Message = "Cann't Send Email!";
+                }
                 result.IsSuccess = true;
                 result.Code = 200;
             }
@@ -1028,6 +1043,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
+                var getAuthor = await _userRepo.Get(post.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1045,9 +1061,19 @@ namespace Business.Services.PostServices
                 post.Status = TradingStatus.INPROGRESS;
                 _ = await _postRepo.Update(post);
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                var getuser = await _userRepo.Get(getReq.UserId);
                 getReq.Status = TradeRequestStatus.ACCEPT;
                 getReq.UpdateAt = now;
                 _ = await _postTradeRequestRepo.Update(getReq);
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Yêu cầu của bạn đã được chấp thuận bởi: <B>" + getAuthor.Name + "</B>");
+                if (check)
+                {
+                    result.Message = "Send Email Successfully!";
+                }
+                else
+                {
+                    result.Message = "Cann't Send Email!";
+                }
                 result.IsSuccess = true;
                 result.Code = 200;
             }
@@ -1076,6 +1102,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
+                var getAuthor = await _userRepo.Get(post.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1091,9 +1118,19 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                var getuser = await _userRepo.Get(getReq.UserId);
                 getReq.Status = TradeRequestStatus.DENY;
                 getReq.UpdateAt = now;
                 _ = await _postTradeRequestRepo.Update(getReq);
+                bool check = await _emailNotification.SendNotification(getuser.Email, "Yêu cầu của bạn đã đã bị từ chối bởi: <B>" + getAuthor.Name + "</B>");
+                if (check)
+                {
+                    result.Message = "Send Email Successfully!";
+                }
+                else
+                {
+                    result.Message = "Cann't Send Email!";
+                }
                 result.IsSuccess = true;
                 result.Code = 200;
             }
@@ -1121,6 +1158,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
+                var getAuthor = await _userRepo.Get(post.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1135,10 +1173,21 @@ namespace Business.Services.PostServices
                     result.Message = "You do not have permission to do this!";
                     return result;
                 }
+                var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                var getuser = await _userRepo.Get(getReq.UserId);
                 if (post.Status.Equals(TradingStatus.INPROGRESS))
                 {
                     post.Status = TradingStatus.WAITINGDONEBYAUTHOR;
                     _ = await _postRepo.Update(post);
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + " đã xác nhận hoàn tất giao dịch ");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
@@ -1146,10 +1195,19 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.DONE;
                     _ = await _postRepo.Update(post);
-                    var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
                     getReq.Status = TradeRequestStatus.SUCCESS;
                     getReq.UpdateAt = now;
                     _ = await _postTradeRequestRepo.Update(getReq);
+                    bool check1 = await _emailNotification.SendNotification(getuser.Email, "Giao dịch của bạn đã được hoàn tất với: <B>" + getAuthor.Name + "</B>");
+                    bool check2 = await _emailNotification.SendNotification(getAuthor.Email, "Giao dịch của bạn đã được hoàn tất với: <B>" + getuser.Name + "</B>");
+                    if (check1 && check2)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
@@ -1178,7 +1236,9 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
+                var getAuthor = await _userRepo.Get(post.UserId);
                 var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                var getuser = await _userRepo.Get(getReq.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1197,6 +1257,15 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.WAITINGDONEBYUSER;
                     _ = await _postRepo.Update(post);
+                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + " đã xác nhận hoàn tất giao dịch");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.IsSuccess = true;
                     result.Code = 200;
                 }
@@ -1204,7 +1273,16 @@ namespace Business.Services.PostServices
                 {
                     post.Status = TradingStatus.DONE;
                     _ = await _postRepo.Update(post);
-
+                    bool check1 = await _emailNotification.SendNotification(getuser.Email, "Giao dịch của bạn đã được hoàn tất với: <B>" + getAuthor.Name + "</B>");
+                    bool check2 = await _emailNotification.SendNotification(getAuthor.Email, "Giao dịch của bạn đã được hoàn tất với: <B>" + getuser.Name + "</B>");
+                    if (check1 && check2)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     getReq.Status = TradeRequestStatus.SUCCESS;
                     getReq.UpdateAt = now;
                     _ = await _postTradeRequestRepo.Update(getReq);
@@ -1236,6 +1314,7 @@ namespace Business.Services.PostServices
                     return result;
                 }
                 var post = await _postRepo.Get(req.PostId);
+                var getAuthor = await _userRepo.Get(post.UserId);
                 if (post == null)
                 {
                     result.IsSuccess = false;
@@ -1251,7 +1330,17 @@ namespace Business.Services.PostServices
                     _ = await _postRepo.Update(post);
                     var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
                     getReq.Status = TradeRequestStatus.CANCELBYUSER;
+                    var getuser = await _userRepo.Get(getReq.UserId);
                     _ = await _postTradeRequestRepo.Update(getReq);
+                    bool check = await _emailNotification.SendNotification(getAuthor.Email, "<B>" + getuser.Name + "</B>" + " đã hủy giao dịch");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.IsSuccess = true;
                     result.Code = 200;
                 } else
@@ -1274,8 +1363,18 @@ namespace Business.Services.PostServices
                     post.Status = TradingStatus.ACTIVE;
                     _ = await _postRepo.Update(post);
                     var getReq = await _postTradeRequestRepo.Get(req.IdRequest);
+                    var getuser = await _userRepo.Get(getReq.UserId);
                     getReq.Status = TradeRequestStatus.CANCELBYAUTHOR;
                     _ = await _postTradeRequestRepo.Update(getReq);
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "<B>" + getAuthor.Name + "</B>" + " đã hủy giao dịch");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.IsSuccess = true;
                     result.Code = 200;
                 }

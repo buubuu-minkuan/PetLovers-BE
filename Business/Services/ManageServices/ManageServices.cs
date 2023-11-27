@@ -62,9 +62,20 @@ namespace Business.Services.ManageServices
                 foreach (var id in userId)
                 {
                     var user = await _userRepo.Get(id);
+                    var getuser = await _userRepo.Get(id);
+                    var getmod = await _userRepo.Get(modId);
                     user.Status = UserStatus.TIMEOUT;
                     user.UpdateAt = now;
                     _ = await _userRepo.Update(user);
+                    bool check = await _emailNotification.SendRefusePostNotification(getuser.Email, "Lý Do: Vi phạm Cộng Đồng", "Bài viết đang chờ được duyệt của bạn đã bị từ chối bởi: <B>" + getmod.Name + "</B>");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.Code = 200;
                     result.IsSuccess = true;
                 }
@@ -104,12 +115,13 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
-        public async Task<ResultModel> ApprovePosting(PostReqModel post)
+        public async Task<ResultModel> ApprovePosting(PostApproveReqModel post)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
             Guid userId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             Guid roleId = new Guid(_userAuthentication.decodeToken(post.token, ClaimsIdentity.DefaultRoleClaimType));
+            Guid modId = new Guid(_userAuthentication.decodeToken(post.token, "userid"));
             string roleName = await _userRepo.GetRoleName(roleId);
             try
             {
@@ -123,6 +135,8 @@ namespace Business.Services.ManageServices
                 foreach (var pReq in post.postId)
                 {
                     TblPost getPost = await _postRepo.GetTblPostById(pReq);
+                    var getuser = await _userRepo.Get(getPost.UserId);
+                    var getmod = await _userRepo.Get(modId);
                     if (getPost.ModeratorId != null && getPost.IsProcessed)
                     {
                         result.Code = 400;
@@ -150,6 +164,15 @@ namespace Business.Services.ManageServices
                     getPost.ModeratorId = userId;
                     getPost.IsProcessed = true;
                     _ = await _postRepo.Update(getPost);
+                    bool check = await _emailNotification.SendNotification(getuser.Email, "Bài viết của bạn đã được duyệt bởi: <B>" + getmod.Name + "</B>");
+                    if (check)
+                    {
+                        result.Message = "Send Email Successfully!";
+                    }
+                    else
+                    {
+                        result.Message = "Cann't Send Email!";
+                    }
                     result.Code = 200;
                     result.IsSuccess = true;
                 }
