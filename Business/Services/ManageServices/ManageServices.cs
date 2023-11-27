@@ -104,7 +104,7 @@ namespace Business.Services.ManageServices
             }
             return result;
         }
-        public async Task<ResultModel> ApprovePosting(PostReqModel post)
+        public async Task<ResultModel> ApprovePosting(PostApproveReqModel post)
         {
             ResultModel result = new();
             DateTime now = DateTime.Now;
@@ -489,6 +489,14 @@ namespace Business.Services.ManageServices
                     return result;
                 }
                 var getListUser = await _userRepo.GetListUserForAdmin();
+                foreach (var user in getListUser)
+                {
+                    if(user.RoleName.Equals(Commons.STAFF))
+                    {
+                        getListUser.Remove(user);
+                        getListUser.Insert(0, user);
+                    }
+                }
                 result.Code = 200;
                 result.Data = getListUser;
                 result.IsSuccess = true;
